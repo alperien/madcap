@@ -1,0 +1,169 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #E5E5E5; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; color: #000; line-height: 1.4; }
+a { color: #0000FF; text-decoration: none; }
+a:hover { text-decoration: underline; color: #0000FF; }
+a:visited { color: #660099; }
+a.forumlink { font-weight: bold; font-size: 12px; color: #0000CC; }
+a.forumlink:hover { color: #FF6600; }
+a.nav { color: #0000FF; font-size: 11px; }
+a.nav:hover { text-decoration: underline; }
+img { border: 0; }
+
+/* === LAYOUT === */
+#body-container { width: 98%; margin: 0 auto; min-width: 320px; max-width: 1400px; }
+#page-header { margin-bottom: 4px; }
+#main-nav { background: #EFEFEF; border: 1px solid #B0B0B0; padding: 4px 8px; font-size: 11px; }
+#main-nav ul { list-style: none; display: inline; padding: 0; margin: 0; }
+#main-nav li { display: inline; }
+#main-nav li a { color: #0000FF; font-weight: bold; text-decoration: none; }
+#main-nav li a:hover { text-decoration: underline; }
+#main-nav .middot { color: #888; padding: 0 4px; }
+#top-bar { background: #EFEFEF; border: 1px solid #B0B0B0; border-top: none; padding: 3px 8px; font-size: 10px; text-align: right; }
+#top-bar a { color: #0000FF; font-weight: bold; font-size: 10px; }
+#top-bar .middot { color: #888; padding: 0 3px; }
+#page-body { width: 100%; border-collapse: collapse; }
+#page-body td#sidebar { width: 180px; vertical-align: top; padding-right: 4px; }
+#page-body td#main-content { vertical-align: top; }
+
+/* === CATEGORY HEADERS === */
+.catHead { background: linear-gradient(to bottom, #0066CC 0%, #0055AA 100%); color: #FFF; font-weight: bold; font-size: 12px; padding: 4px 8px; cursor: pointer; }
+.catHead a { color: #FFF; text-decoration: none; }
+.catHead a:hover { text-decoration: underline; }
+.catTitle { font-size: 12px; font-weight: bold; }
+.subCatHead { background: linear-gradient(to bottom, #0055AA 0%, #004499 100%); color: #FFF; font-weight: bold; font-size: 11px; padding: 3px 6px; }
+
+/* === TABLE HEADERS === */
+.thHead { background: #0066CC; color: #FFF; font-weight: bold; font-size: 11px; padding: 3px 6px; white-space: nowrap; }
+.thHead a { color: #FFF; text-decoration: none; }
+.thHead a:hover { text-decoration: underline; }
+.thSides { background: #0055AA; color: #FFF; font-weight: bold; font-size: 11px; padding: 3px 6px; }
+.thCornerL { background: #0066CC; width: 10px; }
+.thCornerR { background: #0066CC; width: 10px; }
+
+/* === ROW COLORS === */
+.row1 { background: #E7E7E7; }
+.row2 { background: #F5F5F5; }
+.row3 { background: #D5D5D5; }
+.row4 { background: #CFCFCF; }
+.rowHighlight { background: #DDEEFF; }
+
+/* === FORUM TABLES === */
+table.forumline { border: 1px solid #B0B0B0; border-collapse: collapse; width: 100%; margin-bottom: 4px; }
+table.forumline td, table.forumline th { border: 1px solid #B0B0B0; padding: 2px 6px; }
+table.forumline tr:hover { background: #DDEEFF; }
+
+/* === SIDEBAR === */
+.sidebar-header { background: #D5D5D5; border: 1px solid #B0B0B0; padding: 3px 6px; font-weight: bold; font-size: 11px; color: #000; }
+.sidebar-content { border: 1px solid #B0B0B0; border-top: none; padding: 4px 6px; background: #F5F5F5; margin-bottom: 4px; }
+.sidebar-content ul { list-style: none; margin: 0; padding: 0; }
+.sidebar-content li { padding: 1px 0; font-size: 10px; border-bottom: 1px dotted #CCC; }
+.sidebar-content li:last-child { border-bottom: none; }
+.sidebar-content a { color: #0000FF; font-size: 10px; }
+
+/* === TEXT SIZES === */
+.gen { font-size: 12px; }
+.genmed { font-size: 11px; }
+.gensmall { font-size: 10px; }
+.postbody { font-size: 12px; line-height: 1.5; }
+.postdetails { font-size: 10px; color: #666; }
+
+/* === BREADCRUMB === */
+.breadcrumb { font-size: 11px; padding: 4px 0; color: #666; }
+.breadcrumb a { color: #0000FF; }
+.breadcrumb .middot { color: #888; padding: 0 3px; }
+
+/* === PAGINATION === */
+.pagination { font-size: 10px; padding: 4px 0; }
+.pagination a, .pagination span { padding: 1px 4px; margin: 0 1px; }
+.pagination .current { background: #0066CC; color: #FFF; font-weight: bold; }
+
+/* === FORM ELEMENTS === */
+input, select, textarea { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; }
+input.post { border: 1px solid #B0B0B0; padding: 2px 4px; background: #FFF; }
+input.mainoption { background: #EFEFEF; border: 1px solid #B0B0B0; font-weight: bold; cursor: pointer; padding: 2px 8px; }
+input.liteoption { background: #EFEFEF; border: 1px solid #B0B0B0; padding: 2px 8px; cursor: pointer; }
+
+/* === FILTERS BAR === */
+.filters-bar { background: #EFEFEF; border: 1px solid #B0B0B0; padding: 4px 8px; margin-bottom: 4px; font-size: 10px; }
+.filters-bar label { margin-right: 8px; }
+.filters-bar input, .filters-bar select { font-size: 10px; padding: 1px 3px; border: 1px solid #B0B0B0; }
+
+/* === PLAYER PROFILE === */
+.player-header-table { margin-bottom: 4px; }
+.player-name { font-size: 16px; font-weight: bold; color: #000; }
+.player-meta { color: #666; font-size: 10px; }
+.fictional-badge { background: #CC0000; color: #FFF; padding: 1px 4px; font-size: 9px; font-weight: bold; }
+.chart-box { border: 1px solid #B0B0B0; margin: 4px 0; }
+.chart-box .catHead { font-size: 11px; padding: 3px 6px; }
+.chart-box canvas { display: block; max-height: 180px; }
+
+/* === TIMELINE / LORE === */
+.timeline-post { border: 1px solid #B0B0B0; margin-bottom: 4px; }
+.timeline-post .post-header { background: #D5D5D5; padding: 3px 6px; font-size: 10px; color: #666; border-bottom: 1px solid #B0B0B0; }
+.timeline-post .post-header .event-type { background: #0066CC; color: #FFF; padding: 0 3px; font-size: 9px; margin-right: 4px; }
+.timeline-post .post-header .event-title { font-weight: bold; color: #000; font-size: 11px; }
+.timeline-post .post-body { padding: 6px 8px; font-size: 11px; line-height: 1.5; background: #F5F5F5; }
+
+/* === SCOUTING NOTES === */
+.notes-box { border: 1px solid #B0B0B0; }
+.notes-box .catHead { font-size: 11px; padding: 3px 6px; }
+.notes-box .notes-content { padding: 6px 8px; font-size: 11px; background: #F5F5F5; }
+
+/* === TEAM HEADER === */
+.team-name { font-size: 16px; font-weight: bold; color: #000; }
+.team-record { font-size: 14px; font-weight: bold; color: #006600; }
+
+/* === DRAFT === */
+.draft-year-header { margin: 8px 0 2px; }
+.fic { color: #CC0000; font-weight: bold; }
+
+/* === RESULTS INDICATORS === */
+.result-w { color: #006600; font-weight: bold; }
+.result-l { color: #CC0000; font-weight: bold; }
+.result-scheduled { color: #666; }
+
+/* === FOOTER === */
+#page-footer { margin-top: 8px; }
+#page-footer table { font-size: 10px; color: #666; }
+#page-footer a { color: #0000FF; font-size: 10px; }
+
+/* === MISC === */
+.clearfix::after { content: ""; display: table; clear: both; }
+.tCenter { text-align: center; }
+.tRight { text-align: right; }
+.tLeft { text-align: left; }
+.vMiddle { vertical-align: middle; }
+.w100 { width: 100%; }
+.bold { font-weight: bold; }
+.color-admin { color: #CC0000; }
+.color-mod { color: #006600; }
+.mrg-4 { margin-right: 4px; }
+.mrg-8 { margin-right: 8px; }
+.pad-2 { padding: 2px; }
+.pad-4 { padding: 4px; }
+.nowrap { white-space: nowrap; }
+.sep { color: #888; padding: 0 3px; }
+.subforum-link { font-size: 10px; }
+.subforum-link::before { content: "\00BB "; color: #888; }
+
+/* === RESPONSIVE DESIGN (#49, #50) === */
+@media screen and (max-width: 768px) {
+    #body-container { width: 100%; min-width: auto; }
+    #page-body { display: block; }
+    #page-body tr { display: block; }
+    #page-body td#sidebar { display: block; width: 100%; padding-right: 0; }
+    #page-body td#main-content { display: block; width: 100%; }
+    table.forumline { overflow-x: auto; display: block; }
+    .filters-bar { display: flex; flex-wrap: wrap; gap: 4px; }
+    .filters-bar label { margin-right: 0; }
+    #main-nav ul { display: flex; flex-wrap: wrap; }
+    .player-name { font-size: 14px; }
+    .player-meta { font-size: 9px; }
+}
+
+@media screen and (max-width: 480px) {
+    body { font-size: 10px; }
+    #top-bar { text-align: left; }
+    .catHead { font-size: 11px; }
+    .thHead { font-size: 10px; }
+}

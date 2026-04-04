@@ -1,0 +1,169 @@
+{
+  "teams": [
+    {
+      "id": "nba_cha",
+      "name": "Charlotte Hornets",
+      "abbreviation": "CHA",
+      "league": "NBA",
+      "conference": "Eastern",
+      "division": "Southeast",
+      "city": "Charlotte",
+      "state": "NC",
+      "arena": "Spectrum Center",
+      "founded": 1988,
+      "colors": ["#1D1160", "#00788C"],
+      "current_season": {
+        "year": "2024-25",
+        "wins": 42,
+        "losses": 40,
+        "win_pct": 0.512,
+        "conference_rank": 7,
+        "division_rank": 3
+      },
+      "roster": ["player_001", "player_003"],
+      "depth_chart": {
+        "PG": ["player_001"],
+        "SG": [],
+        "SF": ["player_003"],
+        "PF": [],
+        "C": []
+      },
+      "staff": {
+        "head_coach": "Steve Clifford",
+        "gm": "Mitch Kupchak"
+      }
+    },
+    {
+      "id": "nba_bos",
+      "name": "Boston Celtics",
+      "abbreviation": "BOS",
+      "league": "NBA",
+      "conference": "Eastern",
+      "division": "Atlantic",
+      "city": "Boston",
+      "state": "MA",
+      "arena": "TD Garden",
+      "founded": 1946,
+      "colors": ["#007A33", "#BA9653"],
+      "current_season": {
+        "year": "2024-25",
+        "wins": 58,
+        "losses": 24,
+        "win_pct": 0.707,
+        "conference_rank": 1,
+        "division_rank": 1
+      },
+      "roster": [],
+      "depth_chart": {
+        "PG": [],
+        "SG": [],
+        "SF": [],
+        "PF": [],
+        "C": []
+      },
+      "staff": {
+        "head_coach": "Joe Mazzulla",
+        "gm": "Brad Stevens"
+      }
+    },
+    {
+      "id": "nba_lal",
+      "name": "Los Angeles Lakers",
+      "abbreviation": "LAL",
+      "league": "NBA",
+      "conference": "Western",
+      "division": "Pacific",
+      "city": "Los Angeles",
+      "state": "CA",
+      "arena": "Crypto.com Arena",
+      "founded": 1947,
+      "colors": ["#552583", "#FDB927"],
+      "current_season": {
+        "year": "2024-25",
+        "wins": 48,
+        "losses": 34,
+        "win_pct": 0.585,
+        "conference_rank": 4,
+        "division_rank": 2
+      },
+      "roster": ["player_002"],
+      "depth_chart": {
+        "PG": [],
+        "SG": [],
+        "SF": [],
+        "PF": [],
+        "C": ["player_002"]
+      },
+      "staff": {
+        "head_coach": "JJ Redick",
+        "gm": "Rob Pelinka"
+      }
+    },
+    {
+      "id": "nba_okc",
+      "name": "Oklahoma City Thunder",
+      "abbreviation": "OKC",
+      "league": "NBA",
+      "conference": "Western",
+      "division": "Northwest",
+      "city": "Oklahoma City",
+      "state": "OK",
+      "arena": "Paycom Center",
+      "founded": 1967,
+      "colors": ["#007AC1", "#EF6100"],
+      "current_season": {
+        "year": "2024-25",
+        "wins": 62,
+        "losses": 20,
+        "win_pct": 0.756,
+        "conference_rank": 1,
+        "division_rank": 1
+      },
+      "roster": [],
+      "depth_chart": {
+        "PG": [],
+        "SG": [],
+        "SF": [],
+        "PF": [],
+        "C": []
+      },
+      "staff": {
+        "head_coach": "Mark Daigneault",
+        "gm": "Sam Presti"
+      }
+    },
+    {
+      "id": "nba_min",
+      "name": "Minnesota Timberwolves",
+      "abbreviation": "MIN",
+      "league": "NBA",
+      "conference": "Western",
+      "division": "Northwest",
+      "city": "Minneapolis",
+      "state": "MN",
+      "arena": "Target Center",
+      "founded": 1989,
+      "colors": ["#0C2340", "#236192"],
+      "current_season": {
+        "year": "2024-25",
+        "wins": 52,
+        "losses": 30,
+        "win_pct": 0.634,
+        "conference_rank": 3,
+        "division_rank": 2
+      },
+      "roster": [],
+      "depth_chart": {
+        "PG": [],
+        "SG": [],
+        "SF": [],
+        "PF": [],
+        "C": []
+      },
+      "staff": {
+        "head_coach": "Chris Finch",
+        "gm": "Tim Connelly"
+      }
+    }
+  ]
+}

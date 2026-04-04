@@ -1,0 +1,76 @@
+{
+  "leagues": [
+    {
+      "id": "nba",
+      "name": "National Basketball Association",
+      "abbreviation": "NBA",
+      "level": "pro",
+      "country": "USA",
+      "current_season": "2024-25",
+      "teams": ["nba_cha", "nba_bos", "nba_lal", "nba_okc", "nba_min"],
+      "standings": {
+        "2024-25": {
+          "Eastern": [
+            {"team_id": "nba_bos", "wins": 58, "losses": 24, "win_pct": 0.707, "conf_rank": 1, "div_rank": 1},
+            {"team_id": "nba_cha", "wins": 42, "losses": 40, "win_pct": 0.512, "conf_rank": 7, "div_rank": 3}
+          ],
+          "Western": [
+            {"team_id": "nba_okc", "wins": 62, "losses": 20, "win_pct": 0.756, "conf_rank": 1, "div_rank": 1},
+            {"team_id": "nba_min", "wins": 52, "losses": 30, "win_pct": 0.634, "conf_rank": 3, "div_rank": 2},
+            {"team_id": "nba_lal", "wins": 48, "losses": 34, "win_pct": 0.585, "conf_rank": 4, "div_rank": 2}
+          ]
+        }
+      }
+    },
+    {
+      "id": "gleague",
+      "name": "NBA G League",
+      "abbreviation": "GLEAGUE",
+      "level": "pro",
+      "country": "USA",
+      "current_season": "2024-25",
+      "teams": [],
+      "standings": {}
+    },
+    {
+      "id": "ncaa_d1",
+      "name": "NCAA Division I",
+      "abbreviation": "NCAA D1",
+      "level": "college",
+      "country": "USA",
+      "current_season": "2024-25",
+      "teams": [],
+      "standings": {}
+    },
+    {
+      "id": "juco",
+      "name": "Junior College",
+      "abbreviation": "JUCO",
+      "level": "college",
+      "country": "USA",
+      "current_season": "2024-25",
+      "teams": [],
+      "standings": {}
+    },
+    {
+      "id": "naia",
+      "name": "National Association of Intercollegiate Athletics",
+      "abbreviation": "NAIA",
+      "level": "college",
+      "country": "USA",
+      "current_season": "2024-25",
+      "teams": [],
+      "standings": {}
+    },
+    {
+      "id": "fiba",
+      "name": "FIBA International",
+      "abbreviation": "FIBA",
+      "level": "pro",
+      "country": "International",
+      "current_season": "2024-25",
+      "teams": [],
+      "standings": {}
+    }
+  ]
+}

@@ -1,0 +1,549 @@
+{
+  "players": [
+    {
+      "id": "player_001",
+      "name": "Updated Name",
+      "position": "PG",
+      "height": "6'2\"",
+      "weight": 190,
+      "birthdate": "2000-03-15",
+      "nationality": "USA",
+      "overall": 82,
+      "archetype": "Playmaking Shooter",
+      "status": "active",
+      "career": {
+        "highschool": {
+          "school": "Duke Prep Academy",
+          "state": "NC",
+          "class": "2018",
+          "seasons": [
+            {
+              "year": "2017-18",
+              "ppg": 22.4,
+              "apg": 7.8,
+              "rpg": 4.2,
+              "spg": 2.1,
+              "bpg": 0.3,
+              "fg_pct": 0.478,
+              "fg3_pct": 0.398,
+              "ft_pct": 0.842
+            }
+          ]
+        },
+        "college": {
+          "school": "Duke",
+          "conference": "ACC",
+          "division": "NCAA D1",
+          "seasons": [
+            {
+              "year": "2018-19",
+              "ppg": 14.2,
+              "apg": 6.8,
+              "rpg": 3.4,
+              "spg": 1.6,
+              "bpg": 0.2,
+              "fg_pct": 0.452,
+              "fg3_pct": 0.372,
+              "ft_pct": 0.818,
+              "gp": 34,
+              "gs": 28,
+              "mpg": 30.2
+            },
+            {
+              "year": "2019-20",
+              "ppg": 18.6,
+              "apg": 8.2,
+              "rpg": 4.1,
+              "spg": 1.9,
+              "bpg": 0.3,
+              "fg_pct": 0.468,
+              "fg3_pct": 0.388,
+              "ft_pct": 0.835,
+              "gp": 32,
+              "gs": 32,
+              "mpg": 34.6
+            }
+          ]
+        },
+        "pro": [
+          {
+            "league": "NBA",
+            "team_id": "nba_cha",
+            "seasons": [
+              {
+                "year": "2020-21",
+                "ppg": 12.4,
+                "apg": 5.8,
+                "rpg": 3.2,
+                "spg": 1.2,
+                "bpg": 0.2,
+                "fg_pct": 0.442,
+                "fg3_pct": 0.358,
+                "ft_pct": 0.802,
+                "gp": 58,
+                "gs": 22,
+                "mpg": 24.6
+              },
+              {
+                "year": "2021-22",
+                "ppg": 15.8,
+                "apg": 7.2,
+                "rpg": 3.8,
+                "spg": 1.5,
+                "bpg": 0.3,
+                "fg_pct": 0.458,
+                "fg3_pct": 0.372,
+                "ft_pct": 0.818,
+                "gp": 72,
+                "gs": 48,
+                "mpg": 30.4
+              },
+              {
+                "year": "2022-23",
+                "ppg": 18.2,
+                "apg": 8.1,
+                "rpg": 4.2,
+                "spg": 1.7,
+                "bpg": 0.3,
+                "fg_pct": 0.468,
+                "fg3_pct": 0.382,
+                "ft_pct": 0.828,
+                "gp": 76,
+                "gs": 68,
+                "mpg": 33.8
+              },
+              {
+                "year": "2023-24",
+                "ppg": 19.4,
+                "apg": 8.6,
+                "rpg": 4.5,
+                "spg": 1.8,
+                "bpg": 0.4,
+                "fg_pct": 0.472,
+                "fg3_pct": 0.388,
+                "ft_pct": 0.838,
+                "gp": 74,
+                "gs": 74,
+                "mpg": 35.2
+              },
+              {
+                "year": "2024-25",
+                "ppg": 18.8,
+                "apg": 8.2,
+                "rpg": 4.3,
+                "spg": 1.6,
+                "bpg": 0.3,
+                "fg_pct": 0.465,
+                "fg3_pct": 0.378,
+                "ft_pct": 0.825,
+                "gp": 62,
+                "gs": 62,
+                "mpg": 34.1
+              }
+            ]
+          }
+        ]
+      },
+      "draft": {
+        "year": 2020,
+        "league": "NBA",
+        "round": 1,
+        "pick": 12,
+        "team_id": "nba_cha"
+      },
+      "lore_events": [
+        "event_001",
+        "event_002",
+        "event_003"
+      ],
+      "is_fictional": true,
+      "notes": "Fictional draft pick. Elite court vision and clutch shooting ability. Youngest player in Hornets franchise history to record a triple-double."
+    },
+    {
+      "id": "player_002",
+      "name": "DeAndre Jordan",
+      "position": "C",
+      "height": "6'11\"",
+      "weight": 265,
+      "birthdate": "1988-07-21",
+      "nationality": "USA",
+      "overall": 78,
+      "archetype": "Rim Runner",
+      "status": "active",
+      "career": {
+        "highschool": {
+          "school": "South Kent School",
+          "state": "CT",
+          "class": "2006",
+          "seasons": [
+            {
+              "year": "2005-06",
+              "ppg": 14.5,
+              "apg": 1.2,
+              "rpg": 11.3,
+              "spg": 0.6,
+              "bpg": 3.8,
+              "fg_pct": 0.612,
+              "fg3_pct": 0.0,
+              "ft_pct": 0.521
+            }
+          ]
+        },
+        "college": {
+          "school": "Texas A&M",
+          "conference": "Big 12",
+          "division": "NCAA D1",
+          "seasons": [
+            {
+              "year": "2007-08",
+              "ppg": 10.2,
+              "apg": 0.8,
+              "rpg": 8.4,
+              "spg": 0.5,
+              "bpg": 2.9,
+              "fg_pct": 0.598,
+              "fg3_pct": 0.0,
+              "ft_pct": 0.498,
+              "gp": 36,
+              "gs": 22,
+              "mpg": 22.4
+            }
+          ]
+        },
+        "pro": [
+          {
+            "league": "NBA",
+            "team_id": "nba_lal",
+            "seasons": [
+              {
+                "year": "2018-19",
+                "ppg": 8.2,
+                "apg": 0.6,
+                "rpg": 7.1,
+                "spg": 0.4,
+                "bpg": 2.1,
+                "fg_pct": 0.582,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.485,
+                "gp": 58,
+                "gs": 12,
+                "mpg": 18.4
+              },
+              {
+                "year": "2019-20",
+                "ppg": 9.8,
+                "apg": 0.8,
+                "rpg": 8.4,
+                "spg": 0.5,
+                "bpg": 2.4,
+                "fg_pct": 0.598,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.512,
+                "gp": 64,
+                "gs": 28,
+                "mpg": 22.1
+              },
+              {
+                "year": "2020-21",
+                "ppg": 11.2,
+                "apg": 1.0,
+                "rpg": 9.1,
+                "spg": 0.6,
+                "bpg": 2.6,
+                "fg_pct": 0.608,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.538,
+                "gp": 70,
+                "gs": 48,
+                "mpg": 25.8
+              },
+              {
+                "year": "2021-22",
+                "ppg": 10.4,
+                "apg": 0.9,
+                "rpg": 8.8,
+                "spg": 0.5,
+                "bpg": 2.3,
+                "fg_pct": 0.595,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.521,
+                "gp": 66,
+                "gs": 42,
+                "mpg": 24.2
+              },
+              {
+                "year": "2022-23",
+                "ppg": 12.1,
+                "apg": 1.1,
+                "rpg": 9.6,
+                "spg": 0.6,
+                "bpg": 2.5,
+                "fg_pct": 0.612,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.548,
+                "gp": 72,
+                "gs": 58,
+                "mpg": 27.4
+              },
+              {
+                "year": "2023-24",
+                "ppg": 11.8,
+                "apg": 1.0,
+                "rpg": 9.2,
+                "spg": 0.5,
+                "bpg": 2.4,
+                "fg_pct": 0.605,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.535,
+                "gp": 68,
+                "gs": 52,
+                "mpg": 26.1
+              },
+              {
+                "year": "2024-25",
+                "ppg": 10.6,
+                "apg": 0.9,
+                "rpg": 8.4,
+                "spg": 0.5,
+                "bpg": 2.2,
+                "fg_pct": 0.592,
+                "fg3_pct": 0.0,
+                "ft_pct": 0.528,
+                "gp": 58,
+                "gs": 38,
+                "mpg": 23.8
+              }
+            ]
+          }
+        ]
+      },
+      "draft": {
+        "year": 2008,
+        "league": "NBA",
+        "round": 2,
+        "pick": 35,
+        "team_id": "nba_lal"
+      },
+      "lore_events": [
+        "event_004"
+      ],
+      "is_fictional": false,
+      "notes": "Real player - career stats simulated for this universe."
+    },
+    {
+      "id": "player_003",
+      "name": "Jamal Reeves",
+      "position": "SF",
+      "height": "6'7\"",
+      "weight": 215,
+      "birthdate": "2001-11-08",
+      "nationality": "USA",
+      "overall": 75,
+      "archetype": "Two-Way Slasher",
+      "status": "active",
+      "career": {
+        "highschool": {
+          "school": "Montverde Academy",
+          "state": "FL",
+          "class": "2019",
+          "seasons": [
+            {
+              "year": "2018-19",
+              "ppg": 16.8,
+              "apg": 3.2,
+              "rpg": 6.4,
+              "spg": 1.8,
+              "bpg": 1.1,
+              "fg_pct": 0.512,
+              "fg3_pct": 0.328,
+              "ft_pct": 0.712
+            }
+          ]
+        },
+        "college": {
+          "school": "Gonzaga",
+          "conference": "WCC",
+          "division": "NCAA D1",
+          "seasons": [
+            {
+              "year": "2019-20",
+              "ppg": 11.4,
+              "apg": 2.1,
+              "rpg": 5.2,
+              "spg": 1.2,
+              "bpg": 0.8,
+              "fg_pct": 0.498,
+              "fg3_pct": 0.342,
+              "ft_pct": 0.728,
+              "gp": 30,
+              "gs": 18,
+              "mpg": 24.6
+            },
+            {
+              "year": "2020-21",
+              "ppg": 15.2,
+              "apg": 2.8,
+              "rpg": 6.1,
+              "spg": 1.5,
+              "bpg": 1.0,
+              "fg_pct": 0.512,
+              "fg3_pct": 0.358,
+              "ft_pct": 0.745,
+              "gp": 32,
+              "gs": 32,
+              "mpg": 30.2
+            }
+          ]
+        },
+        "pro": [
+          {
+            "league": "NBA",
+            "team_id": "nba_cha",
+            "seasons": [
+              {
+                "year": "2021-22",
+                "ppg": 8.4,
+                "apg": 1.8,
+                "rpg": 4.2,
+                "spg": 1.0,
+                "bpg": 0.6,
+                "fg_pct": 0.468,
+                "fg3_pct": 0.312,
+                "ft_pct": 0.698,
+                "gp": 54,
+                "gs": 8,
+                "mpg": 18.2
+              },
+              {
+                "year": "2022-23",
+                "ppg": 11.6,
+                "apg": 2.2,
+                "rpg": 5.1,
+                "spg": 1.2,
+                "bpg": 0.7,
+                "fg_pct": 0.482,
+                "fg3_pct": 0.335,
+                "ft_pct": 0.718,
+                "gp": 68,
+                "gs": 24,
+                "mpg": 22.4
+              },
+              {
+                "year": "2023-24",
+                "ppg": 14.2,
+                "apg": 2.6,
+                "rpg": 5.8,
+                "spg": 1.4,
+                "bpg": 0.8,
+                "fg_pct": 0.495,
+                "fg3_pct": 0.348,
+                "ft_pct": 0.732,
+                "gp": 74,
+                "gs": 48,
+                "mpg": 26.8
+              },
+              {
+                "year": "2024-25",
+                "ppg": 15.8,
+                "apg": 2.8,
+                "rpg": 6.2,
+                "spg": 1.5,
+                "bpg": 0.9,
+                "fg_pct": 0.502,
+                "fg3_pct": 0.356,
+                "ft_pct": 0.745,
+                "gp": 70,
+                "gs": 62,
+                "mpg": 29.4
+              }
+            ]
+          }
+        ]
+      },
+      "draft": {
+        "year": 2021,
+        "league": "NBA",
+        "round": 2,
+        "pick": 38,
+        "team_id": "nba_cha"
+      },
+      "lore_events": [],
+      "is_fictional": true,
+      "notes": "Fictional draft pick. Underrated two-way wing with steady development curve."
+    },
+    {
+      "id": "player_004",
+      "name": "Test Player",
+      "position": "PG",
+      "height": "6'0\"",
+      "weight": 180,
+      "birthdate": "2000-01-01",
+      "nationality": "USA",
+      "overall": 70,
+      "archetype": "All-Around",
+      "status": "active",
+      "career": {
+        "highschool": {
+          "school": "",
+          "state": "",
+          "class": "",
+          "seasons": []
+        },
+        "college": {
+          "school": "",
+          "conference": "",
+          "division": "",
+          "seasons": []
+        },
+        "pro": []
+      },
+      "draft": {
+        "year": 2024,
+        "league": "NBA",
+        "round": 2,
+        "pick": 30,
+        "team_id": ""
+      },
+      "lore_events": [],
+      "is_fictional": false,
+      "notes": ""
+    },
+    {
+      "id": "player_005",
+      "name": "Test Player",
+      "position": "PG",
+      "height": "6'0\"",
+      "weight": 180,
+      "birthdate": "2000-01-01",
+      "nationality": "USA",
+      "overall": 70,
+      "archetype": "All-Around",
+      "status": "active",
+      "career": {
+        "highschool": {
+          "school": "",
+          "state": "",
+          "class": "",
+          "seasons": []
+        },
+        "college": {
+          "school": "",
+          "conference": "",
+          "division": "",
+          "seasons": []
+        },
+        "pro": []
+      },
+      "draft": {
+        "year": 2024,
+        "league": "NBA",
+        "round": 2,
+        "pick": 30,
+        "team_id": ""
+      },
+      "lore_events": [],
+      "is_fictional": false,
+      "notes": ""
+    }
+  ]
+}

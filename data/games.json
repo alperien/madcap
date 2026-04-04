@@ -1,0 +1,87 @@
+{
+  "games": [
+    {
+      "id": "game_001",
+      "date": "2024-10-22",
+      "time": "19:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_cha",
+      "away_team_id": "nba_bos",
+      "home_score": 108,
+      "away_score": 112,
+      "status": "final",
+      "venue": "Spectrum Center",
+      "attendance": 19077,
+      "box_score": [
+        {
+          "player_id": "player_001",
+          "team": "home",
+          "starter": true,
+          "min": 36,
+          "fgm": 9, "fga": 18, "fg3m": 3, "fg3a": 8, "ftm": 3, "fta": 4,
+          "oreb": 1, "dreb": 3, "reb": 4, "ast": 8, "stl": 2, "blk": 0,
+          "tov": 3, "pf": 2, "pts": 24, "plus_minus": -4
+        },
+        {
+          "player_id": "player_003",
+          "team": "home",
+          "starter": true,
+          "min": 32,
+          "fgm": 6, "fga": 14, "fg3m": 1, "fg3a": 4, "ftm": 3, "fta": 5,
+          "oreb": 2, "dreb": 4, "reb": 6, "ast": 2, "stl": 1, "blk": 1,
+          "tov": 2, "pf": 3, "pts": 16, "plus_minus": -2
+        }
+      ]
+    },
+    {
+      "id": "game_002",
+      "date": "2024-10-25",
+      "time": "20:30",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_lal",
+      "away_team_id": "nba_cha",
+      "home_score": 118,
+      "away_score": 124,
+      "status": "final",
+      "venue": "Crypto.com Arena",
+      "attendance": 18997,
+      "box_score": [
+        {
+          "player_id": "player_001",
+          "team": "away",
+          "starter": true,
+          "min": 38,
+          "fgm": 11, "fga": 20, "fg3m": 4, "fg3a": 9, "ftm": 6, "fta": 7,
+          "oreb": 0, "dreb": 4, "reb": 4, "ast": 12, "stl": 3, "blk": 0,
+          "tov": 2, "pf": 1, "pts": 32, "plus_minus": 8
+        },
+        {
+          "player_id": "player_002",
+          "team": "home",
+          "starter": true,
+          "min": 28,
+          "fgm": 5, "fga": 8, "fg3m": 0, "fg3a": 0, "ftm": 2, "fta": 6,
+          "oreb": 4, "dreb": 6, "reb": 10, "ast": 1, "stl": 0, "blk": 3,
+          "tov": 1, "pf": 4, "pts": 12, "plus_minus": -8
+        }
+      ]
+    },
+    {
+      "id": "game_003",
+      "date": "2024-11-02",
+      "time": "19:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_cha",
+      "away_team_id": "nba_okc",
+      "home_score": 0,
+      "away_score": 0,
+      "status": "scheduled",
+      "venue": "Spectrum Center",
+      "attendance": null,
+      "box_score": []
+    }
+  ]
+}

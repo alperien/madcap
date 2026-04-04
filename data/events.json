@@ -1,0 +1,44 @@
+{
+  "events": [
+    {
+      "id": "event_001",
+      "date": "2020-11-18",
+      "player_id": "player_001",
+      "type": "draft",
+      "title": "Drafted 12th Overall by Charlotte Hornets",
+      "description": "In a surprising move, the Charlotte Hornets selected Marcus Thompson with the 12th overall pick in the 2020 NBA Draft. Thompson, a two-year standout at Duke, was praised for his elite court vision and clutch shooting ability. The pick was considered a reach by most analysts, but Hornets GM Mitch Kupchak cited Thompson's 'intangibles and basketball IQ' as the deciding factors.",
+      "tags": ["draft", "milestone", "nba"],
+      "media": null
+    },
+    {
+      "id": "event_002",
+      "date": "2021-03-15",
+      "player_id": "player_001",
+      "type": "milestone",
+      "title": "First Career Triple-Double",
+      "description": "Marcus Thompson recorded his first NBA triple-double with 18 points, 12 assists, and 10 rebounds in a win over the Detroit Pistons. At 20 years and 365 days old, he became the youngest player in Hornets franchise history to record a triple-double.",
+      "tags": ["milestone", "triple-double"],
+      "media": null
+    },
+    {
+      "id": "event_003",
+      "date": "2024-04-12",
+      "player_id": "player_001",
+      "type": "milestone",
+      "title": "All-Star Selection",
+      "description": "Marcus Thompson was selected as an Eastern Conference reserve for the 2024 NBA All-Star Game, averaging 19.4 PPG and 8.6 APG at the time of selection. The announcement was met with widespread approval from fans and analysts alike.",
+      "tags": ["milestone", "all-star"],
+      "media": null
+    },
+    {
+      "id": "event_004",
+      "date": "2020-10-11",
+      "player_id": "player_002",
+      "type": "milestone",
+      "title": "NBA Championship with Lakers",
+      "description": "DeAndre Jordan won his first NBA Championship with the Los Angeles Lakers, providing crucial rim protection and rebounding off the bench during the playoff run. Jordan averaged 9.8 PPG and 8.4 RPG during the regular season.",
+      "tags": ["milestone", "championship"],
+      "media": null
+    }
+  ]
+}
