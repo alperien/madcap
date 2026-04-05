@@ -373,8 +373,10 @@
             }
         }
 
-        if (allSeasons.length === 0) return;
-        if (typeof Chart === 'undefined') return;
+        var chartsSection = document.getElementById('charts-section');
+        if (allSeasons.length === 0) { if (chartsSection) chartsSection.style.display = 'none'; return; }
+        if (typeof Chart === 'undefined') { if (chartsSection) chartsSection.style.display = 'none'; return; }
+        if (chartsSection) chartsSection.style.display = '';
 
         var chartDefaults = getChartDefaults();
 
