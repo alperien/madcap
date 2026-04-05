@@ -539,12 +539,13 @@
     function getChartDefaults() {
         var light = isLightMode();
         return {
-            responsive: false,
+            responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 0 },
             plugins: { legend: { display: false } },
             scales: {
-                x: { ticks: { color: light ? '#666' : '#808080', font: { family: '"Lucida Console", monospace', size: 7 } }, grid: { color: light ? '#CCC' : '#2A2A2A' } },
-                y: { ticks: { color: light ? '#666' : '#808080', font: { family: '"Lucida Console", monospace', size: 7 } }, grid: { color: light ? '#CCC' : '#2A2A2A' } }
+                x: { ticks: { color: light ? '#666' : '#808080', font: { family: '"Lucida Console", monospace', size: 7 } }, grid: { color: light ? '#DDD' : '#222233' } },
+                y: { beginAtZero: true, ticks: { color: light ? '#666' : '#808080', font: { family: '"Lucida Console", monospace', size: 7 } }, grid: { color: light ? '#DDD' : '#222233' } }
             }
         };
     }

@@ -343,6 +343,12 @@
     }
 
     function renderPlayerCharts(player) {
+        var chartsSection = document.getElementById('charts-section');
+
+        // Clean up any previous chart instances
+        if (typeof destroyAllCharts === 'function') destroyAllCharts();
+
+        // Collect all season data across career levels (pro > college > highschool)
         var allSeasons = [];
         var seasonLabels = [];
 
@@ -373,59 +379,49 @@
             }
         }
 
-        var chartsSection = document.getElementById('charts-section');
-        if (allSeasons.length === 0) { if (chartsSection) chartsSection.style.display = 'none'; return; }
-        if (typeof Chart === 'undefined') { if (chartsSection) chartsSection.style.display = 'none'; return; }
+        // Hide section if no data or Chart.js not loaded
+        if (allSeasons.length === 0 || typeof Chart === 'undefined' || typeof createChart !== 'function') {
+            if (chartsSection) chartsSection.style.display = 'none';
+            return;
+        }
         if (chartsSection) chartsSection.style.display = '';
 
-        var chartDefaults = getChartDefaults();
+        // PPG line chart
+        createChart('ppg-chart', buildLineChartConfig(
+            'PPG',
+            allSeasons.map(function(s) { return s.ppg || 0; }),
+            seasonLabels,
+            '#6688AA',
+            'rgba(102,136,170,0.15)'
+        ));
 
-        // Retro chart config: angular lines, larger points, ESPN colors
-        var ppgCanvas = document.getElementById('ppg-chart');
-        if (ppgCanvas) {
-            new Chart(ppgCanvas, {
-                type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#6688AA', backgroundColor: 'rgba(102,136,170,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
-                options: chartDefaults
-            });
-        }
+        // APG line chart
+        createChart('apg-chart', buildLineChartConfig(
+            'APG',
+            allSeasons.map(function(s) { return s.apg || 0; }),
+            seasonLabels,
+            '#5A8A5A',
+            'rgba(90,138,90,0.15)'
+        ));
 
-        var apgCanvas = document.getElementById('apg-chart');
-        if (apgCanvas) {
-            new Chart(apgCanvas, {
-                type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#5A8A5A', backgroundColor: 'rgba(90,138,90,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
-                options: chartDefaults
-            });
-        }
+        // RPG line chart
+        createChart('rpg-chart', buildLineChartConfig(
+            'RPG',
+            allSeasons.map(function(s) { return s.rpg || 0; }),
+            seasonLabels,
+            '#8A8A5A',
+            'rgba(138,138,90,0.15)'
+        ));
 
-        var rpgCanvas = document.getElementById('rpg-chart');
-        if (rpgCanvas) {
-            new Chart(rpgCanvas, {
-                type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#8A8A5A', backgroundColor: 'rgba(138,138,90,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
-                options: chartDefaults
-            });
-        }
-
-        var shootingCanvas = document.getElementById('shooting-chart');
-        if (shootingCanvas) {
-            var light = typeof isLightMode === 'function' && isLightMode();
-            var legendDefaults = Object.assign({}, chartDefaults);
-            legendDefaults.plugins = { legend: { display: true, labels: { color: light ? '#000' : '#C0C0C0', font: { family: '"Lucida Console", monospace', size: 8 } } } };
-            new Chart(shootingCanvas, {
-                type: 'bar',
-                data: {
-                    labels: seasonLabels,
-                    datasets: [
-                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#6688AA', borderWidth: 0, borderRadius: 0 },
-                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#5A8A5A', borderWidth: 0, borderRadius: 0 },
-                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#8A8A5A', borderWidth: 0, borderRadius: 0 }
-                    ]
-                },
-                options: legendDefaults
-            });
-        }
+        // Shooting splits bar chart
+        createChart('shooting-chart', buildShootingChartConfig(
+            {
+                fg: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }),
+                fg3: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }),
+                ft: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; })
+            },
+            seasonLabels
+        ));
     }
 
     function renderDraftInfo(player) {
