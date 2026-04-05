@@ -35,18 +35,24 @@ ADMIN_PASS = os.environ.get('ADMIN_PASS', 'madcap')
 file_lock = threading.Lock()
 
 # --- CSRF ---
-csrf_tokens = set()
+MAX_CSRF_TOKENS = 100
+csrf_tokens = {}
 
 
 def generate_csrf_token():
     token = secrets.token_hex(32)
-    csrf_tokens.add(token)
+    csrf_tokens[token] = datetime.now()
+    # Prune old tokens to prevent memory leak
+    if len(csrf_tokens) > MAX_CSRF_TOKENS:
+        sorted_tokens = sorted(csrf_tokens.items(), key=lambda x: x[1])
+        for old_token, _ in sorted_tokens[:len(csrf_tokens) - MAX_CSRF_TOKENS]:
+            csrf_tokens.pop(old_token, None)
     return token
 
 
 def validate_csrf_token(token):
     if token in csrf_tokens:
-        csrf_tokens.discard(token)
+        del csrf_tokens[token]
         return True
     return False
 
@@ -81,8 +87,9 @@ def load_yaml(filepath):
 
 
 def save_yaml(filepath, data):
-    with open(filepath, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    with file_lock:
+        with open(filepath, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
     logger.info(f"Saved {filepath}")
 
 
@@ -98,8 +105,9 @@ def load_json_file(filepath):
 
 
 def save_json_file(filepath, data):
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
+    with file_lock:
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
     logger.info(f"Saved {filepath}")
 
 
@@ -969,8 +977,12 @@ def api_create_game():
         return jsonify({'error': 'Request body required'}), 400
 
     games = get_games()
+    existing_ids = {g['id'] for g in games}
     counter = len(games) + 1
     new_id = f'game_{counter:03d}'
+    while new_id in existing_ids:
+        counter += 1
+        new_id = f'game_{counter:03d}'
 
     new_game = {
         'id': new_id,
@@ -1021,8 +1033,10 @@ def api_update_game(game_id):
 @require_auth
 def api_delete_game(game_id):
     games = get_games()
-    games = [g for g in games if g['id'] != game_id]
-    save_json_file(os.path.join(DATA_DIR, 'games.json'), {'games': games})
+    filtered = [g for g in games if g['id'] != game_id]
+    if len(filtered) == len(games):
+        return jsonify({'error': 'Game not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'games.json'), {'games': filtered})
     return jsonify({'ok': True})
 
 
@@ -1091,8 +1105,10 @@ def api_update_league(league_id):
 @require_auth
 def api_delete_league(league_id):
     leagues = get_leagues()
-    leagues = [l for l in leagues if l['id'] != league_id]
-    save_json_file(os.path.join(DATA_DIR, 'leagues.json'), {'leagues': leagues})
+    filtered = [l for l in leagues if l['id'] != league_id]
+    if len(filtered) == len(leagues):
+        return jsonify({'error': 'League not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'leagues.json'), {'leagues': filtered})
     return jsonify({'ok': True})
 
 
@@ -1157,8 +1173,10 @@ def api_update_draft(year):
 @require_auth
 def api_delete_draft(year):
     drafts = get_drafts()
-    drafts = [d for d in drafts if d['year'] != year]
-    save_json_file(os.path.join(DATA_DIR, 'drafts.json'), {'drafts': drafts})
+    filtered = [d for d in drafts if d['year'] != year]
+    if len(filtered) == len(drafts):
+        return jsonify({'error': 'Draft not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'drafts.json'), {'drafts': filtered})
     return jsonify({'ok': True})
 
 
@@ -1184,8 +1202,12 @@ def api_create_event():
         return jsonify({'error': 'Request body required'}), 400
 
     events = get_events()
+    existing_ids = {e['id'] for e in events}
     counter = len(events) + 1
     new_id = f'event_{counter:03d}'
+    while new_id in existing_ids:
+        counter += 1
+        new_id = f'event_{counter:03d}'
 
     new_event = {
         'id': new_id,
@@ -1225,8 +1247,10 @@ def api_update_event(event_id):
 @require_auth
 def api_delete_event(event_id):
     events = get_events()
-    events = [e for e in events if e['id'] != event_id]
-    save_json_file(os.path.join(DATA_DIR, 'events.json'), {'events': events})
+    filtered = [e for e in events if e['id'] != event_id]
+    if len(filtered) == len(events):
+        return jsonify({'error': 'Event not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'events.json'), {'events': filtered})
     return jsonify({'ok': True})
 
 
