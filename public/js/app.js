@@ -539,7 +539,7 @@
     function getChartDefaults() {
         var light = isLightMode();
         return {
-            responsive: false,
+            responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
