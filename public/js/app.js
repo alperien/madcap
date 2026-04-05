@@ -148,7 +148,8 @@
 
     // === DATA LOADING ===
     function loadJSON(url) {
-        return fetch(url).then(function(r) {
+        var cacheBust = url + (url.indexOf('?') === -1 ? '?' : '&') + '_t=' + Date.now();
+        return fetch(cacheBust, { cache: 'no-store' }).then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status + ' fetching ' + url);
             return r.json();
         });
