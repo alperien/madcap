@@ -23,7 +23,7 @@
             html += '<td class="tCenter">' + pctStr(cs.win_pct) + '</td>';
             html += '<td class="tCenter">' + (cs.conference_rank || '-') + '</td>';
             if (EDIT_MODE) {
-                html += '<td class="tCenter"><a href="#" onclick="editTeamInline(DATA.teams.find(function(x){return x.id===\'' + t.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTeam(\'' + t.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
+                html += '<td class="tCenter"><a href="#" onclick="openTeamEditor(DATA.teams.find(function(x){return x.id===\'' + t.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTeam(\'' + t.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
             }
             html += '</tr>';
         }
@@ -79,8 +79,8 @@
             if (p) {
                 count++;
                 html += '<tr class="' + rowClass(count - 1) + '">';
-                html += '<td class="tCenter gensmall">' + count + '</td>';
-                html += '<td><a href="player.html?id=' + p.id + '">' + p.name + '</a></td>';
+                html += '<td class="tCenter gensmall">' + (p.jersey_number || count) + '</td>';
+                html += '<td>' + renderAvatar(p, 'small') + '<a href="player.html?id=' + p.id + '">' + p.name + '</a></td>';
                 html += '<td class="tCenter">' + (p.position || '-') + '</td>';
                 html += '<td class="tCenter gensmall">' + (p.height || '-') + '</td>';
                 html += '<td class="tCenter gensmall">' + (p.weight || '-') + '</td>';

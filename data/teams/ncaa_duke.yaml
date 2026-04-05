@@ -1,0 +1,55 @@
+id: ncaa_duke
+name: Duke Blue Devils
+abbreviation: DUKE
+league: NCAA D1
+conference: ACC
+division: Atlantic Coast Conference
+city: Durham
+state: NC
+arena: Cameron Indoor Stadium
+founded: 1905
+colors:
+  - '#001A57'
+  - '#FFFFFF'
+current_season:
+  year: '2025-26'
+  wins: 35
+  losses: 3
+  win_pct: 0.921
+  conference_rank: 1
+  division_rank: 1
+roster:
+  - cameron_boozer
+  - cayden_boozer
+  - caleb_foster
+  - isaiah_evans
+  - patrick_ngongba
+  - dame_sarr
+  - nikolas_khamenia
+  - maliq_brown
+  - darren_harris
+  - ifeanyi_ufochukwu
+  - cameron_sheffield
+  - jack_scott
+  - sebastian_wilkins
+depth_chart:
+  PG:
+    - caleb_foster
+    - cayden_boozer
+  SG:
+    - isaiah_evans
+    - darren_harris
+    - jack_scott
+  SF:
+    - dame_sarr
+    - nikolas_khamenia
+    - cameron_sheffield
+  PF:
+    - cameron_boozer
+    - maliq_brown
+  C:
+    - patrick_ngongba
+    - ifeanyi_ufochukwu
+staff:
+  head_coach: Jon Scheyer
+  gm: N/A

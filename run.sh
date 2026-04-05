@@ -33,9 +33,9 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# Check Flask is installed
-if ! $PYTHON -c "import flask" 2>/dev/null; then
-    echo "Flask not found. Installing dependencies..."
+# Check Flask and PyYAML are installed
+if ! $PYTHON -c "import flask; import yaml" 2>/dev/null; then
+    echo "Installing dependencies..."
     $PYTHON -m pip install -r requirements.txt
 fi
 

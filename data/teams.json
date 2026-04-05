@@ -1,4 +1,4 @@
-{
+  {
   "teams": [
     {
       "id": "nba_cha",
@@ -11,7 +11,10 @@
       "state": "NC",
       "arena": "Spectrum Center",
       "founded": 1988,
-      "colors": ["#1D1160", "#00788C"],
+      "colors": [
+        "#1D1160",
+        "#00788C"
+      ],
       "current_season": {
         "year": "2024-25",
         "wins": 42,
@@ -20,11 +23,18 @@
         "conference_rank": 7,
         "division_rank": 3
       },
-      "roster": ["player_001", "player_003"],
+      "roster": [
+        "player_001",
+        "player_003"
+      ],
       "depth_chart": {
-        "PG": ["player_001"],
+        "PG": [
+          "player_001"
+        ],
         "SG": [],
-        "SF": ["player_003"],
+        "SF": [
+          "player_003"
+        ],
         "PF": [],
         "C": []
       },
@@ -44,7 +54,10 @@
       "state": "MA",
       "arena": "TD Garden",
       "founded": 1946,
-      "colors": ["#007A33", "#BA9653"],
+      "colors": [
+        "#007A33",
+        "#BA9653"
+      ],
       "current_season": {
         "year": "2024-25",
         "wins": 58,
@@ -77,7 +90,10 @@
       "state": "CA",
       "arena": "Crypto.com Arena",
       "founded": 1947,
-      "colors": ["#552583", "#FDB927"],
+      "colors": [
+        "#552583",
+        "#FDB927"
+      ],
       "current_season": {
         "year": "2024-25",
         "wins": 48,
@@ -86,13 +102,17 @@
         "conference_rank": 4,
         "division_rank": 2
       },
-      "roster": ["player_002"],
+      "roster": [
+        "player_002"
+      ],
       "depth_chart": {
         "PG": [],
         "SG": [],
         "SF": [],
         "PF": [],
-        "C": ["player_002"]
+        "C": [
+          "player_002"
+        ]
       },
       "staff": {
         "head_coach": "JJ Redick",
@@ -110,7 +130,10 @@
       "state": "OK",
       "arena": "Paycom Center",
       "founded": 1967,
-      "colors": ["#007AC1", "#EF6100"],
+      "colors": [
+        "#007AC1",
+        "#EF6100"
+      ],
       "current_season": {
         "year": "2024-25",
         "wins": 62,
@@ -143,7 +166,10 @@
       "state": "MN",
       "arena": "Target Center",
       "founded": 1989,
-      "colors": ["#0C2340", "#236192"],
+      "colors": [
+        "#0C2340",
+        "#236192"
+      ],
       "current_season": {
         "year": "2024-25",
         "wins": 52,
@@ -163,6 +189,73 @@
       "staff": {
         "head_coach": "Chris Finch",
         "gm": "Tim Connelly"
+      }
+    },
+    {
+      "id": "ncaa_duke",
+      "name": "Duke Blue Devils",
+      "abbreviation": "DUKE",
+      "league": "NCAA D1",
+      "conference": "ACC",
+      "division": "Atlantic Coast Conference",
+      "city": "Durham",
+      "state": "NC",
+      "arena": "Cameron Indoor Stadium",
+      "founded": 1905,
+      "colors": [
+        "#001A57",
+        "#FFFFFF"
+      ],
+      "current_season": {
+        "year": "2025-26",
+        "wins": 35,
+        "losses": 3,
+        "win_pct": 0.921,
+        "conference_rank": 1,
+        "division_rank": 1
+      },
+      "roster": [
+        "duke_foster",
+        "duke_cayden_boozer",
+        "duke_evans",
+        "duke_wilkins",
+        "duke_brown",
+        "duke_sarr",
+        "duke_harris",
+        "duke_cameron_boozer",
+        "duke_sheffield",
+        "duke_khamenia",
+        "duke_ufochukwu",
+        "duke_scott",
+        "duke_ngongba"
+      ],
+      "depth_chart": {
+        "PG": [
+          "duke_foster",
+          "duke_cayden_boozer"
+        ],
+        "SG": [
+          "duke_evans",
+          "duke_harris",
+          "duke_scott"
+        ],
+        "SF": [
+          "duke_sarr",
+          "duke_khamenia",
+          "duke_sheffield"
+        ],
+        "PF": [
+          "duke_cameron_boozer",
+          "duke_brown"
+        ],
+        "C": [
+          "duke_ngongba",
+          "duke_ufochukwu"
+        ]
+      },
+      "staff": {
+        "head_coach": "Jon Scheyer",
+        "gm": "N/A"
       }
     }
   ]

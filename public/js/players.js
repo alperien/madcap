@@ -30,6 +30,10 @@
                         if (p.career.pro[i].league === leagueFilter) { hasLeague = true; break; }
                     }
                 }
+                // Also check college for NCAA filters
+                if (!hasLeague && leagueFilter === 'NCAA D1' && p.career && p.career.college && p.career.college.school) {
+                    hasLeague = true;
+                }
                 if (!hasLeague) return false;
             }
             return true;
@@ -53,7 +57,7 @@
             var p = players[i];
             var team = getPlayerTeam(p);
             html += '<tr class="' + rowClass(i) + '">';
-            html += '<td><a href="player.html?id=' + p.id + '">' + p.name + '</a></td>';
+            html += '<td>' + renderAvatar(p, 'small') + '<a href="player.html?id=' + p.id + '">' + p.name + '</a></td>';
             html += '<td class="tCenter">' + (p.position || '-') + '</td>';
             html += '<td class="tCenter gensmall">' + (p.height || '-') + '</td>';
             html += '<td class="tCenter gensmall">' + (p.weight || '-') + '</td>';
@@ -61,9 +65,9 @@
             html += '<td class="tCenter bold">' + (p.overall || '-') + '</td>';
             html += '<td class="gensmall">' + (p.archetype || '-') + '</td>';
             html += '<td class="tCenter gensmall">' + (p.status || '-') + '</td>';
-            html += '<td class="tCenter">' + (p.is_fictional ? '<span class="fic">YES</span>' : '<span class="gensmall">no</span>') + '</td>';
+            html += '<td class="tCenter">' + renderFlag(p.nationality, 'small') + (p.is_fictional ? '<span class="fic">YES</span>' : '<span class="gensmall">no</span>') + '</td>';
             if (EDIT_MODE) {
-                html += '<td class="tCenter"><a href="#" onclick="editPlayerInline(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
+                html += '<td class="tCenter"><a href="#" onclick="openPlayerEditor(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
             }
             html += '</tr>';
         }
@@ -122,6 +126,9 @@
         var html = '<table class="forumline player-header-table">';
         html += '<tr><th class="catHead" colspan="4">Player Profile</th></tr>';
         html += '<tr class="row1"><td colspan="4" style="padding:6px 8px;">';
+        html += '<div class="player-header-content">';
+        html += renderAvatar(player, 'large');
+        html += '<div class="player-header-info">';
         html += '<span class="player-name">' + player.name;
         if (player.is_fictional) html += ' <span class="fictional-badge">FICTIONAL</span>';
         html += '</span><br>';
@@ -133,8 +140,11 @@
         html += 'Archetype: <b>' + (player.archetype || '-') + '</b> &middot; ';
         html += 'Status: <b>' + (player.status || '-') + '</b>';
         if (team) html += ' &middot; Team: <a href="team.html?id=' + team.id + '">' + team.name + '</a>';
-        html += '<br>Nationality: ' + (player.nationality || '-') + ' &middot; DOB: ' + (player.birthdate || '-');
+        html += '<br>';
+        if (player.nationality) html += renderFlag(player.nationality, 'large');
+        html += 'Nationality: ' + (player.nationality || '-') + ' &middot; DOB: ' + (player.birthdate || '-');
         html += '</span>';
+        html += '</div></div>';
         html += '</td></tr></table>';
         container.innerHTML = html;
     }
@@ -192,19 +202,46 @@
     }
 
     function renderPlayerCharts(player) {
-        var proSeasons = [];
+        var allSeasons = [];
+        var seasonLabels = [];
+        var levelLabels = [];
+
+        // Collect pro seasons first
         if (player.career && player.career.pro) {
             for (var i = 0; i < player.career.pro.length; i++) {
                 var pro = player.career.pro[i];
                 var seasons = pro.seasons || [];
                 for (var j = 0; j < seasons.length; j++) {
-                    proSeasons.push(seasons[j]);
+                    allSeasons.push(seasons[j]);
+                    seasonLabels.push(seasons[j].year || '');
+                    levelLabels.push(pro.league || 'PRO');
                 }
             }
         }
-        if (proSeasons.length === 0) return;
 
-        var labels = proSeasons.map(function(s) { return s.year || ''; });
+        // If no pro seasons, fall back to college seasons
+        if (allSeasons.length === 0 && player.career && player.career.college && player.career.college.seasons) {
+            var college = player.career.college;
+            for (var i = 0; i < college.seasons.length; i++) {
+                var s = college.seasons[i];
+                allSeasons.push(s);
+                seasonLabels.push(s.year || '');
+                levelLabels.push('COL');
+            }
+        }
+
+        // If still no data, also try high school
+        if (allSeasons.length === 0 && player.career && player.career.highschool && player.career.highschool.seasons) {
+            var hs = player.career.highschool;
+            for (var i = 0; i < hs.seasons.length; i++) {
+                var s = hs.seasons[i];
+                allSeasons.push(s);
+                seasonLabels.push(s.year || '');
+                levelLabels.push('HS');
+            }
+        }
+
+        if (allSeasons.length === 0) return;
 
         if (typeof Chart === 'undefined') return;
 
@@ -222,7 +259,7 @@
         if (ppgCanvas) {
             new Chart(ppgCanvas, {
                 type: 'line',
-                data: { labels: labels, datasets: [{ label: 'PPG', data: proSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#0066CC', backgroundColor: 'rgba(0,102,204,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#0066CC', backgroundColor: 'rgba(0,102,204,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
                 options: chartDefaults
             });
         }
@@ -231,7 +268,7 @@
         if (apgCanvas) {
             new Chart(apgCanvas, {
                 type: 'line',
-                data: { labels: labels, datasets: [{ label: 'APG', data: proSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#006600', backgroundColor: 'rgba(0,102,0,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#006600', backgroundColor: 'rgba(0,102,0,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
                 options: chartDefaults
             });
         }
@@ -240,7 +277,7 @@
         if (rpgCanvas) {
             new Chart(rpgCanvas, {
                 type: 'line',
-                data: { labels: labels, datasets: [{ label: 'RPG', data: proSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#CC6600', backgroundColor: 'rgba(204,102,0,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#CC6600', backgroundColor: 'rgba(204,102,0,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
                 options: chartDefaults
             });
         }
@@ -250,11 +287,11 @@
             new Chart(shootingCanvas, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: seasonLabels,
                     datasets: [
-                        { label: 'FG%', data: proSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#0066CC' },
-                        { label: '3P%', data: proSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#006600' },
-                        { label: 'FT%', data: proSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#CC6600' }
+                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#0066CC' },
+                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#006600' },
+                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#CC6600' }
                     ]
                 },
                 options: Object.assign({}, chartDefaults, { plugins: { legend: { display: true, labels: { color: '#000', font: { family: 'Verdana, sans-serif', size: 9 } } } } })

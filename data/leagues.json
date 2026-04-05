@@ -38,9 +38,15 @@
       "abbreviation": "NCAA D1",
       "level": "college",
       "country": "USA",
-      "current_season": "2024-25",
-      "teams": [],
-      "standings": {}
+      "current_season": "2025-26",
+      "teams": ["ncaa_duke"],
+      "standings": {
+        "2025-26": {
+          "ACC": [
+            {"team_id": "ncaa_duke", "wins": 35, "losses": 3, "win_pct": 0.921, "conf_wins": 17, "conf_losses": 1, "conf_rank": 1, "div_rank": 1}
+          ]
+        }
+      }
     },
     {
       "id": "juco",

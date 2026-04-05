@@ -93,9 +93,35 @@ input.liteoption { background: #EFEFEF; border: 1px solid #B0B0B0; padding: 2px 
 .player-name { font-size: 16px; font-weight: bold; color: #000; }
 .player-meta { color: #666; font-size: 10px; }
 .fictional-badge { background: #CC0000; color: #FFF; padding: 1px 4px; font-size: 9px; font-weight: bold; }
-.chart-box { border: 1px solid #B0B0B0; margin: 4px 0; }
+.chart-box { border: 1px solid #B0B0B0; margin: 4px 0; position: relative; height: 200px; }
 .chart-box .catHead { font-size: 11px; padding: 3px 6px; }
-.chart-box canvas { display: block; max-height: 180px; }
+.chart-box canvas { display: block; width: 100% !important; height: 100% !important; }
+
+/* === AVATAR === */
+.player-avatar { width: 64px; height: 64px; border-radius: 50%; background: #555; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-right: 12px; border: 2px solid #333; flex-shrink: 0; overflow: hidden; }
+.player-avatar svg { width: 40px; height: 40px; fill: #ccc; }
+.player-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.player-header-content { display: flex; align-items: center; }
+.player-header-info { flex: 1; }
+.list-avatar { width: 28px; height: 28px; border-radius: 50%; background: #555; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-right: 6px; border: 1px solid #333; flex-shrink: 0; overflow: hidden; }
+.list-avatar svg { width: 18px; height: 18px; fill: #ccc; }
+.list-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+/* === FLAGS === */
+.player-flag { font-size: 16px; vertical-align: middle; margin-right: 4px; }
+.list-flag { font-size: 12px; vertical-align: middle; margin-right: 2px; }
+
+/* === AVATAR === */
+.player-avatar { width: 64px; height: 64px; border-radius: 50%; background: #0066CC; color: #FFF; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; font-family: Arial, sans-serif; vertical-align: middle; margin-right: 12px; border: 2px solid #004499; flex-shrink: 0; }
+.player-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.player-header-content { display: flex; align-items: center; }
+.player-header-info { flex: 1; }
+.list-avatar { width: 28px; height: 28px; border-radius: 50%; background: #0066CC; color: #FFF; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; font-family: Arial, sans-serif; vertical-align: middle; margin-right: 6px; border: 1px solid #004499; flex-shrink: 0; }
+.list-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+/* === FLAGS === */
+.player-flag { font-size: 16px; vertical-align: middle; margin-right: 4px; }
+.list-flag { font-size: 12px; vertical-align: middle; margin-right: 2px; }
 
 /* === TIMELINE / LORE === */
 .timeline-post { border: 1px solid #B0B0B0; margin-bottom: 4px; }
@@ -167,3 +193,117 @@ input.liteoption { background: #EFEFEF; border: 1px solid #B0B0B0; padding: 2px 
     .catHead { font-size: 11px; }
     .thHead { font-size: 10px; }
 }
+
+/* === MODAL DIALOG === */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+}
+.modal-dialog {
+    background: #FFF; border: 2px solid #0066CC;
+    border-radius: 4px; max-height: 90vh; overflow-y: auto;
+    width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.modal-header {
+    background: linear-gradient(to bottom, #0066CC 0%, #0055AA 100%);
+    color: #FFF; padding: 8px 12px; display: flex;
+    align-items: center; justify-content: space-between;
+    border-radius: 2px 2px 0 0;
+}
+.modal-header h3 { margin: 0; font-size: 14px; }
+.modal-close {
+    background: none; border: none; color: #FFF;
+    font-size: 20px; cursor: pointer; padding: 0 4px;
+    line-height: 1;
+}
+.modal-close:hover { color: #FF6600; }
+.modal-body { padding: 16px; }
+.form-row { margin-bottom: 10px; }
+.form-row label {
+    display: block; font-size: 11px; font-weight: bold;
+    color: #333; margin-bottom: 2px;
+}
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row select,
+.form-row textarea {
+    width: 100%; padding: 4px 6px; border: 1px solid #B0B0B0;
+    font-size: 11px; font-family: Verdana, sans-serif;
+    box-sizing: border-box;
+}
+.form-row textarea { resize: vertical; }
+.form-row input[type="checkbox"] { margin-right: 4px; }
+.form-actions {
+    margin-top: 16px; padding-top: 12px;
+    border-top: 1px solid #DDD; text-align: right;
+}
+.btn-primary {
+    background: #0066CC; color: #FFF; border: none;
+    padding: 6px 16px; font-size: 11px; font-weight: bold;
+    cursor: pointer; border-radius: 2px;
+}
+.btn-primary:hover { background: #0055AA; }
+.btn-secondary {
+    background: #EFEFEF; color: #333; border: 1px solid #B0B0B0;
+    padding: 6px 16px; font-size: 11px; cursor: pointer;
+    border-radius: 2px;
+}
+.btn-secondary:hover { background: #DDD; }
+
+/* === MODAL DIALOG === */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+}
+.modal-dialog {
+    background: #FFF; border: 2px solid #0066CC;
+    border-radius: 4px; max-height: 90vh; overflow-y: auto;
+    width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.modal-header {
+    background: linear-gradient(to bottom, #0066CC 0%, #0055AA 100%);
+    color: #FFF; padding: 8px 12px; display: flex;
+    align-items: center; justify-content: space-between;
+    border-radius: 2px 2px 0 0;
+}
+.modal-header h3 { margin: 0; font-size: 14px; }
+.modal-close {
+    background: none; border: none; color: #FFF;
+    font-size: 20px; cursor: pointer; padding: 0 4px;
+    line-height: 1;
+}
+.modal-close:hover { color: #FF6600; }
+.modal-body { padding: 16px; }
+.form-row { margin-bottom: 10px; }
+.form-row label {
+    display: block; font-size: 11px; font-weight: bold;
+    color: #333; margin-bottom: 2px;
+}
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row select,
+.form-row textarea {
+    width: 100%; padding: 4px 6px; border: 1px solid #B0B0B0;
+    font-size: 11px; font-family: Verdana, sans-serif;
+    box-sizing: border-box;
+}
+.form-row textarea { resize: vertical; }
+.form-row input[type="checkbox"] { margin-right: 4px; }
+.form-actions {
+    margin-top: 16px; padding-top: 12px;
+    border-top: 1px solid #DDD; text-align: right;
+}
+.btn-primary {
+    background: #0066CC; color: #FFF; border: none;
+    padding: 6px 16px; font-size: 11px; font-weight: bold;
+    cursor: pointer; border-radius: 2px;
+}
+.btn-primary:hover { background: #0055AA; }
+.btn-secondary {
+    background: #EFEFEF; color: #333; border: 1px solid #B0B0B0;
+    padding: 6px 16px; font-size: 11px; cursor: pointer;
+    border-radius: 2px;
+}
+.btn-secondary:hover { background: #DDD; }

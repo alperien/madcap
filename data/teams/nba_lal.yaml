@@ -1,0 +1,32 @@
+id: nba_lal
+name: Los Angeles Lakers
+abbreviation: LAL
+league: NBA
+conference: Western
+division: Pacific
+city: Los Angeles
+state: CA
+arena: Crypto.com Arena
+founded: 1947
+colors:
+  - '#552583'
+  - '#FDB927'
+current_season:
+  year: '2024-25'
+  wins: 48
+  losses: 34
+  win_pct: 0.585
+  conference_rank: 4
+  division_rank: 2
+roster:
+  - deandre_jordan
+depth_chart:
+  PG: []
+  SG: []
+  SF: []
+  PF: []
+  C:
+    - deandre_jordan
+staff:
+  head_coach: JJ Redick
+  gm: Rob Pelinka

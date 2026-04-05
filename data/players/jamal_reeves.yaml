@@ -1,0 +1,130 @@
+id: jamal_reeves
+name: Jamal Reeves
+position: SF
+height: 6'7"
+weight: 215
+birthdate: '2001-11-08'
+nationality: USA
+overall: 75
+archetype: Two-Way Slasher
+status: active
+is_fictional: true
+avatar_url: ''
+
+career:
+  highschool:
+    school: Montverde Academy
+    state: FL
+    seasons:
+      - year: '2018-19'
+        ppg: 16.8
+        apg: 3.2
+        rpg: 6.4
+        spg: 1.8
+        bpg: 1.1
+        fg_pct: 0.512
+        fg3_pct: 0.328
+        ft_pct: 0.712
+        games: []
+    awards: []
+
+  college:
+    school: Gonzaga
+    conference: WCC
+    division: NCAA D1
+    seasons:
+      - year: '2019-20'
+        ppg: 11.4
+        apg: 2.1
+        rpg: 5.2
+        spg: 1.2
+        bpg: 0.8
+        fg_pct: 0.498
+        fg3_pct: 0.342
+        ft_pct: 0.728
+        gp: 30
+        gs: 18
+        mpg: 24.6
+        games: []
+      - year: '2020-21'
+        ppg: 15.2
+        apg: 2.8
+        rpg: 6.1
+        spg: 1.5
+        bpg: 1.0
+        fg_pct: 0.512
+        fg3_pct: 0.358
+        ft_pct: 0.745
+        gp: 32
+        gs: 32
+        mpg: 30.2
+        games: []
+    awards: []
+
+  pro:
+    - team_id: nba_cha
+      league: NBA
+      seasons:
+        - year: '2021-22'
+          ppg: 8.4
+          apg: 1.8
+          rpg: 4.2
+          spg: 1.0
+          bpg: 0.6
+          fg_pct: 0.468
+          fg3_pct: 0.312
+          ft_pct: 0.698
+          gp: 54
+          gs: 8
+          mpg: 18.2
+          games: []
+        - year: '2022-23'
+          ppg: 11.6
+          apg: 2.2
+          rpg: 5.1
+          spg: 1.2
+          bpg: 0.7
+          fg_pct: 0.482
+          fg3_pct: 0.335
+          ft_pct: 0.718
+          gp: 68
+          gs: 24
+          mpg: 22.4
+          games: []
+        - year: '2023-24'
+          ppg: 14.2
+          apg: 2.6
+          rpg: 5.8
+          spg: 1.4
+          bpg: 0.8
+          fg_pct: 0.495
+          fg3_pct: 0.348
+          ft_pct: 0.732
+          gp: 74
+          gs: 48
+          mpg: 26.8
+          games: []
+        - year: '2024-25'
+          ppg: 15.8
+          apg: 2.8
+          rpg: 6.2
+          spg: 1.5
+          bpg: 0.9
+          fg_pct: 0.502
+          fg3_pct: 0.356
+          ft_pct: 0.745
+          gp: 70
+          gs: 62
+          mpg: 29.4
+          games: []
+      awards: []
+
+draft:
+  year: 2021
+  league: NBA
+  round: 2
+  pick: 38
+  team_id: nba_cha
+
+media: []
+notes: 'Fictional draft pick. Underrated two-way wing with steady development curve.'

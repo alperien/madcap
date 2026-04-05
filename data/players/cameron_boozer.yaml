@@ -1,0 +1,67 @@
+id: cameron_boozer
+name: Cameron Boozer
+position: PF
+height: 6'9"
+weight: 250
+birthdate: '2007-01-16'
+nationality: USA
+overall: 95
+archetype: Dominant Big
+status: active
+is_fictional: false
+jersey_number: 12
+avatar_url: ''
+
+career:
+  highschool:
+    school: Christopher Columbus High School
+    state: FL
+    seasons:
+      - year: '2024-25'
+        ppg: 24.8
+        apg: 4.5
+        rpg: 12.1
+        spg: 1.5
+        bpg: 1.8
+        fg_pct: 0.612
+        fg3_pct: 0.35
+        ft_pct: 0.745
+        games: []
+    awards: []
+
+  college:
+    school: Duke
+    conference: ACC
+    division: NCAA D1
+    seasons:
+      - year: '2025-26'
+        ppg: 22.5
+        apg: 4.1
+        rpg: 10.2
+        spg: 1.4
+        bpg: 0.6
+        fg_pct: 0.556
+        fg3_pct: 0.391
+        ft_pct: 0.789
+        gp: 38
+        gs: 38
+        mpg: 33.5
+        games: []
+    awards:
+      - '2026 AP National Player of the Year'
+      - 'Consensus #1 overall recruit'
+      - 'All-American 1st Team'
+      - 'ACC Player of the Year'
+      - 'ACC Tournament MVP'
+
+  pro: []
+
+draft:
+  year: 2026
+  league: NBA
+  round: 1
+  pick: 1
+  team_id: projected
+
+media: []
+notes: '#1 projected NBA Draft pick.'

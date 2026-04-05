@@ -155,12 +155,12 @@ function renderStandings() {
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
         if (l.standings && Object.keys(l.standings).length > 0) {
-            html += '<table class="forumline"><tr><th class="catHead" colspan="6">' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
+            html += '<table class="forumline"><tr><th class="catHead" colspan="7">' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
             var seasons = l.standings;
             for (var conf in seasons) {
                 if (!seasons.hasOwnProperty(conf)) continue;
-                html += '<tr><th class="subCatHead" colspan="6">' + conf + ' Conference</th></tr>';
-                html += '<tr><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf</th><th class="thHead tCenter">Div</th></tr>';
+                html += '<tr><th class="subCatHead" colspan="7">' + conf + ' Conference</th></tr>';
+                html += '<tr><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf W</th><th class="thHead tCenter">Conf L</th><th class="thHead tCenter">Conf Rank</th></tr>';
                 var teams = seasons[conf];
                 for (var j = 0; j < teams.length; j++) {
                     var t = teams[j];
@@ -168,7 +168,8 @@ function renderStandings() {
                     html += '<tr class="' + rowClass(j) + '"><td><a href="team.html?id=' + t.team_id + '">' + (team ? team.name : t.team_id) + '</a></td>';
                     html += '<td class="tCenter">' + (t.wins || 0) + '</td><td class="tCenter">' + (t.losses || 0) + '</td>';
                     html += '<td class="tCenter">' + pctStr(t.win_pct) + '</td>';
-                    html += '<td class="tCenter">' + (t.conf_rank || '-') + '</td><td class="tCenter">' + (t.div_rank || '-') + '</td></tr>';
+                    html += '<td class="tCenter">' + (t.conf_wins !== undefined ? t.conf_wins : '-') + '</td><td class="tCenter">' + (t.conf_losses !== undefined ? t.conf_losses : '-') + '</td>';
+                    html += '<td class="tCenter">' + (t.conf_rank || '-') + '</td></tr>';
                 }
             }
             html += '</table>';
