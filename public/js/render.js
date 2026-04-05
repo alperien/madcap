@@ -378,7 +378,7 @@ function renderAttributeBar(label, value) {
 
 function renderBadgePill(badge) {
     var tier = (badge.tier || 'bronze').replace(/ /g, '_');
-    return '<span class="badge-tag badge-' + tier + '">' + (badge.name || '?') + '</span>';
+    return '<span class="badge-tag badge-' + tier + '"><span class="badge-tier-icon"></span>' + (badge.name || '?') + '</span>';
 }
 
 function renderInjuryIndicator(severity) {
