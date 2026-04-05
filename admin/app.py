@@ -284,6 +284,19 @@ def sanitize_id(resource_id):
     return resource_id
 
 
+def generate_id_from_name(name):
+    """Generate a safe resource ID from a display name.
+
+    Strips characters that aren't alphanumeric, underscores, or hyphens,
+    so names like "D'angelo Russell" become "dangelo_russell".
+    """
+    slug = name.lower().replace(' ', '_')
+    slug = re.sub(r'[^a-zA-Z0-9_-]', '', slug)
+    # Collapse multiple underscores and strip leading/trailing
+    slug = re.sub(r'_+', '_', slug).strip('_-')
+    return slug or 'unnamed'
+
+
 def safe_int(value, default=0):
     """Safely convert a value to int, returning default on failure."""
     try:
@@ -491,7 +504,7 @@ def api_create_player():
     is_fictional = body.get('is_fictional', False)
 
     if is_fictional:
-        player_id = body.get('id', name.lower().replace(' ', '_'))
+        player_id = body.get('id', generate_id_from_name(name))
         new_player = {
             'id': player_id,
             'name': name,
@@ -521,7 +534,7 @@ def api_create_player():
             'notes': body.get('notes', '')
         }
     else:
-        player_id = body.get('id', name.lower().replace(' ', '_'))
+        player_id = body.get('id', generate_id_from_name(name))
         new_player = {
             'id': player_id,
             'name': name,
@@ -1226,7 +1239,7 @@ def api_create_league():
         return jsonify({'error': 'Request body required'}), 400
 
     leagues = get_leagues()
-    new_id = body.get('id', body.get('name', 'new_league').lower().replace(' ', '_'))
+    new_id = body.get('id', generate_id_from_name(body.get('name', 'new_league')))
 
     if any(lg.get('id') == new_id for lg in leagues):
         return jsonify({'error': f'League ID {new_id} already exists'}), 409
