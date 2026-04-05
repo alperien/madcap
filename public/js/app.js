@@ -879,10 +879,8 @@
         img.onload = function() {
             try {
                 var colors = extractDominantColors(img);
-                if (colors.length >= 1 && !color1El.value) color1El.value = colors[0];
-                if (colors.length >= 2 && !color2El.value) color2El.value = colors[1];
-                if (colors.length >= 1 && color1El.value) color1El.value = colors[0];
-                if (colors.length >= 2 && color2El.value) color2El.value = colors[1];
+                if (colors.length >= 1) color1El.value = colors[0];
+                if (colors.length >= 2) color2El.value = colors[1];
             } catch (e) { /* CORS or canvas tainted - ignore */ }
         };
         img.onerror = function() { /* can't load image - ignore */ };
@@ -891,33 +889,26 @@
 
     function extractDominantColors(img) {
         var canvas = document.createElement('canvas');
-        var size = 64; // downsample for speed
+        var size = 64;
         canvas.width = size;
         canvas.height = size;
         var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, size, size);
         var data = ctx.getImageData(0, 0, size, size).data;
 
-        // Count color occurrences, quantized to reduce palette
         var buckets = {};
         for (var i = 0; i < data.length; i += 4) {
             var r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
-            if (a < 128) continue; // skip transparent
-            // Skip near-white and near-black
+            if (a < 100) continue;
             var brightness = (r + g + b) / 3;
-            if (brightness > 230 || brightness < 25) continue;
-            // Skip grays (low saturation)
-            var max = Math.max(r, g, b), min = Math.min(r, g, b);
-            if (max - min < 30 && brightness > 50 && brightness < 200) continue;
-            // Quantize to 32-step buckets
-            var qr = Math.round(r / 32) * 32;
-            var qg = Math.round(g / 32) * 32;
-            var qb = Math.round(b / 32) * 32;
+            if (brightness > 240 || brightness < 15) continue;
+            var qr = Math.round(r / 24) * 24;
+            var qg = Math.round(g / 24) * 24;
+            var qb = Math.round(b / 24) * 24;
             var key = qr + ',' + qg + ',' + qb;
             buckets[key] = (buckets[key] || 0) + 1;
         }
 
-        // Sort by frequency
         var sorted = Object.keys(buckets).sort(function(a, b) { return buckets[b] - buckets[a]; });
         if (sorted.length === 0) return [];
 
@@ -925,21 +916,27 @@
         for (var i = 0; i < sorted.length && colors.length < 2; i++) {
             var parts = sorted[i].split(',');
             var hex = '#' + toHex(+parts[0]) + toHex(+parts[1]) + toHex(+parts[2]);
-            // Ensure second color is visually distinct from first
             if (colors.length === 1) {
                 var p1 = colors[0];
                 var dr = parseInt(p1.substr(1,2),16) - (+parts[0]);
                 var dg = parseInt(p1.substr(3,2),16) - (+parts[1]);
                 var db = parseInt(p1.substr(5,2),16) - (+parts[2]);
-                if (Math.sqrt(dr*dr + dg*dg + db*db) < 60) continue;
+                if (Math.sqrt(dr*dr + dg*dg + db*db) < 30) continue;
             }
             colors.push(hex);
+        }
+        // If only one color found, derive a darker/lighter variant
+        if (colors.length === 1) {
+            var p = sorted[0].split(',');
+            var avg = (+p[0] + +p[1] + +p[2]) / 3;
+            var factor = avg > 128 ? 0.5 : 1.8;
+            colors.push('#' + toHex(Math.round(+p[0]*factor)) + toHex(Math.round(+p[1]*factor)) + toHex(Math.round(+p[2]*factor)));
         }
         return colors;
     }
 
     function toHex(n) {
-        var h = Math.min(255, Math.max(0, n)).toString(16);
+        var h = Math.min(255, Math.max(0, Math.round(n))).toString(16);
         return h.length < 2 ? '0' + h : h;
     }
 
