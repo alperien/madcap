@@ -14,6 +14,7 @@
             var t = teams[i];
             var cs = t.current_season || {};
             html += '<tr class="' + rowClass(i) + '">';
+            html += '<td class="row-num">' + (i+1) + '</td>';
             html += '<td><a href="team.html?id=' + t.id + '">' + (t.name || 'Unknown') + '</a></td>';
             html += '<td class="tCenter gensmall">' + (t.abbreviation || '-') + '</td>';
             html += '<td class="gensmall">' + (t.league || '-') + '</td>';
@@ -27,7 +28,7 @@
             }
             html += '</tr>';
         }
-        if (!html) html = '<tr class="row1"><td colspan="' + (EDIT_MODE ? 9 : 8) + '" class="gensmall" style="color:#666;text-align:center;">No teams found</td></tr>';
+        if (!html) html = '<tr class="row1"><td colspan="' + (EDIT_MODE ? 10 : 9) + '" class="gensmall" style="text-align:center;">No teams found</td></tr>';
         tbody.innerHTML = html;
     }
 
@@ -35,12 +36,14 @@
         var team = getTeamById(id);
         var headerEl = document.getElementById('team-header-section');
         if (!team) {
-            if (headerEl) headerEl.innerHTML = '<table class="forumline"><tr><td class="row1" style="padding:8px;">Team not found. <a href="teams.html">Browse teams</a></td></tr></table>';
+            if (headerEl) headerEl.innerHTML = '<table class="forumline"><tr><td class="row1" style="padding:6px;">Team not found. <a href="teams.html">Browse teams</a></td></tr></table>';
             return;
         }
         var bc = document.getElementById('breadcrumb-team');
         if (bc) bc.textContent = team.name;
+        document.title = 'MADCAP - ' + team.name;
         renderTeamHeader(team);
+        renderTeamStats(team);
         renderRoster(team);
         renderDepthChart(team);
         renderTeamGames(team);
@@ -50,8 +53,10 @@
         var container = document.getElementById('team-header-section');
         var cs = team.current_season || {};
         var html = '<table class="forumline">';
-        html += '<tr><th class="catHead" colspan="4">Team Profile</th></tr>';
-        html += '<tr class="row1"><td colspan="4" style="padding:6px 8px;">';
+        html += '<tr><th class="catHead" colspan="4">Team Profile';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openTeamEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:#FFD700;">[edit]</a>';
+        html += '</th></tr>';
+        html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;">';
         html += '<span class="team-name">' + (team.name || 'Unknown') + ' (' + (team.abbreviation || '?') + ')</span><br>';
         html += '<span class="gensmall">';
         html += 'League: <b>' + (team.league || '-') + '</b> &middot; ';
@@ -65,6 +70,38 @@
         }
         html += '<br><span class="team-record">' + (cs.wins || 0) + '-' + (cs.losses || 0) + ' (' + pctStr(cs.win_pct) + ') | Conf Rank: #' + (cs.conference_rank || '-') + ' | Div Rank: #' + (cs.division_rank || '-') + '</span>';
         html += '</span></td></tr></table>';
+        container.innerHTML = html;
+    }
+
+    function renderTeamStats(team) {
+        var container = document.getElementById('team-stats-section');
+        if (!container) return;
+        // Get all players on the roster with stats
+        var rosterIds = team.roster || [];
+        var totalPPG = 0, totalAPG = 0, totalRPG = 0, count = 0;
+        for (var i = 0; i < rosterIds.length; i++) {
+            var p = getPlayerById(rosterIds[i]);
+            if (p && p.career && p.career.pro) {
+                for (var j = p.career.pro.length - 1; j >= 0; j--) {
+                    var pro = p.career.pro[j];
+                    if (pro.seasons && pro.seasons.length > 0) {
+                        var last = pro.seasons[pro.seasons.length - 1];
+                        totalPPG += last.ppg || 0;
+                        totalAPG += last.apg || 0;
+                        totalRPG += last.rpg || 0;
+                        count++;
+                        break;
+                    }
+                }
+            }
+        }
+        if (count === 0) { container.style.display = 'none'; return; }
+        var html = '<div class="data-strip">';
+        html += '<span class="ds-label">Roster:</span> <span class="ds-value">' + rosterIds.length + ' players</span>';
+        html += '<span class="ds-label">Team PPG:</span> <span class="ds-value">' + totalPPG.toFixed(1) + '</span>';
+        html += '<span class="ds-label">Team APG:</span> <span class="ds-value">' + totalAPG.toFixed(1) + '</span>';
+        html += '<span class="ds-label">Team RPG:</span> <span class="ds-value">' + totalRPG.toFixed(1) + '</span>';
+        html += '</div>';
         container.innerHTML = html;
     }
 
@@ -90,7 +127,7 @@
                 html += '</tr>';
             }
         }
-        if (!html) html = '<tr class="row1"><td colspan="8" class="gensmall" style="color:#666;text-align:center;">No roster data available</td></tr>';
+        if (!html) html = '<tr class="row1"><td colspan="8" class="gensmall" style="text-align:center;">No roster data available</td></tr>';
         tbody.innerHTML = html;
     }
 
@@ -98,7 +135,7 @@
         var tbody = document.getElementById('depth-chart-body');
         if (!tbody) return;
         var dc = team.depth_chart;
-        if (!dc) { tbody.innerHTML = '<tr class="row1"><td colspan="5" class="gensmall" style="color:#666;text-align:center;">No depth chart data</td></tr>'; return; }
+        if (!dc) { tbody.innerHTML = '<tr class="row1"><td colspan="5" class="gensmall" style="text-align:center;">No depth chart data</td></tr>'; return; }
 
         var positions = ['PG', 'SG', 'SF', 'PF', 'C'];
         var maxDepth = 0;
@@ -132,7 +169,7 @@
         var html = '';
         var games = DATA.games.filter(function(g) {
             return g.home_team_id === team.id || g.away_team_id === team.id;
-        }).slice(0, 10);
+        }).slice(0, 15);
 
         for (var i = 0; i < games.length; i++) {
             var g = games[i];
@@ -153,12 +190,12 @@
                 score = '--';
                 resultClass = 'result-scheduled';
             }
-            html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (g.date || '-') + '</td>';
+            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + '</td>';
             html += '<td class="gensmall">' + (isHome ? 'vs' : '@') + ' <a href="team.html?id=' + oppId + '">' + (opp ? opp.name : oppId) + '</a></td>';
             html += '<td class="tCenter bold ' + resultClass + '">' + result + '</td>';
             html += '<td class="tCenter">' + score + '</td></tr>';
         }
-        if (!html) html = '<tr class="row1"><td colspan="4" class="gensmall" style="color:#666;text-align:center;">No game data</td></tr>';
+        if (!html) html = '<tr class="row1"><td colspan="5" class="gensmall" style="text-align:center;">No game data</td></tr>';
         tbody.innerHTML = html;
     }
 

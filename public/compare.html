@@ -2,116 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MADCAP Player Comparison Tool">
     <title>MADCAP - Player Comparison</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div id="body-container">
     <div id="page-header">
-        <nav id="main-nav"><ul>
-            <li><a href="index.html"><b>MADCAP</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="players.html"><b>Players</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="teams.html"><b>Teams</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="leagues.html"><b>Leagues</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="compare.html"><b>Compare</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="admin/login"><b>Admin</b></a></li>
-        </ul></nav>
-        <div id="top-bar"><span class="gensmall">Player Comparison Tool</span></div>
+        <nav id="main-nav" aria-label="Main navigation"></nav>
+        <div id="top-bar"></div>
     </div>
-    <div class="breadcrumb"><a href="index.html">MADCAP Index</a><span class="middot">&middot;</span>Player Comparison</div>
-    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading data...</div>
+
+    <div class="breadcrumb">
+        <a href="index.html">MADCAP Index</a><span class="middot">&middot;</span> Player Comparison
+    </div>
+
+    <div id="loading-indicator" class="loading-text" style="display:none;">Loading data</div>
 
     <div class="filters-bar">
-        <label>Player 1: <select id="compare-p1"></select></label>
-        <label>Player 2: <select id="compare-p2"></select></label>
-        <button onclick="runComparison()" class="btn-primary" style="font-size:10px;">Compare</button>
+        <label>Player 1: <select id="compare-p1" class="post"><option value="">Select...</option></select></label>
+        <label>Player 2: <select id="compare-p2" class="post"><option value="">Select...</option></select></label>
+        <button type="button" class="liteoption" onclick="doCompare()">Compare</button>
     </div>
 
-    <div id="comparison-result"></div>
-    <div style="max-width:500px;margin:8px auto;"><canvas id="radar-chart"></canvas></div>
-
-    <div id="page-footer"><table class="forumline"><tr><td class="catHead tCenter">MADCAP v2.0</td></tr></table></div>
+    <div id="compare-container"></div>
+    <div id="page-footer"></div>
 </div>
+
 <script src="js/app.js"></script>
 <script src="js/render.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var loading = document.getElementById('loading-indicator');
-    if (loading) loading.style.display = 'block';
-    loadAllData().then(function() {
-        if (loading) loading.style.display = 'none';
-        var s1 = document.getElementById('compare-p1');
-        var s2 = document.getElementById('compare-p2');
-        DATA.players.forEach(function(p) {
-            s1.innerHTML += '<option value="' + p.id + '">' + p.name + '</option>';
-            s2.innerHTML += '<option value="' + p.id + '">' + p.name + '</option>';
+    document.addEventListener('DOMContentLoaded', function() {
+        var loading = document.getElementById('loading-indicator');
+        if (loading) loading.style.display = 'block';
+        loadAllData().then(function() {
+            if (loading) loading.style.display = 'none';
+            var s1 = document.getElementById('compare-p1');
+            var s2 = document.getElementById('compare-p2');
+            for (var i = 0; i < DATA.players.length; i++) {
+                var p = DATA.players[i];
+                var opt = '<option value="' + p.id + '">' + p.name + ' (' + (p.position||'') + ')</option>';
+                s1.innerHTML += opt;
+                s2.innerHTML += opt;
+            }
+            var params = new URLSearchParams(window.location.search);
+            var ids = (params.get('ids') || '').split(',').filter(Boolean);
+            if (ids.length >= 1) s1.value = ids[0];
+            if (ids.length >= 2) { s2.value = ids[1]; doCompare(); }
+            renderFooter();
         });
-        if (DATA.players.length > 1) { s2.selectedIndex = 1; }
-        var params = new URLSearchParams(window.location.search);
-        var ids = params.get('ids');
-        if (ids) {
-            var parts = ids.split(',');
-            if (parts[0]) s1.value = parts[0];
-            if (parts[1]) s2.value = parts[1];
-            runComparison();
-        }
     });
-});
-
-function runComparison() {
-    var id1 = document.getElementById('compare-p1').value;
-    var id2 = document.getElementById('compare-p2').value;
-    var p1 = getPlayerById(id1), p2 = getPlayerById(id2);
-    if (!p1 || !p2) return;
-    var container = document.getElementById('comparison-result');
-
-    function getLatestSeason(p) {
-        if (!p.career || !p.career.pro) return {};
-        var last = p.career.pro[p.career.pro.length - 1];
-        var s = (last.seasons || []);
-        return s.length > 0 ? s[s.length - 1] : {};
-    }
-    var s1 = getLatestSeason(p1), s2 = getLatestSeason(p2);
-    var stats = ['ppg','apg','rpg','spg','bpg','fg_pct','fg3_pct','ft_pct'];
-    var labels = ['PPG','APG','RPG','SPG','BPG','FG%','3P%','FT%'];
-
-    var html = '<table class="comparison-table"><tr><th>' + p1.name + '</th><th>Stat</th><th>' + p2.name + '</th></tr>';
-    html += '<tr><td>' + (p1.overall||'-') + '</td><td>OVR</td><td>' + (p2.overall||'-') + '</td></tr>';
-    html += '<tr><td>' + (p1.position||'-') + '</td><td>POS</td><td>' + (p2.position||'-') + '</td></tr>';
-    for (var i = 0; i < stats.length; i++) {
-        var v1 = s1[stats[i]] || 0, v2 = s2[stats[i]] || 0;
-        var c1 = v1 > v2 ? 'better' : (v1 < v2 ? 'worse' : '');
-        var c2 = v2 > v1 ? 'better' : (v2 < v1 ? 'worse' : '');
-        var fmt = stats[i].indexOf('pct') !== -1 ? pctStr : numStr;
-        html += '<tr><td class="' + c1 + '">' + fmt(v1) + '</td><td>' + labels[i] + '</td><td class="' + c2 + '">' + fmt(v2) + '</td></tr>';
-    }
-    html += '</table>';
-    container.innerHTML = html;
-
-    // Radar chart
-    if (typeof Chart !== 'undefined' && p1.attributes && p2.attributes) {
-        var radarLabels = ['Inside','Mid','3PT','FT','Handle','Pass','Steal','Block','Speed','Vert'];
-        var radarKeys = ['inside_scoring','mid_range','three_point','free_throw','ball_handling','passing','steal','block','speed','vertical'];
-        var d1 = radarKeys.map(function(k) { return p1.attributes[k] || 0; });
-        var d2 = radarKeys.map(function(k) { return p2.attributes[k] || 0; });
-        var canvas = document.getElementById('radar-chart');
-        if (canvas) {
-            new Chart(canvas, {
-                type: 'radar',
-                data: {
-                    labels: radarLabels,
-                    datasets: [
-                        { label: p1.name, data: d1, borderColor: '#0066CC', backgroundColor: 'rgba(0,102,204,0.2)' },
-                        { label: p2.name, data: d2, borderColor: '#CC0000', backgroundColor: 'rgba(204,0,0,0.2)' }
-                    ]
-                },
-                options: { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { labels: { font: { family: 'Verdana', size: 10 } } } } }
-            });
+    function doCompare() {
+        var id1 = document.getElementById('compare-p1').value;
+        var id2 = document.getElementById('compare-p2').value;
+        if (!id1 || !id2) { alert('Select two players'); return; }
+        var p1 = getPlayerById(id1);
+        var p2 = getPlayerById(id2);
+        if (!p1 || !p2) return;
+        var stats1 = getLastSeasonStats(p1);
+        var stats2 = getLastSeasonStats(p2);
+        var cats = ['ppg','apg','rpg','spg','bpg','fg_pct','fg3_pct','ft_pct'];
+        var labels = ['PPG','APG','RPG','SPG','BPG','FG%','3P%','FT%'];
+        var html = '<table class="comparison-table"><tr><th></th><th>' + p1.name + '</th><th>' + p2.name + '</th></tr>';
+        html += '<tr><td class="gensmall">Position</td><td>' + (p1.position||'-') + '</td><td>' + (p2.position||'-') + '</td></tr>';
+        html += '<tr><td class="gensmall">Overall</td><td class="' + (p1.overall > p2.overall ? 'better' : 'worse') + '">' + (p1.overall||'-') + '</td><td class="' + (p2.overall > p1.overall ? 'better' : 'worse') + '">' + (p2.overall||'-') + '</td></tr>';
+        for (var i = 0; i < cats.length; i++) {
+            var v1 = stats1[cats[i]] || 0;
+            var v2 = stats2[cats[i]] || 0;
+            var fmt = cats[i].indexOf('pct') !== -1 ? pctStr : numStr;
+            html += '<tr><td class="gensmall">' + labels[i] + '</td>';
+            html += '<td class="' + (v1 > v2 ? 'better' : (v1 < v2 ? 'worse' : '')) + '">' + fmt(v1) + '</td>';
+            html += '<td class="' + (v2 > v1 ? 'better' : (v2 < v1 ? 'worse' : '')) + '">' + fmt(v2) + '</td></tr>';
         }
+        html += '</table>';
+        document.getElementById('compare-container').innerHTML = html;
     }
-}
-window.runComparison = runComparison;
+    function getLastSeasonStats(player) {
+        var stats = {};
+        if (player.career && player.career.pro) {
+            for (var i = player.career.pro.length - 1; i >= 0; i--) {
+                var pro = player.career.pro[i];
+                if (pro.seasons && pro.seasons.length > 0) return pro.seasons[pro.seasons.length - 1];
+            }
+        }
+        if (player.career && player.career.college && player.career.college.seasons && player.career.college.seasons.length > 0) {
+            return player.career.college.seasons[player.career.college.seasons.length - 1];
+        }
+        return stats;
+    }
 </script>
 </body>
 </html>

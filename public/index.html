@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="MADCAP - Modular Athlete Database & Career Analysis Platform. A sports scouting platform for tracking a fictional NBA2K universe.">
     <meta property="og:title" content="MADCAP - Sports Scouting Platform">
     <meta property="og:description" content="Modular Athlete Database & Career Analysis Platform">
@@ -12,50 +13,20 @@
 <body>
 <div id="body-container">
     <div id="page-header">
-        <nav id="main-nav" aria-label="Main navigation">
-            <ul>
-                <li><a href="index.html"><b>MADCAP</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="players.html"><b>Players</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="teams.html"><b>Teams</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="leagues.html"><b>Leagues</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="drafts.html"><b>Drafts</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="schedule.html"><b>Schedule</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="injuries.html"><b>Injuries</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="transactions.html"><b>Transactions</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="awards.html"><b>Awards</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="compare.html"><b>Compare</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="mockdraft.html"><b>Mock Draft</b></a></li>
-                <li><span class="middot">&middot;</span></li>
-                <li><a href="admin/login"><b>Admin</b></a></li>
-            </ul>
-        </nav>
-        <div id="top-bar">
-            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" style="color:#0066CC;font-weight:bold;font-size:10px;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot">&middot;</span>
-            <a href="admin/login">Login</a><span class="middot">&middot;</span>
-            <span class="gensmall">Data is simulated for entertainment purposes</span>
-        </div>
+        <nav id="main-nav" aria-label="Main navigation"></nav>
+        <div id="top-bar"></div>
     </div>
 
-    <!-- Ticker Bar -->
+    <!-- Ticker Bar (marquee-style) -->
     <div class="ticker-bar" id="ticker-bar">
-        <span class="ticker-label">LOADING</span> Loading latest updates...
+        <span class="ticker-label">LOADING</span> <span class="ticker-content">Loading latest updates...</span>
     </div>
 
     <div class="breadcrumb">
         <a href="index.html">MADCAP Index</a>
     </div>
 
-    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading data...</div>
+    <div id="loading-indicator" class="loading-text" style="display:none;">Loading data</div>
 
     <!-- Three-Column Layout -->
     <table class="three-column">
@@ -73,6 +44,8 @@
                     <li><a href="compare.html">Player Comparison</a></li>
                     <li><a href="mockdraft.html">Mock Draft Board</a></li>
                     <li><a href="awards.html">Award History</a></li>
+                    <li><a href="injuries.html">Injury Report</a></li>
+                    <li><a href="transactions.html">Transactions</a></li>
                 </ul>
             </div>
 
@@ -80,6 +53,9 @@
             <div class="sidebar-content">
                 <ul id="sidebar-leagues-list"></ul>
             </div>
+
+            <div class="sidebar-header">Mini Standings</div>
+            <div class="sidebar-content" id="mini-standings-widget"></div>
 
             <div class="sidebar-header">Fictional Players</div>
             <div class="sidebar-content">
@@ -101,14 +77,20 @@
         <td class="col-center">
             <table class="forumline">
                 <tr><th class="catHead" colspan="5">League Hub</th></tr>
-                <tr><th class="thHead">League</th><th class="thHead">Level</th><th class="thHead">Country</th><th class="thHead">Season</th><th class="thHead">Teams</th></tr>
+                <tr><th class="thHead">#</th><th class="thHead">League</th><th class="thHead">Level</th><th class="thHead">Season</th><th class="thHead tCenter">Teams</th></tr>
                 <tbody id="league-hub-body"></tbody>
             </table>
 
             <table class="forumline">
                 <tr><th class="catHead" colspan="7">Latest Scores</th></tr>
-                <tr><th class="thHead">Date</th><th class="thHead">League</th><th class="thHead">Away</th><th class="thHead tCenter">Score</th><th class="thHead">Home</th><th class="thHead tCenter">Score</th><th class="thHead">Status</th></tr>
+                <tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Away</th><th class="thHead tCenter">Score</th><th class="thHead">Home</th><th class="thHead tCenter">Score</th><th class="thHead">Status</th></tr>
                 <tbody id="scores-body"></tbody>
+            </table>
+
+            <table class="forumline">
+                <tr><th class="catHead" colspan="4">Stat Leaders (2024-25 NBA)</th></tr>
+                <tr><th class="thHead">#</th><th class="thHead">Category</th><th class="thHead">Player</th><th class="thHead tCenter">Value</th></tr>
+                <tbody id="stat-leaders-body"></tbody>
             </table>
 
             <table class="forumline">
@@ -117,15 +99,15 @@
             </table>
 
             <table class="forumline">
-                <tr><th class="catHead" colspan="4">Stat Leaders (2024-25 NBA)</th></tr>
-                <tr><th class="thHead">Category</th><th class="thHead">Player</th><th class="thHead">Team</th><th class="thHead tCenter">Value</th></tr>
-                <tbody id="stat-leaders-body"></tbody>
+                <tr><th class="catHead" colspan="7">Upcoming Games</th></tr>
+                <tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">League</th><th class="thHead">Away</th><th class="thHead tCenter">@</th><th class="thHead">Home</th><th class="thHead">Venue</th></tr>
+                <tbody id="upcoming-body"></tbody>
             </table>
 
-            <table class="forumline">
-                <tr><th class="catHead" colspan="7">Upcoming Games</th></tr>
-                <tr><th class="thHead">Date</th><th class="thHead">Time</th><th class="thHead">League</th><th class="thHead">Away</th><th class="thHead tCenter">@</th><th class="thHead">Home</th><th class="thHead">Venue</th></tr>
-                <tbody id="upcoming-body"></tbody>
+            <table class="forumline" id="top-performers-table" style="display:none;">
+                <tr><th class="catHead" colspan="6">Top Performers This Week</th></tr>
+                <tr><th class="thHead">#</th><th class="thHead">Player</th><th class="thHead tCenter">PPG</th><th class="thHead tCenter">APG</th><th class="thHead tCenter">RPG</th><th class="thHead">Team</th></tr>
+                <tbody id="top-performers-body"></tbody>
             </table>
         </td>
 
@@ -139,6 +121,11 @@
                 <div class="spotlight-body" id="player-spotlight">Loading...</div>
             </div>
 
+            <div class="sidebar-header">Today's Games</div>
+            <div class="sidebar-content" id="todays-games-widget">
+                <span class="gensmall">No games today</span>
+            </div>
+
             <div class="sidebar-header">Draft Board Preview</div>
             <div class="sidebar-content" id="draft-preview">
                 <ul id="mock-draft-preview"></ul>
@@ -148,15 +135,16 @@
             <div class="sidebar-content">
                 <ul id="season-archives"></ul>
             </div>
+
+            <div class="sidebar-header">Birthdays Today</div>
+            <div class="sidebar-content" id="birthday-widget">
+                <span class="gensmall">No birthdays today</span>
+            </div>
         </td>
     </tr>
     </table>
 
-    <div id="page-footer">
-        <table class="forumline">
-            <tr><td class="catHead tCenter">MADCAP v2.0 &middot; Modular Athlete Database & Career Analysis Platform &middot; All data is simulated</td></tr>
-        </table>
-    </div>
+    <div id="page-footer"></div>
 </div>
 
 <script src="js/app.js"></script>
@@ -178,6 +166,10 @@
             renderTicker();
             renderTransactionsWidget();
             renderInjuryWidget();
+            renderMiniStandings();
+            renderTodaysGames();
+            renderBirthdayWidget();
+            renderFooter();
             // Player Spotlight
             var spotEl = document.getElementById('player-spotlight');
             if (spotEl) {

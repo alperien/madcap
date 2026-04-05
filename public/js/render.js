@@ -49,7 +49,7 @@ function renderLeagueHub() {
     var html = '';
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
-        html += '<tr class="' + rowClass(i) + '"><td><a href="leagues.html">' + (l.name || 'Unknown') + '</a></td><td>' + (l.level || '-') + '</td><td>' + (l.country || '-') + '</td><td class="tCenter">' + (l.current_season || '-') + '</td><td class="tCenter">' + (l.teams ? l.teams.length : 0) + '</td></tr>';
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td><a href="leagues.html">' + (l.name || 'Unknown') + '</a></td><td class="gensmall">' + (l.level || '-') + '</td><td class="tCenter gensmall">' + (l.current_season || '-') + '</td><td class="tCenter">' + (l.teams ? l.teams.length : 0) + '</td></tr>';
     }
     tbody.innerHTML = html;
 }
@@ -58,19 +58,20 @@ function renderLatestScores() {
     var tbody = document.getElementById('scores-body');
     if (!tbody) return;
     var html = '';
-    var games = DATA.games.filter(function(g) { return g.status === 'final'; }).slice(0, 5);
+    var games = DATA.games.filter(function(g) { return g.status === 'final'; }).slice(0, 8);
     for (var i = 0; i < games.length; i++) {
         var g = games[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
+        var isNew = isRecent(g.date);
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + (isNew ? ' <span class="blink-new">NEW</span>' : '') + '</td>';
         html += '<td>' + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
         html += '<td class="tCenter bold">' + (g.away_score || 0) + '</td>';
         html += '<td>' + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
         html += '<td class="tCenter bold">' + (g.home_score || 0) + '</td>';
         html += '<td class="tCenter gensmall">' + g.status + '</td></tr>';
     }
-    if (!html) html = '<tr class="row1"><td colspan="7" class="gensmall" style="color:#666;text-align:center;">No games played yet</td></tr>';
+    if (!html) html = '<tr class="row1"><td colspan="7" class="gensmall" style="text-align:center;">No games played yet</td></tr>';
     tbody.innerHTML = html;
 }
 
@@ -86,12 +87,13 @@ function renderRecentEvents() {
         html += '<div class="timeline-post">';
         html += '<div class="post-header"><span class="event-type">' + (e.type || '') + '</span><span class="gensmall">' + (e.date || '') + '</span>';
         if (p) html += ' <span class="gensmall">by <a href="player.html?id=' + p.id + '">' + p.name + '</a></span>';
+        if (isRecent(e.date)) html += ' <span class="blink-new">NEW</span>';
         html += '</div>';
         var desc = e.description || '';
         html += '<div class="post-body"><span class="bold">' + (e.title || '') + '</span><br><span class="gensmall">' + desc.substring(0, 200) + (desc.length > 200 ? '...' : '') + '</span></div>';
         html += '</div></td></tr>';
     }
-    if (!html) html = '<tr class="row1"><td class="gensmall" style="color:#666;text-align:center;">No recent events</td></tr>';
+    if (!html) html = '<tr class="row1"><td class="gensmall" style="text-align:center;">No recent events</td></tr>';
     container.innerHTML = html;
 }
 
@@ -128,13 +130,12 @@ function renderStatLeaders() {
         }
         if (leader) {
             var team = getPlayerTeam(leader);
-            html += '<tr class="' + rowClass(c) + '"><td class="gensmall">' + cat.label + '</td>';
-            html += '<td><a href="player.html?id=' + leader.id + '">' + leader.name + '</a></td>';
-            html += '<td class="gensmall">' + (team ? team.abbreviation : '-') + '</td>';
+            html += '<tr class="' + rowClass(c) + '"><td class="row-num">' + (c+1) + '</td><td class="gensmall">' + cat.label + '</td>';
+            html += '<td><a href="player.html?id=' + leader.id + '">' + leader.name + '</a> <span class="gensmall">(' + (team ? team.abbreviation : '-') + ')</span></td>';
             html += '<td class="tCenter bold">' + numStr(leaderVal) + '</td></tr>';
         }
     }
-    if (!html) html = '<tr class="row1"><td colspan="4" class="gensmall" style="color:#666;text-align:center;">No stat data available</td></tr>';
+    if (!html) html = '<tr class="row1"><td colspan="4" class="gensmall" style="text-align:center;">No stat data available</td></tr>';
     tbody.innerHTML = html;
 }
 
@@ -147,13 +148,13 @@ function renderUpcomingGames() {
         var g = games[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.time || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
         html += '<td>' + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
         html += '<td class="tCenter gensmall">@</td>';
         html += '<td>' + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
         html += '<td class="gensmall">' + (g.venue || '') + '</td></tr>';
     }
-    if (!html) html = '<tr class="row1"><td colspan="7" class="gensmall" style="color:#666;text-align:center;">No upcoming games</td></tr>';
+    if (!html) html = '<tr class="row1"><td colspan="7" class="gensmall" style="text-align:center;">No upcoming games</td></tr>';
     tbody.innerHTML = html;
 }
 
@@ -164,9 +165,9 @@ function renderFictionalList() {
     var fictional = DATA.players.filter(function(p) { return p.is_fictional; });
     for (var i = 0; i < fictional.length; i++) {
         var p = fictional[i];
-        html += '<li><a href="player.html?id=' + p.id + '">' + p.name + '</a> <span class="fic">[FIC]</span></li>';
+        html += '<li>' + renderAvatar(p, 'small') + '<a href="player.html?id=' + p.id + '">' + p.name + '</a> <span class="fic">[FIC]</span></li>';
     }
-    if (!html) html = '<li class="gensmall" style="color:#666;">No fictional players</li>';
+    if (!html) html = '<li class="gensmall">No fictional players</li>';
     ul.innerHTML = html;
 }
 
@@ -186,9 +187,12 @@ function renderSidebarStats() {
     if (!el) return;
     var total = DATA.players.length;
     var fic = DATA.players.filter(function(p) { return p.is_fictional; }).length;
+    var real = total - fic;
     var teams = DATA.teams.length;
     var games = DATA.games.length;
-    el.innerHTML = 'Players: <b>' + total + '</b> (' + fic + ' fic)<br>Teams: <b>' + teams + '</b><br>Games: <b>' + games + '</b>';
+    var finishedGames = DATA.games.filter(function(g) { return g.status === 'final'; }).length;
+    var injuries = DATA.injuries.filter(function(i) { return i.status !== 'resolved'; }).length;
+    el.innerHTML = 'Players: <b>' + total + '</b> (' + fic + ' fic, ' + real + ' real)<br>Teams: <b>' + teams + '</b><br>Games: <b>' + games + '</b> (' + finishedGames + ' played)<br>Active Injuries: <b>' + injuries + '</b><br>Transactions: <b>' + DATA.transactions.length + '</b>';
 }
 
 function renderStandings() {
@@ -198,13 +202,11 @@ function renderStandings() {
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
         if (l.standings && Object.keys(l.standings).length > 0) {
-            html += '<table class="forumline"><tr><th class="catHead" colspan="7">' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
-            // Standings may be nested under a season year key or directly by conference
+            html += '<table class="forumline"><tr><th class="catHead" colspan="8">' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
             var confData = l.standings;
             if (l.current_season && l.standings[l.current_season]) {
                 confData = l.standings[l.current_season];
             } else {
-                // Try the first key if it looks like a season year
                 var keys = Object.keys(l.standings);
                 if (keys.length > 0 && /^\d{4}/.test(keys[0])) {
                     confData = l.standings[keys[0]];
@@ -212,13 +214,13 @@ function renderStandings() {
             }
             for (var conf in confData) {
                 if (!confData.hasOwnProperty(conf)) continue;
-                html += '<tr><th class="subCatHead" colspan="7">' + conf + ' Conference</th></tr>';
-                html += '<tr><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf W</th><th class="thHead tCenter">Conf L</th><th class="thHead tCenter">Conf Rank</th></tr>';
+                html += '<tr><th class="subCatHead" colspan="8">' + conf + ' Conference</th></tr>';
+                html += '<tr><th class="thHead">#</th><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf W</th><th class="thHead tCenter">Conf L</th><th class="thHead tCenter">Rank</th></tr>';
                 var teams = confData[conf];
                 for (var j = 0; j < teams.length; j++) {
                     var t = teams[j];
                     var team = getTeamById(t.team_id);
-                    html += '<tr class="' + rowClass(j) + '"><td><a href="team.html?id=' + t.team_id + '">' + (team ? team.name : t.team_id) + '</a></td>';
+                    html += '<tr class="' + rowClass(j) + '"><td class="row-num">' + (j+1) + '</td><td><a href="team.html?id=' + t.team_id + '">' + (team ? team.name : t.team_id) + '</a></td>';
                     html += '<td class="tCenter">' + (t.wins || 0) + '</td><td class="tCenter">' + (t.losses || 0) + '</td>';
                     html += '<td class="tCenter">' + pctStr(t.win_pct) + '</td>';
                     html += '<td class="tCenter">' + (t.conf_wins !== undefined ? t.conf_wins : '-') + '</td><td class="tCenter">' + (t.conf_losses !== undefined ? t.conf_losses : '-') + '</td>';
@@ -275,19 +277,23 @@ function renderTicker() {
         items.push('<span class="ticker-item"><a href="game.html?id=' + g.id + '">' + (away ? away.abbreviation : (g.away_team_name || '?')) + ' ' + (g.away_score || 0) + ' - ' + (home ? home.abbreviation : (g.home_team_name || '?')) + ' ' + (g.home_score || 0) + ' FINAL</a></span>');
     }
     if (items.length === 0) items.push('<span class="ticker-item">Welcome to MADCAP - Modular Athlete Database & Career Analysis Platform</span>');
-    el.innerHTML = '<span class="ticker-label">TICKER</span>' + items.join('<span class="ticker-sep">|</span>');
+    // Use marquee-style scrolling ticker
+    el.innerHTML = '<span class="ticker-label">TICKER</span><span class="ticker-content">' + items.join('<span class="ticker-sep">|</span>') + '</span>';
 }
 
 function renderTransactionsWidget() {
     var el = document.getElementById('transactions-widget');
     if (!el) return;
-    var txns = (DATA.transactions || []).slice(-5).reverse();
+    var txns = (DATA.transactions || []).slice(-8).reverse();
     var html = '';
     for (var i = 0; i < txns.length; i++) {
         var t = txns[i];
-        html += '<li>' + renderTxnType(t.type) + ' <a href="player.html?id=' + t.player_id + '">' + (t.player_id || '').replace(/_/g, ' ') + '</a> <span class="gensmall">(' + (t.date || '') + ')</span></li>';
+        var isNew = isRecent(t.date);
+        html += '<li>' + renderTxnType(t.type) + ' <a href="player.html?id=' + t.player_id + '">' + (t.player_id || '').replace(/_/g, ' ') + '</a>';
+        if (isNew) html += ' <span class="blink-new">NEW</span>';
+        html += ' <span class="gensmall">(' + (t.date || '') + ')</span></li>';
     }
-    if (!html) html = '<li class="gensmall" style="color:#666;">No transactions</li>';
+    if (!html) html = '<li class="gensmall">No transactions</li>';
     el.innerHTML = html;
 }
 
@@ -301,6 +307,85 @@ function renderInjuryWidget() {
         html += '<li>' + renderInjuryIndicator(inj.severity) + ' <a href="player.html?id=' + inj.player_id + '">' + (inj.player_id || '').replace(/_/g, ' ') + '</a> - ' + (inj.type || '') + '</li>';
     }
     if (!html) html = '<li class="gensmall" style="color:#006600;">All healthy</li>';
+    el.innerHTML = html;
+}
+
+// === NEW: Mini Standings Widget ===
+function renderMiniStandings() {
+    var el = document.getElementById('mini-standings-widget');
+    if (!el) return;
+    var html = '';
+    for (var i = 0; i < DATA.leagues.length; i++) {
+        var l = DATA.leagues[i];
+        if (!l.standings || Object.keys(l.standings).length === 0) continue;
+        var confData = l.standings;
+        if (l.current_season && l.standings[l.current_season]) confData = l.standings[l.current_season];
+        else {
+            var keys = Object.keys(l.standings);
+            if (keys.length > 0 && /^\d{4}/.test(keys[0])) confData = l.standings[keys[0]];
+        }
+        html += '<table class="mini-table"><tr><th colspan="3">' + (l.abbreviation || l.name) + '</th></tr>';
+        html += '<tr><th>Team</th><th>W-L</th><th>%</th></tr>';
+        var count = 0;
+        for (var conf in confData) {
+            if (!confData.hasOwnProperty(conf)) continue;
+            var teams = confData[conf];
+            for (var j = 0; j < Math.min(teams.length, 3); j++) {
+                var t = teams[j];
+                var team = getTeamById(t.team_id);
+                html += '<tr><td><a href="team.html?id=' + t.team_id + '">' + (team ? team.abbreviation : t.team_id) + '</a></td>';
+                html += '<td class="tCenter">' + (t.wins||0) + '-' + (t.losses||0) + '</td>';
+                html += '<td class="tCenter">' + pctStr(t.win_pct) + '</td></tr>';
+                count++;
+            }
+        }
+        html += '</table>';
+        if (count === 0) html = '';
+    }
+    if (!html) html = '<span class="gensmall">No standings data</span>';
+    el.innerHTML = html;
+}
+
+// === NEW: Today's Games Widget ===
+function renderTodaysGames() {
+    var el = document.getElementById('todays-games-widget');
+    if (!el) return;
+    var today = new Date().toISOString().slice(0, 10);
+    var todayGames = DATA.games.filter(function(g) { return g.date === today; });
+    if (todayGames.length === 0) { el.innerHTML = '<span class="gensmall">No games today</span>'; return; }
+    var html = '<table class="mini-table"><tr><th>Away</th><th>@</th><th>Home</th><th>Status</th></tr>';
+    for (var i = 0; i < todayGames.length; i++) {
+        var g = todayGames[i];
+        var home = getTeamById(g.home_team_id);
+        var away = getTeamById(g.away_team_id);
+        html += '<tr><td>' + (away ? away.abbreviation : '?') + '</td><td class="tCenter">@</td><td>' + (home ? home.abbreviation : '?') + '</td>';
+        html += '<td class="tCenter">' + (g.status === 'final' ? (g.away_score + '-' + g.home_score) : g.time || g.status) + '</td></tr>';
+    }
+    html += '</table>';
+    el.innerHTML = html;
+}
+
+// === NEW: Birthday Widget ===
+function renderBirthdayWidget() {
+    var el = document.getElementById('birthday-widget');
+    if (!el) return;
+    var today = new Date();
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var dd = String(today.getDate()).padStart(2, '0');
+    var todayStr = mm + '-' + dd;
+    var bdays = DATA.players.filter(function(p) {
+        if (!p.birthdate) return false;
+        return p.birthdate.slice(5) === todayStr;
+    });
+    if (bdays.length === 0) { el.innerHTML = '<span class="gensmall">No birthdays today</span>'; return; }
+    var html = '';
+    for (var i = 0; i < bdays.length; i++) {
+        var p = bdays[i];
+        var age = calculateAge(p.birthdate);
+        html += '<a href="player.html?id=' + p.id + '">' + p.name + '</a>';
+        if (age) html += ' <span class="gensmall">(turns ' + age + ')</span>';
+        html += '<br>';
+    }
     el.innerHTML = html;
 }
 
@@ -319,7 +404,7 @@ function renderSchedule() {
         var g = games[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.time || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.time || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
         html += '<td>' + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
         html += '<td class="tCenter gensmall">@</td>';
         html += '<td>' + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
@@ -330,6 +415,9 @@ function renderSchedule() {
         }
         html += '<td class="tCenter gensmall">' + g.status + '</td><td class="gensmall">' + (g.venue || '') + '</td></tr>';
     }
-    if (!html) html = '<tr class="row1"><td colspan="9" class="gensmall" style="color:#666;text-align:center;">No games found</td></tr>';
+    if (!html) html = '<tr class="row1"><td colspan="10" class="gensmall" style="text-align:center;">No games found</td></tr>';
     tbody.innerHTML = html;
+    // Show count
+    var countEl = document.getElementById('schedule-count');
+    if (countEl) countEl.textContent = 'Showing ' + games.length + ' of ' + DATA.games.length + ' games';
 }

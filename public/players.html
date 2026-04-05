@@ -10,35 +10,15 @@
 <body>
 <div id="body-container">
     <div id="page-header">
-        <nav id="main-nav" aria-label="Main navigation">
-            <ul>
-                <li><a href="index.html"><b>MADCAP</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="players.html"><b>Players</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="teams.html"><b>Teams</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="leagues.html"><b>Leagues</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="drafts.html"><b>Drafts</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="schedule.html"><b>Schedule</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="admin/login"><b>Admin</b></a></li>
-            </ul>
-        </nav>
-        <div id="top-bar">
-            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" aria-label="Toggle edit mode" style="color:#0066CC;font-weight:bold;font-size:10px;text-decoration:none;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot" aria-hidden="true">&middot;</span>
-            <a href="admin/login">Login</a><span class="middot" aria-hidden="true">&middot;</span>
-            <span class="gensmall">Data is simulated for entertainment purposes</span>
-        </div>
+        <nav id="main-nav" aria-label="Main navigation"></nav>
+        <div id="top-bar"></div>
     </div>
 
     <div class="breadcrumb" aria-label="Breadcrumb">
         <a href="index.html">MADCAP Index</a><span class="middot" aria-hidden="true">&middot;</span> Players Database
     </div>
 
-    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading data...</div>
+    <div id="loading-indicator" class="loading-text" style="display:none;">Loading data</div>
 
     <div class="filters-bar">
         <label for="search-input">Search: <input type="text" id="search-input" class="post" placeholder="Name..."></label>
@@ -74,28 +54,35 @@
         <button type="button" id="add-player-btn" onclick="openPlayerEditor(null)" style="display:none;" class="liteoption">+ Add Player</button>
     </div>
 
+    <div class="bulk-bar" id="bulk-bar">
+        <span>Selected: <b id="bulk-count">0</b></span>
+        <button type="button" onclick="bulkDeletePlayers()">Delete Selected</button>
+    </div>
+
+    <div class="data-strip"><span id="player-count" class="gensmall">Loading...</span></div>
+
     <table class="forumline">
-        <tr><th class="catHead" colspan="10">Player Database</th></tr>
+        <tr><th class="catHead" colspan="15">Player Database</th></tr>
         <tr>
+            <th class="thHead">#</th>
+            <th class="thHead" id="edit-col-header" style="display:none;"><input type="checkbox" onclick="toggleAllBulk(this)"></th>
             <th class="thHead"><a href="#" data-sort="name">Name</a></th>
             <th class="thHead"><a href="#" data-sort="position">Pos</a></th>
+            <th class="thHead">Age</th>
             <th class="thHead"><a href="#" data-sort="height">HT</a></th>
             <th class="thHead"><a href="#" data-sort="weight">WT</a></th>
             <th class="thHead">Team</th>
             <th class="thHead"><a href="#" data-sort="overall">OVR</a></th>
-            <th class="thHead">Archetype</th>
+            <th class="thHead">PPG</th>
+            <th class="thHead">APG</th>
+            <th class="thHead">RPG</th>
             <th class="thHead"><a href="#" data-sort="status">Status</a></th>
-            <th class="thHead">FIC</th>
             <th class="thHead" id="edit-col-header" style="display:none;">Actions</th>
         </tr>
         <tbody id="player-tbody"></tbody>
     </table>
 
-    <div id="page-footer">
-        <table class="forumline">
-            <tr><td class="catHead tCenter">MADCAP v1.0 &middot; Modular Athlete Database & Career Analysis Platform</td></tr>
-        </table>
-    </div>
+    <div id="page-footer"></div>
 </div>
 
 <script src="js/app.js"></script>
@@ -109,11 +96,33 @@
             if (loading) loading.style.display = 'none';
             renderPlayerList();
             setupPlayerFilters();
+            renderFooter();
         }).catch(function(err) {
             console.error('Failed to load data:', err);
             if (loading) loading.textContent = 'Failed to load data. Please refresh.';
         });
     });
+    function toggleAllBulk(cb) {
+        var boxes = document.querySelectorAll('.bulk-checkbox');
+        for (var i = 0; i < boxes.length; i++) boxes[i].checked = cb.checked;
+        updateBulkCount();
+    }
+    function updateBulkCount() {
+        var checked = document.querySelectorAll('.bulk-checkbox:checked');
+        var el = document.getElementById('bulk-count');
+        if (el) el.textContent = checked.length;
+    }
+    function bulkDeletePlayers() {
+        var checked = document.querySelectorAll('.bulk-checkbox:checked');
+        if (checked.length === 0) { alert('No players selected'); return; }
+        if (!confirm('Delete ' + checked.length + ' player(s)?')) return;
+        var promises = [];
+        for (var i = 0; i < checked.length; i++) {
+            promises.push(fetch('api/players/' + checked[i].getAttribute('data-id'), { method: 'DELETE' }));
+        }
+        Promise.all(promises).then(function() { loadAllData().then(refreshCurrentPage); });
+    }
+    document.addEventListener('change', function(e) { if (e.target.classList.contains('bulk-checkbox')) updateBulkCount(); });
 </script>
 </body>
 </html>

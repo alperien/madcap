@@ -10,39 +10,20 @@
 <body>
 <div id="body-container">
     <div id="page-header">
-        <nav id="main-nav" aria-label="Main navigation">
-            <ul>
-                <li><a href="index.html"><b>MADCAP</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="players.html"><b>Players</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="teams.html"><b>Teams</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="leagues.html"><b>Leagues</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="drafts.html"><b>Drafts</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="schedule.html"><b>Schedule</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
-                <li><a href="admin/login"><b>Admin</b></a></li>
-            </ul>
-        </nav>
-        <div id="top-bar">
-            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" aria-label="Toggle edit mode" style="color:#0066CC;font-weight:bold;font-size:10px;text-decoration:none;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot" aria-hidden="true">&middot;</span>
-            <a href="admin/login">Login</a><span class="middot" aria-hidden="true">&middot;</span>
-            <span class="gensmall">Data is simulated for entertainment purposes</span>
-        </div>
+        <nav id="main-nav" aria-label="Main navigation"></nav>
+        <div id="top-bar"></div>
     </div>
 
     <div class="breadcrumb" aria-label="Breadcrumb">
-        <a href="index.html">MADCAP Index</a><span class="middot" aria-hidden="true">&middot;</span>
-        <a href="teams.html">Teams</a><span class="middot" aria-hidden="true">&middot;</span>
+        <a href="index.html">MADCAP Index</a><span class="middot">&middot;</span>
+        <a href="teams.html">Teams</a><span class="middot">&middot;</span>
         <span id="breadcrumb-team">Team Page</span>
     </div>
 
-    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading data...</div>
+    <div id="loading-indicator" class="loading-text" style="display:none;">Loading data</div>
 
     <div id="team-header-section"></div>
+    <div id="team-stats-section"></div>
 
     <table class="forumline">
         <tr><th class="catHead" colspan="8">Roster</th></tr>
@@ -57,16 +38,12 @@
     </table>
 
     <table class="forumline">
-        <tr><th class="catHead" colspan="4">Recent Games</th></tr>
-        <tr><th class="thHead">Date</th><th class="thHead">Opponent</th><th class="thHead tCenter">Result</th><th class="thHead tCenter">Score</th></tr>
+        <tr><th class="catHead" colspan="5">Recent Games</th></tr>
+        <tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Opponent</th><th class="thHead tCenter">Result</th><th class="thHead tCenter">Score</th></tr>
         <tbody id="team-games-body"></tbody>
     </table>
 
-    <div id="page-footer">
-        <table class="forumline">
-            <tr><td class="catHead tCenter">MADCAP v1.0 &middot; Modular Athlete Database & Career Analysis Platform</td></tr>
-        </table>
-    </div>
+    <div id="page-footer"></div>
 </div>
 
 <script src="js/app.js"></script>
@@ -82,8 +59,9 @@
             var id = params.get('id');
             if (id) renderTeamPage(id);
             else if (document.getElementById('team-header-section')) {
-                document.getElementById('team-header-section').innerHTML = '<table class="forumline"><tr><td class="row1" style="padding:8px;">No team ID specified. <a href="teams.html">Browse teams</a></td></tr></table>';
+                document.getElementById('team-header-section').innerHTML = '<table class="forumline"><tr><td class="row1" style="padding:6px;">No team ID specified. <a href="teams.html">Browse teams</a></td></tr></table>';
             }
+            renderFooter();
         }).catch(function(err) {
             console.error('Failed to load data:', err);
             if (loading) loading.textContent = 'Failed to load data. Please refresh.';
