@@ -591,15 +591,27 @@ function renderSchedule() {
 }
 
 // === Shared tooltip utility ===
-// Creates a single tooltip element and attaches hover handlers to a container.
+// Creates a single shared tooltip element and attaches hover handlers to a container.
+// Reuses existing tooltip if one was already created for this container.
 // selector: CSS selector for hoverable elements within container
 // contentFn: function(el) that returns tooltip HTML string
+var _sharedTooltip = null;
+function _getSharedTooltip() {
+    if (!_sharedTooltip) {
+        _sharedTooltip = document.createElement('div');
+        _sharedTooltip.className = 'css-chart-tooltip';
+        _sharedTooltip.style.display = 'none';
+        document.body.appendChild(_sharedTooltip);
+    }
+    return _sharedTooltip;
+}
+
 function attachTooltip(container, selector, contentFn) {
     if (!container) return;
-    var tip = document.createElement('div');
-    tip.className = 'css-chart-tooltip';
-    tip.style.display = 'none';
-    document.body.appendChild(tip);
+    // Prevent attaching duplicate handlers to the same container+selector
+    var key = '_tip_' + selector.replace(/[^a-zA-Z0-9]/g, '_');
+    if (container[key]) return container[key];
+    var tip = _getSharedTooltip();
 
     container.addEventListener('mouseover', function(e) {
         var el = e.target.closest(selector);
@@ -623,5 +635,6 @@ function attachTooltip(container, selector, contentFn) {
             tip.style.display = 'none';
         }
     });
+    container[key] = tip;
     return tip;
 }

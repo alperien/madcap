@@ -494,10 +494,8 @@
         chartsSection.innerHTML = html;
 
         // --- Interactive: tooltip + cross-chart highlight ---
-        var tooltip = document.createElement('div');
-        tooltip.className = 'css-chart-tooltip';
-        tooltip.style.display = 'none';
-        document.body.appendChild(tooltip);
+        // Reuse shared tooltip to avoid memory leaks on re-render
+        var tooltip = _getSharedTooltip();
 
         // Build tooltip content for a season
         function tooltipHtml(idx) {
@@ -848,11 +846,8 @@
         html += '<div class="gensmall" style="padding:2px;">' + allGames.length + ' games shown</div>';
         container.innerHTML = html;
 
-        // Game log tooltip
-        var glTip = document.createElement('div');
-        glTip.className = 'css-chart-tooltip';
-        glTip.style.display = 'none';
-        document.body.appendChild(glTip);
+        // Game log tooltip - reuse shared tooltip to prevent memory leaks
+        var glTip = _getSharedTooltip();
 
         container.addEventListener('mouseover', function(e) {
             var row = e.target.closest('.gamelog-row');
