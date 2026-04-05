@@ -43,12 +43,12 @@ class TestMADCAPAPI(unittest.TestCase):
 
     def test_unauthorized_put(self):
         """Test that PUT without auth returns 401."""
-        resp = self.client.put('/api/players/player_001', json={'name': 'Test'})
+        resp = self.client.put('/api/players/marcus_thompson', json={'name': 'Test'})
         self.assertEqual(resp.status_code, 401)
 
     def test_unauthorized_delete(self):
         """Test that DELETE without auth returns 401."""
-        resp = self.client.delete('/api/players/player_001')
+        resp = self.client.delete('/api/players/marcus_thompson')
         self.assertEqual(resp.status_code, 401)
 
     # --- Players ---
@@ -62,14 +62,14 @@ class TestMADCAPAPI(unittest.TestCase):
 
     def test_get_player(self):
         """Test GET /api/players/<id>."""
-        resp = self.client.get('/api/players/player_001')
+        resp = self.client.get('/api/players/marcus_thompson')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
-        self.assertEqual(data['id'], 'player_001')
+        self.assertEqual(data['id'], 'marcus_thompson')
 
     def test_get_player_not_found(self):
         """Test GET /api/players/<id> for non-existent player."""
-        resp = self.client.get('/api/players/player_999')
+        resp = self.client.get('/api/players/nonexistent_player')
         self.assertEqual(resp.status_code, 404)
 
     def test_create_player(self):
@@ -90,14 +90,14 @@ class TestMADCAPAPI(unittest.TestCase):
 
     def test_update_player(self):
         """Test PUT /api/players/<id>."""
-        resp = self.client.put('/api/players/player_001',
+        resp = self.client.put('/api/players/marcus_thompson',
                                json={'name': 'Updated Name'},
                                headers=self._auth_headers())
         self.assertEqual(resp.status_code, 200)
 
     def test_update_player_not_found(self):
         """Test PUT /api/players/<id> for non-existent player."""
-        resp = self.client.put('/api/players/player_999',
+        resp = self.client.put('/api/players/nonexistent_player',
                                json={'name': 'Test'},
                                headers=self._auth_headers())
         self.assertEqual(resp.status_code, 404)

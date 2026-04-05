@@ -8,7 +8,7 @@
           "round": 1,
           "pick": 12,
           "team_id": "nba_cha",
-          "player_id": "player_001",
+          "player_id": "marcus_thompson",
           "player_name": "Marcus Thompson",
           "is_fictional": true
         }
@@ -22,7 +22,7 @@
           "round": 2,
           "pick": 38,
           "team_id": "nba_cha",
-          "player_id": "player_003",
+          "player_id": "jamal_reeves",
           "player_name": "Jamal Reeves",
           "is_fictional": true
         }

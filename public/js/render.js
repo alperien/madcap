@@ -1,5 +1,48 @@
 function rowClass(i) { return i % 2 === 0 ? 'row1' : 'row2'; }
 
+function numStr(val) {
+    if (val === undefined || val === null || val === '') return '-';
+    var n = Number(val);
+    if (isNaN(n)) return '-';
+    return n % 1 === 0 ? String(n) : n.toFixed(1);
+}
+
+function pctStr(val) {
+    if (val === undefined || val === null || val === '') return '-';
+    var n = Number(val);
+    if (isNaN(n)) return '-';
+    if (n <= 1) return (n * 100).toFixed(1) + '%';
+    return n.toFixed(1) + '%';
+}
+
+var FLAG_MAP = {
+    'USA': '\uD83C\uDDFA\uD83C\uDDF8', 'Canada': '\uD83C\uDDE8\uD83C\uDDE6',
+    'France': '\uD83C\uDDEB\uD83C\uDDF7', 'Spain': '\uD83C\uDDEA\uD83C\uDDF8',
+    'Australia': '\uD83C\uDDE6\uD83C\uDDFA', 'Germany': '\uD83C\uDDE9\uD83C\uDDEA',
+    'Nigeria': '\uD83C\uDDF3\uD83C\uDDEC', 'Cameroon': '\uD83C\uDDE8\uD83C\uDDF2',
+    'Serbia': '\uD83C\uDDF7\uD83C\uDDF8', 'Greece': '\uD83C\uDDEC\uD83C\uDDF7',
+    'Slovenia': '\uD83C\uDDF8\uD83C\uDDEE', 'Japan': '\uD83C\uDDEF\uD83C\uDDF5',
+    'Brazil': '\uD83C\uDDE7\uD83C\uDDF7', 'UK': '\uD83C\uDDEC\uD83C\uDDE7'
+};
+
+function renderFlag(nationality, size) {
+    if (!nationality) return '';
+    var flag = FLAG_MAP[nationality] || '';
+    if (!flag) return '';
+    var cls = size === 'large' ? 'player-flag' : 'list-flag';
+    return '<span class="' + cls + '">' + flag + '</span>';
+}
+
+function renderAvatar(player, size) {
+    var isLarge = size === 'large';
+    var cls = isLarge ? 'player-avatar' : 'list-avatar';
+    if (player.avatar_url) {
+        return '<span class="' + cls + '"><img src="' + player.avatar_url + '" alt="' + (player.name || '') + '"></span>';
+    }
+    var initials = (player.name || '?').split(' ').map(function(w) { return w.charAt(0); }).join('').substring(0, 2).toUpperCase();
+    return '<span class="' + cls + '">' + initials + '</span>';
+}
+
 function renderLeagueHub() {
     var tbody = document.getElementById('league-hub-body');
     if (!tbody) return;
@@ -156,12 +199,22 @@ function renderStandings() {
         var l = DATA.leagues[i];
         if (l.standings && Object.keys(l.standings).length > 0) {
             html += '<table class="forumline"><tr><th class="catHead" colspan="7">' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
-            var seasons = l.standings;
-            for (var conf in seasons) {
-                if (!seasons.hasOwnProperty(conf)) continue;
+            // Standings may be nested under a season year key or directly by conference
+            var confData = l.standings;
+            if (l.current_season && l.standings[l.current_season]) {
+                confData = l.standings[l.current_season];
+            } else {
+                // Try the first key if it looks like a season year
+                var keys = Object.keys(l.standings);
+                if (keys.length > 0 && /^\d{4}/.test(keys[0])) {
+                    confData = l.standings[keys[0]];
+                }
+            }
+            for (var conf in confData) {
+                if (!confData.hasOwnProperty(conf)) continue;
                 html += '<tr><th class="subCatHead" colspan="7">' + conf + ' Conference</th></tr>';
                 html += '<tr><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf W</th><th class="thHead tCenter">Conf L</th><th class="thHead tCenter">Conf Rank</th></tr>';
-                var teams = seasons[conf];
+                var teams = confData[conf];
                 for (var j = 0; j < teams.length; j++) {
                     var t = teams[j];
                     var team = getTeamById(t.team_id);
