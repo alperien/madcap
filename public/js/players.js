@@ -82,7 +82,7 @@
             html += '<td class="tCenter gensmall">' + coloredStat(latestStats.rpg, RPG_THRESH) + '</td>';
             html += '<td class="tCenter gensmall">' + renderStatusDot(p.status) + (p.status || '-') + '</td>';
             if (EDIT_MODE) {
-                html += '<td class="tCenter"><a href="#" onclick="openPlayerEditor(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
+                html += '<td class="tCenter"><a href="#" onclick="openPlayerEditor(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
             }
             html += '</tr>';
         }
@@ -186,7 +186,7 @@
 
         var html = '<table class="forumline player-header-table">';
         html += '<tr><th class="catHead" colspan="4">Player Profile';
-        if (EDIT_MODE) html += ' <a href="#" onclick="openPlayerEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:#FFD700;">[edit]</a>';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openPlayerEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
         html += '</th></tr>';
         html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;border-left:4px solid ' + teamColor + ';">';
         html += '<div class="player-header-content">';
@@ -383,7 +383,7 @@
         if (ppgCanvas) {
             new Chart(ppgCanvas, {
                 type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#CC0000', backgroundColor: 'rgba(204,0,0,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#6688AA', backgroundColor: 'rgba(102,136,170,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
                 options: chartDefaults
             });
         }
@@ -392,7 +392,7 @@
         if (apgCanvas) {
             new Chart(apgCanvas, {
                 type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#00CC00', backgroundColor: 'rgba(0,204,0,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#5A8A5A', backgroundColor: 'rgba(90,138,90,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
                 options: chartDefaults
             });
         }
@@ -416,9 +416,9 @@
                 data: {
                     labels: seasonLabels,
                     datasets: [
-                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#CC0000', borderWidth: 0, borderRadius: 0 },
-                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#00CC00', borderWidth: 0, borderRadius: 0 },
-                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#FFCC00', borderWidth: 0, borderRadius: 0 }
+                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#6688AA', borderWidth: 0, borderRadius: 0 },
+                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#5A8A5A', borderWidth: 0, borderRadius: 0 },
+                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#8A8A5A', borderWidth: 0, borderRadius: 0 }
                     ]
                 },
                 options: legendDefaults
@@ -587,7 +587,7 @@
 
         allGames.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="14">Full Game Log <span class="gensmall" style="color:#FFD700;">(' + allGames.length + ' total games)</span></th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="14">Full Game Log <span class="gensmall" style="color:var(--link-color);">(' + allGames.length + ' total games)</span></th></tr>';
         html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Opp</th><th class="thHead">Result</th><th class="thHead">Team</th><th class="thHead tCenter">MIN</th><th class="thHead tCenter">PTS</th><th class="thHead tCenter">AST</th><th class="thHead tCenter">REB</th><th class="thHead tCenter">STL</th><th class="thHead tCenter">BLK</th><th class="thHead tCenter">FG</th><th class="thHead tCenter">3P</th><th class="thHead tCenter">FT</th></tr>';
         for (var i = 0; i < allGames.length; i++) {
             var g = allGames[i];

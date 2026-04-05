@@ -86,73 +86,28 @@
         topBar.innerHTML = html;
     }
 
-    // === RENDER FOOTER (GeoCities Shrine) ===
+    // === RENDER FOOTER (clean, minimal) ===
     function renderFooter() {
         var footerEl = document.getElementById('page-footer');
         if (!footerEl) return;
         var now = new Date();
         var timestamp = now.toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
         var loadTime = ((performance.now()) / 1000).toFixed(3);
-        // Fake visitor count
-        var baseVisitors = 4832;
-        var daysSinceEpoch = Math.floor(now.getTime() / 86400000);
-        var visitors = baseVisitors + (daysSinceEpoch % 1000);
-        var visitorStr = String(visitors).padStart(8, '0');
 
-        var html = '<table class="forumline"><tr><td class="catHead tCenter">';
-        html += 'MADCAP v2.0 &middot; Modular Athlete Database & Career Analysis Platform';
-        html += '</td></tr><tr><td class="row1"><div class="footer-retro">';
-
-        // Rainbow divider
-        html += '<hr class="rainbow-hr">';
-
-        // Visitor counter
-        html += '<div style="margin: 6px 0;">';
-        html += '<span class="gensmall">You are visitor number: </span>';
-        html += '<span class="visitor-counter">' + visitorStr + '</span>';
-        html += '</div>';
-
-        // 88x31 badges with distinct styles
-        html += '<div class="footer-badges">';
-        html += '<span class="footer-badge badge-bestviewed">BEST VIEWED<br>1024x768</span>';
-        html += '<span class="footer-badge badge-flask">POWERED BY<br>FLASK</span>';
-        html += '<span class="footer-badge badge-madcap">MADCAP<br>v2.0</span>';
-        html += '<span class="footer-badge badge-vanillajs">VANILLA JS<br>NO FRAMEWORKS</span>';
-        html += '<span class="footer-badge badge-html5">HTML 5<br>CERTIFIED</span>';
-        html += '<span class="footer-badge badge-darkmode">DARK MODE<br>ENABLED</span>';
-        html += '</div>';
-
-        // Webring
-        html += '<div class="webring">';
-        html += '[ <a href="#">&lt;&lt; Prev</a> | <b>NBA Stats Ring</b> | <a href="#">Next &gt;&gt;</a> | <a href="#">Random</a> ]';
-        html += '</div>';
-
-        // Guestbook
-        html += '<div style="margin: 3px 0;">';
-        html += '<a href="#" class="guestbook-link" onclick="return false;">Sign our Guestbook!</a>';
-        html += '</div>';
-
-        // Site award
-        html += '<div class="site-award">';
-        html += 'MADCAP - Underground Sports DB of the Month - RetroWeb 2003';
-        html += '</div>';
-
-        // Rainbow divider
-        html += '<hr class="rainbow-hr">';
+        var html = '<div style="border-top: 1px solid var(--border-color); margin-top: 6px; padding: 4px 0;">';
 
         // Meta info
-        html += '<div class="footer-meta">';
-        html += 'Page generated in ' + loadTime + 's';
-        html += ' | Last database update: ' + timestamp;
-        html += ' | All data is simulated for entertainment purposes';
+        html += '<div class="footer-meta" style="text-align:center;">';
+        html += 'MADCAP &middot; Page generated in ' + loadTime + 's';
+        html += ' &middot; Last update: ' + timestamp;
         html += '</div>';
 
         // Disclaimer
-        html += '<div style="font-size:7px;color:var(--text-light);margin-top:4px;">';
-        html += 'MADCAP is a fictional sports database project. All player data, statistics, and events are simulated. No real athletes were harmed in the making of this database. Best viewed at 1024x768 or higher resolution. This site is not affiliated with the NBA, NCAA, or any professional sports organization.';
+        html += '<div style="text-align:center;font-size:7px;color:var(--text-light);margin-top:3px;">';
+        html += 'Fictional sports database. All data is simulated. Not affiliated with the NBA, NCAA, or any professional sports organization.';
         html += '</div>';
 
-        html += '</div></td></tr></table>';
+        html += '</div>';
         footerEl.innerHTML = html;
     }
     window.renderFooter = renderFooter;

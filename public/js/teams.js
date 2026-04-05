@@ -25,7 +25,7 @@
             html += '<td class="tCenter mono">' + pctStr(cs.win_pct) + '</td>';
             html += '<td class="tCenter mono">' + (cs.conference_rank || '-') + '</td>';
             if (EDIT_MODE) {
-                html += '<td class="tCenter"><a href="#" onclick="openTeamEditor(DATA.teams.find(function(x){return x.id===\'' + t.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTeam(\'' + t.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
+                html += '<td class="tCenter"><a href="#" onclick="openTeamEditor(DATA.teams.find(function(x){return x.id===\'' + t.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTeam(\'' + t.id + '\');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
             }
             html += '</tr>';
         }
@@ -57,7 +57,7 @@
         var teamColor2 = team.colors && team.colors[1] ? team.colors[1] : teamColor;
         var html = '<table class="forumline">';
         html += '<tr><th class="catHead" style="background:' + teamColor + ';border-color:' + teamColor2 + ';" colspan="4">Team Profile';
-        if (EDIT_MODE) html += ' <a href="#" onclick="openTeamEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:#FFD700;">[edit]</a>';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openTeamEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
         html += '</th></tr>';
         html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;border-left:4px solid ' + teamColor + ';">';
         html += '<span class="team-name">' + renderTeamColorDot(team) + (team.name || 'Unknown') + ' (' + (team.abbreviation || '?') + ')</span><br>';
