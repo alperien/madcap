@@ -28,7 +28,7 @@
         html += formRow('Nationality', formInput('pf-nat', p.nationality, { placeholder: 'USA' }));
 
         if (isFic) {
-            html += formRow('Avatar URL', formInput('pf-avatar', p.avatar_url));
+            html += formRow('Avatar', imageUploadWidget('pf-avatar', p.avatar_url, 'players'));
             html += formRow('Notes', formTextarea('pf-notes', p.notes, 3));
         } else {
             html += formRow('Team ID', teamSelectOptionsWithId('pf-team', p.team_id));
@@ -746,6 +746,7 @@
         html += formRow('Founded', formNumber('tf-founded', t.founded, 1900, 2040));
         html += formRow('Color 1 (hex)', formInput('tf-color1', t.colors && t.colors[0] ? t.colors[0] : '', { placeholder: '#1D1160' }));
         html += formRow('Color 2 (hex)', formInput('tf-color2', t.colors && t.colors[1] ? t.colors[1] : '', { placeholder: '#00788C' }));
+        html += formRow('Logo', imageUploadWidget('tf-logo', t.logo_url, 'teams'));
         html += formRow('Head Coach', formInput('tf-coach', staff.head_coach));
         html += formRow('GM', formInput('tf-gm', staff.gm));
         html += '<div class="form-actions"><button type="button" class="btn-primary" onclick="saveTeamBio(' + (isEdit ? "'" + t.id + "'" : 'null') + ')">Save</button> <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button></div>';
@@ -771,6 +772,7 @@
         var c1 = document.getElementById('tf-color1').value.trim();
         var c2 = document.getElementById('tf-color2').value.trim();
         if (c1 || c2) body.colors = [c1, c2].filter(function(c) { return c; });
+        body.logo_url = document.getElementById('tf-logo') ? document.getElementById('tf-logo').value : '';
 
         if (!body.name) { showToast('Name is required', 'error'); return; }
 

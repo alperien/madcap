@@ -34,3 +34,7 @@ package-lock.json
 # Test artifacts
 data/players/test_player.yaml
 .pytest_cache/
+
+# Uploaded images (keep .gitkeep)
+public/uploads/*
+!public/uploads/.gitkeep

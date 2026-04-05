@@ -58,6 +58,19 @@ function renderPosBadge(position) {
     return '<span class="pos-badge pos-badge-' + position + '">' + position + '</span>';
 }
 
+function renderTeamLogo(team, size) {
+    if (!team) return '';
+    var isLarge = size === 'large';
+    var cls = isLarge ? 'team-logo team-logo-lg' : 'team-logo team-logo-sm';
+    if (team.logo_url) {
+        return '<span class="' + cls + '"><img src="' + team.logo_url + '" alt="' + (team.abbreviation || team.name || '') + '"></span>';
+    }
+    // Fallback: colored abbreviation box
+    var color = team.colors && team.colors[0] ? team.colors[0] : 'var(--cat-head-bg)';
+    var abbr = (team.abbreviation || '?').substring(0, 3);
+    return '<span class="' + cls + '" style="background:' + color + ';">' + abbr + '</span>';
+}
+
 function renderStatusDot(status) {
     if (!status) return '';
     var cls = 'status-dot status-dot-' + status.replace(/[^a-z_]/gi, '_').toLowerCase();

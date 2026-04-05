@@ -816,6 +816,20 @@ body.edit-mode .add-btn:hover { color: #FFF; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
 
+/* === IMAGE UPLOAD WIDGET === */
+.image-upload-widget { display: flex; flex-direction: column; gap: 3px; }
+.image-preview { max-width: 80px; max-height: 80px; border: 1px solid var(--border-color); background: var(--row1-bg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.image-preview img { max-width: 80px; max-height: 80px; object-fit: contain; }
+.image-upload-controls { display: flex; align-items: center; gap: 4px; }
+.image-url-row { display: flex; gap: 4px; }
+.image-url-row input { font-size: 8px; padding: 2px 4px; }
+
+/* === TEAM LOGOS === */
+.team-logo { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; overflow: hidden; border: 1px solid var(--border-color); }
+.team-logo img { width: 100%; height: 100%; object-fit: contain; }
+.team-logo-sm { width: 18px; height: 18px; font-size: 6px; font-weight: bold; color: #FFF; border-radius: 2px; }
+.team-logo-lg { width: 48px; height: 48px; font-size: 12px; font-weight: bold; color: #FFF; border-radius: 3px; flex-shrink: 0; }
+
 /* === RESPONSIVE TWEAKS === */
 @media (max-width: 800px) {
     .three-column td.col-left,

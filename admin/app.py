@@ -6,6 +6,7 @@ import threading
 import secrets
 import logging
 import re
+import uuid
 from html import escape as html_escape
 from functools import wraps
 from datetime import datetime
@@ -33,6 +34,10 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')
 PLAYERS_DIR = os.path.join(DATA_DIR, 'players')
 TEAMS_DIR = os.path.join(DATA_DIR, 'teams')
 LORE_DIR = os.path.join(DATA_DIR, 'lore')
+UPLOADS_DIR = os.path.join(PUBLIC_DIR, 'uploads')
+
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+MAX_IMAGE_SIZE = 2 * 1024 * 1024  # 2MB
 
 # --- Auth ---
 ADMIN_USER = os.environ.get('ADMIN_USER', 'admin')
@@ -369,6 +374,91 @@ def admin_logout():
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'ok', 'timestamp': datetime.now().isoformat()})
+
+
+# ============================================
+# API: Image Upload
+# ============================================
+def _allowed_image(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+
+@app.route('/api/upload', methods=['POST'])
+@require_auth
+def api_upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    f = request.files['file']
+    if not f.filename or f.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    if not _allowed_image(f.filename):
+        return jsonify({'error': 'Invalid file type. Allowed: png, jpg, jpeg, gif, webp, svg'}), 400
+
+    # Read file data and check size
+    data = f.read()
+    if len(data) > MAX_IMAGE_SIZE:
+        return jsonify({'error': 'File too large. Max 2MB'}), 400
+
+    # Generate unique filename preserving extension
+    ext = f.filename.rsplit('.', 1)[1].lower()
+    unique_name = f"{uuid.uuid4().hex[:12]}.{ext}"
+
+    # Optional: use a subfolder (players/ or teams/) based on query param
+    subfolder = request.form.get('category', '').strip()
+    if subfolder and sanitize_id(subfolder):
+        upload_dir = os.path.join(UPLOADS_DIR, subfolder)
+    else:
+        upload_dir = UPLOADS_DIR
+
+    os.makedirs(upload_dir, exist_ok=True)
+    filepath = os.path.join(upload_dir, unique_name)
+
+    with file_lock:
+        with open(filepath, 'wb') as out:
+            out.write(data)
+
+    # Return the public URL path (relative to site root)
+    rel_path = os.path.relpath(filepath, PUBLIC_DIR).replace('\\', '/')
+    logger.info(f"Uploaded image: {rel_path}")
+    return jsonify({'url': rel_path, 'filename': unique_name}), 201
+
+
+@app.route('/api/uploads')
+@require_auth
+def api_list_uploads():
+    """List all uploaded images."""
+    images = []
+    for root, dirs, files in os.walk(UPLOADS_DIR):
+        for fname in sorted(files):
+            if fname.startswith('.'):
+                continue
+            fpath = os.path.join(root, fname)
+            rel = os.path.relpath(fpath, PUBLIC_DIR).replace('\\', '/')
+            stat = os.stat(fpath)
+            images.append({
+                'url': rel,
+                'filename': fname,
+                'size': stat.st_size,
+                'category': os.path.relpath(root, UPLOADS_DIR).replace('\\', '/')
+            })
+    return jsonify(images)
+
+
+@app.route('/api/uploads/<path:filename>', methods=['DELETE'])
+@require_auth
+def api_delete_upload(filename):
+    """Delete an uploaded image."""
+    safe_name = filename.replace('..', '').replace('//', '/')
+    filepath = os.path.join(UPLOADS_DIR, safe_name)
+    filepath = os.path.normpath(filepath)
+    if not filepath.startswith(os.path.normpath(UPLOADS_DIR)):
+        return jsonify({'error': 'Invalid path'}), 400
+    if not os.path.isfile(filepath):
+        return jsonify({'error': 'File not found'}), 404
+    with file_lock:
+        os.remove(filepath)
+    logger.info(f"Deleted upload: {filename}")
+    return jsonify({'ok': True})
 
 
 # ============================================
@@ -992,7 +1082,7 @@ def api_update_team(team_id):
     if not body:
         return jsonify({'error': 'Request body required'}), 400
 
-    for key in ['name', 'abbreviation', 'league', 'conference', 'division', 'city', 'state', 'arena', 'roster', 'depth_chart']:
+    for key in ['name', 'abbreviation', 'league', 'conference', 'division', 'city', 'state', 'arena', 'roster', 'depth_chart', 'logo_url']:
         if key in body:
             team[key] = body[key]
     if 'founded' in body:

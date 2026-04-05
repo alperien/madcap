@@ -789,6 +789,77 @@
     }
     window.formSlider = formSlider;
 
+    // --- Image Upload Widget ---
+    function imageUploadWidget(id, currentUrl, category) {
+        var previewStyle = currentUrl ? '' : 'display:none;';
+        var previewSrc = currentUrl || '';
+        var html = '<div class="image-upload-widget" id="' + id + '-widget">';
+        html += '<div class="image-preview" id="' + id + '-preview" style="' + previewStyle + '">';
+        if (previewSrc) html += '<img src="' + esc(previewSrc) + '" alt="preview">';
+        html += '</div>';
+        html += '<input type="hidden" id="' + id + '" value="' + esc(currentUrl || '') + '">';
+        html += '<div class="image-upload-controls">';
+        html += '<input type="file" id="' + id + '-file" accept="image/*" style="font-size:8px;max-width:180px;" onchange="handleImageUpload(\'' + id + '\',\'' + esc(category || '') + '\')">';
+        html += '<span class="gensmall" id="' + id + '-status"></span>';
+        html += '</div>';
+        html += '<div class="image-url-row" style="margin-top:3px;">';
+        html += '<input type="text" id="' + id + '-url" value="' + esc(currentUrl || '') + '" placeholder="Or paste image URL" style="font-size:8px;flex:1;" onchange="setImageFromUrl(\'' + id + '\')">';
+        html += '</div>';
+        html += '</div>';
+        return html;
+    }
+    window.imageUploadWidget = imageUploadWidget;
+
+    function handleImageUpload(id, category) {
+        var fileInput = document.getElementById(id + '-file');
+        var statusEl = document.getElementById(id + '-status');
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+
+        var file = fileInput.files[0];
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('Image too large. Max 2MB.', 'error');
+            return;
+        }
+
+        statusEl.textContent = 'Uploading...';
+        var formData = new FormData();
+        formData.append('file', file);
+        if (category) formData.append('category', category);
+
+        fetch('api/upload', {
+            method: 'POST',
+            body: formData
+        }).then(function(r) {
+            if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Upload failed'); });
+            return r.json();
+        }).then(function(data) {
+            document.getElementById(id).value = data.url;
+            document.getElementById(id + '-url').value = data.url;
+            var preview = document.getElementById(id + '-preview');
+            preview.innerHTML = '<img src="' + data.url + '" alt="preview">';
+            preview.style.display = '';
+            statusEl.textContent = 'Uploaded';
+            showToast('Image uploaded', 'success');
+        }).catch(function(err) {
+            statusEl.textContent = 'Failed';
+            showToast('Upload error: ' + err.message, 'error');
+        });
+    }
+    window.handleImageUpload = handleImageUpload;
+
+    function setImageFromUrl(id) {
+        var url = document.getElementById(id + '-url').value.trim();
+        document.getElementById(id).value = url;
+        var preview = document.getElementById(id + '-preview');
+        if (url) {
+            preview.innerHTML = '<img src="' + url + '" alt="preview">';
+            preview.style.display = '';
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+    window.setImageFromUrl = setImageFromUrl;
+
     // --- Team Picker Dropdown ---
     function teamSelectOptions(selectedId) {
         var opts = [{ value: '', label: '-- None --' }];
