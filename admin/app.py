@@ -1063,7 +1063,8 @@ def api_create_team():
         'staff': {
             'head_coach': body.get('head_coach', ''),
             'gm': body.get('gm', '')
-        }
+        },
+        'logo_url': body.get('logo_url', '')
     }
 
     save_team(new_team)
