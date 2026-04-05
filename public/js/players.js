@@ -18,6 +18,13 @@
         var statusFilter = statusEl ? statusEl.value : '';
         var ficOnly = ficEl ? ficEl.checked : false;
 
+        // Check URL query param for search
+        if (!search) {
+            var params = new URLSearchParams(window.location.search);
+            var q = params.get('q');
+            if (q && searchEl) { searchEl.value = q; search = q.toLowerCase(); }
+        }
+
         var players = DATA.players.filter(function(p) {
             if (search && p.name.toLowerCase().indexOf(search) === -1) return false;
             if (posFilter && p.position !== posFilter) return false;
@@ -56,24 +63,24 @@
             var p = players[i];
             var team = getPlayerTeam(p);
             var age = calculateAge(p.birthdate);
-            // Get latest season stats
             var latestStats = getLatestSeasonStats(p);
-            html += '<tr class="' + rowClass(i) + '">';
+            var teamColor = team && team.colors && team.colors[0] ? team.colors[0] : 'transparent';
+            html += '<tr class="' + rowClass(i) + '" style="border-left:3px solid ' + teamColor + ';">';
             html += '<td class="row-num">' + (i+1) + '</td>';
             if (EDIT_MODE) html += '<td class="tCenter"><input type="checkbox" class="bulk-checkbox" data-id="' + p.id + '"></td>';
-            html += '<td>' + renderAvatar(p, 'small') + '<a href="player.html?id=' + p.id + '">' + p.name + '</a>';
-            if (p.is_fictional) html += ' <span class="fic">[F]</span>';
+            html += '<td>' + renderStatusDot(p.status) + renderAvatar(p, 'small') + renderFlag(p.nationality) + '<a href="player.html?id=' + p.id + '">' + p.name + '</a>' + renderJerseyNum(p);
+            if (p.is_fictional) html += ' <span class="fic" title="Fictional">*</span>';
             html += '</td>';
-            html += '<td class="tCenter">' + (p.position || '-') + '</td>';
-            html += '<td class="tCenter gensmall">' + (age || '-') + '</td>';
-            html += '<td class="tCenter gensmall">' + (p.height || '-') + '</td>';
-            html += '<td class="tCenter gensmall">' + (p.weight || '-') + '</td>';
-            html += '<td class="gensmall">' + (team ? '<a href="team.html?id=' + team.id + '">' + team.abbreviation + '</a>' : '-') + '</td>';
-            html += '<td class="tCenter bold">' + (p.overall || '-') + '</td>';
-            html += '<td class="tCenter gensmall">' + numStr(latestStats.ppg) + '</td>';
-            html += '<td class="tCenter gensmall">' + numStr(latestStats.apg) + '</td>';
-            html += '<td class="tCenter gensmall">' + numStr(latestStats.rpg) + '</td>';
-            html += '<td class="tCenter gensmall">' + (p.status || '-') + '</td>';
+            html += '<td class="tCenter">' + renderPosBadge(p.position) + '</td>';
+            html += '<td class="tCenter gensmall mono">' + (age || '-') + '</td>';
+            html += '<td class="tCenter gensmall mono">' + (p.height || '-') + '</td>';
+            html += '<td class="tCenter gensmall mono">' + (p.weight || '-') + '</td>';
+            html += '<td class="gensmall">' + (team ? renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.abbreviation + '</a>' : '-') + '</td>';
+            html += '<td class="tCenter">' + renderOvrBar(p.overall) + '</td>';
+            html += '<td class="tCenter gensmall">' + coloredStat(latestStats.ppg, PPG_THRESH) + '</td>';
+            html += '<td class="tCenter gensmall">' + coloredStat(latestStats.apg, APG_THRESH) + '</td>';
+            html += '<td class="tCenter gensmall">' + coloredStat(latestStats.rpg, RPG_THRESH) + '</td>';
+            html += '<td class="tCenter gensmall">' + renderStatusDot(p.status) + (p.status || '-') + '</td>';
             if (EDIT_MODE) {
                 html += '<td class="tCenter"><a href="#" onclick="openPlayerEditor(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:#CC0000;">[del]</a></td>';
             }
@@ -175,50 +182,58 @@
         if (player.jersey_history && player.jersey_history.length > 0) {
             jerseyNum = player.jersey_history[player.jersey_history.length - 1].number;
         }
+        var teamColor = team && team.colors && team.colors[0] ? team.colors[0] : 'var(--cat-head-bg)';
 
         var html = '<table class="forumline player-header-table">';
         html += '<tr><th class="catHead" colspan="4">Player Profile';
         if (EDIT_MODE) html += ' <a href="#" onclick="openPlayerEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:#FFD700;">[edit]</a>';
         html += '</th></tr>';
-        html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;">';
+        html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;border-left:4px solid ' + teamColor + ';">';
         html += '<div class="player-header-content">';
         html += renderAvatar(player, 'large');
         html += '<div class="player-header-info">';
         // Name & jersey
         html += '<span class="player-name">';
-        if (jerseyNum) html += '<span style="font-size:18px;color:var(--th-bg);">#' + jerseyNum + '</span> ';
+        if (jerseyNum) html += '<span style="font-size:18px;color:' + teamColor + ';">#' + jerseyNum + '</span> ';
         html += player.name;
-        if (player.is_fictional) html += ' <span class="fictional-badge">FICTIONAL</span>';
+        if (player.is_fictional) html += ' <span class="fictional-badge">* FICTIONAL</span>';
         html += '</span><br>';
-        // Main meta line
+        // Main meta line with position badge and status dot
         html += '<span class="player-meta">';
-        html += 'POS: <b>' + (player.position || '-') + '</b> &middot; ';
-        html += 'HT: <b>' + (player.height || '-') + '</b> &middot; ';
-        html += 'WT: <b>' + (player.weight || '-') + '</b> &middot; ';
-        html += 'OVR: <b>' + (player.overall || '-') + '</b> &middot; ';
+        html += renderPosBadge(player.position) + ' ';
+        html += 'HT: <b class="mono">' + (player.height || '-') + '</b> &middot; ';
+        html += 'WT: <b class="mono">' + (player.weight || '-') + '</b> &middot; ';
+        html += 'OVR: ' + renderOvrBar(player.overall) + ' &middot; ';
         html += 'Archetype: <b>' + (player.archetype || '-') + '</b> &middot; ';
-        html += 'Status: <b>' + (player.status || '-') + '</b>';
-        if (team) html += ' &middot; Team: <a href="team.html?id=' + team.id + '">' + team.name + '</a>';
+        html += renderStatusDot(player.status) + ' Status: <b>' + (player.status || '-') + '</b>';
+        if (team) html += ' &middot; Team: ' + renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.name + '</a>';
         html += '</span><br>';
-        // Second meta line
+        // Second meta line - nationality & age with birth year
         html += '<span class="player-meta">';
         if (player.nationality) html += renderFlag(player.nationality, 'large');
         html += 'Nationality: ' + (player.nationality || '-');
-        html += ' &middot; DOB: ' + (player.birthdate || '-');
-        if (age) html += ' (Age: <b>' + age + '</b>)';
+        html += ' &middot; Age: <b>' + renderAgeWithBirth(player.birthdate) + '</b>';
         html += '</span><br>';
         // Draft info one-liner
         if (player.draft) {
             var d = player.draft;
             var dTeam = getTeamById(d.team_id);
-            html += '<span class="player-meta">Draft: <b>' + (d.year || '?') + '</b> ' + (d.league || '') + ' Rd ' + (d.round || '?') + ' Pick ' + (d.pick || '?') + ' by ' + (dTeam ? dTeam.name : (d.team_id || '?')) + '</span><br>';
+            html += '<span class="player-meta">Draft: ' + renderLeagueBadge(d.league) + ' <span class="draft-pick-badge">R' + (d.round || '?') + ' P' + (d.pick || '?') + '</span> <b>' + (d.year || '?') + '</b> by ' + (dTeam ? dTeam.name : (d.team_id || '?')) + '</span><br>';
         }
         // Career highs
         if (careerHighs.ppg > 0) {
-            html += '<span class="player-meta">Career Highs: PPG: <b>' + numStr(careerHighs.ppg) + '</b> &middot; APG: <b>' + numStr(careerHighs.apg) + '</b> &middot; RPG: <b>' + numStr(careerHighs.rpg) + '</b></span><br>';
+            html += '<span class="player-meta">Career Highs: PPG: <b class="mono">' + coloredStat(careerHighs.ppg, PPG_THRESH) + '</b> &middot; APG: <b class="mono">' + coloredStat(careerHighs.apg, APG_THRESH) + '</b> &middot; RPG: <b class="mono">' + coloredStat(careerHighs.rpg, RPG_THRESH) + '</b></span><br>';
         }
-        // Last updated
-        html += '<span class="last-updated">Last updated: ' + new Date().toISOString().slice(0, 10) + '</span>';
+        // Contract one-liner
+        if (player.contract) {
+            var c = player.contract;
+            html += '<span class="player-meta">Contract: <span class="contract-value">' + formatCurrency(c.annual_value) + '/yr</span>';
+            if (c.type) html += ' <span class="contract-type-badge">' + c.type.replace(/_/g, ' ') + '</span>';
+            if (c.years_remaining) html += ' <span class="gensmall">(' + c.years_remaining + 'yr rem)</span>';
+            html += '</span><br>';
+        }
+        // Last updated with relative time
+        html += '<span class="last-updated">Last updated: ' + new Date().toISOString().slice(0, 10) + ' (' + relativeTime(new Date().toISOString()) + ')</span>';
         html += '</div></div>';
         html += '</td></tr></table>';
         container.innerHTML = html;
@@ -262,10 +277,10 @@
         var latest = allSeasons[allSeasons.length - 1];
         var html = '<div class="data-strip">';
         html += '<span class="ds-label">Latest Season:</span> <span class="ds-value">' + (latest.year || '-') + '</span>';
-        html += '<span class="ds-label">PPG:</span> <span class="ds-value">' + numStr(latest.ppg) + '</span>';
-        html += '<span class="ds-label">APG:</span> <span class="ds-value">' + numStr(latest.apg) + '</span>';
-        html += '<span class="ds-label">RPG:</span> <span class="ds-value">' + numStr(latest.rpg) + '</span>';
-        html += '<span class="ds-label">FG%:</span> <span class="ds-value">' + pctStr(latest.fg_pct) + '</span>';
+        html += '<span class="ds-label">PPG:</span> <span class="ds-value">' + coloredStat(latest.ppg, PPG_THRESH) + '</span>';
+        html += '<span class="ds-label">APG:</span> <span class="ds-value">' + coloredStat(latest.apg, APG_THRESH) + '</span>';
+        html += '<span class="ds-label">RPG:</span> <span class="ds-value">' + coloredStat(latest.rpg, RPG_THRESH) + '</span>';
+        html += '<span class="ds-label">FG%:</span> <span class="ds-value">' + coloredPct(latest.fg_pct, FG_THRESH) + '</span>';
         html += '<span class="ds-label">GP:</span> <span class="ds-value">' + (latest.gp || '-') + '</span>';
         html += '</div>';
         container.innerHTML = html;
@@ -281,11 +296,11 @@
         if (career.highschool && career.highschool.seasons) {
             for (var i = 0; i < career.highschool.seasons.length; i++) {
                 var s = career.highschool.seasons[i];
-                html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall">' + (s.year || '-') + '</td><td class="tCenter gensmall">HS</td><td class="gensmall">' + (career.highschool.school || '-') + '</td>';
+                html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge('HS') + '</td><td class="gensmall">' + (career.highschool.school || '-') + '</td>';
                 html += '<td class="tCenter gensmall">-</td><td class="tCenter gensmall">-</td><td class="tCenter gensmall">-</td>';
-                html += '<td class="tCenter">' + numStr(s.ppg) + '</td><td class="tCenter">' + numStr(s.apg) + '</td><td class="tCenter">' + numStr(s.rpg) + '</td>';
+                html += '<td class="tCenter">' + coloredStat(s.ppg, PPG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.apg, APG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.rpg, RPG_THRESH) + '</td>';
                 html += '<td class="tCenter">' + numStr(s.spg) + '</td><td class="tCenter">' + numStr(s.bpg) + '</td>';
-                html += '<td class="tCenter">' + pctStr(s.fg_pct) + '</td><td class="tCenter">' + pctStr(s.fg3_pct) + '</td><td class="tCenter">' + pctStr(s.ft_pct) + '</td></tr>';
+                html += '<td class="tCenter">' + coloredPct(s.fg_pct, FG_THRESH) + '</td><td class="tCenter">' + pctStr(s.fg3_pct) + '</td><td class="tCenter">' + pctStr(s.ft_pct) + '</td></tr>';
                 rowIdx++;
             }
         }
@@ -293,11 +308,11 @@
         if (career.college && career.college.seasons) {
             for (var i = 0; i < career.college.seasons.length; i++) {
                 var s = career.college.seasons[i];
-                html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall">' + (s.year || '-') + '</td><td class="tCenter gensmall">COL</td><td class="gensmall">' + (career.college.school || '-') + ' (' + (career.college.division || '-') + ')</td>';
-                html += '<td class="tCenter">' + (s.gp || '-') + '</td><td class="tCenter">' + (s.gs || '-') + '</td><td class="tCenter">' + numStr(s.mpg || 0) + '</td>';
-                html += '<td class="tCenter">' + numStr(s.ppg) + '</td><td class="tCenter">' + numStr(s.apg) + '</td><td class="tCenter">' + numStr(s.rpg) + '</td>';
+                html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge('NCAA') + '</td><td class="gensmall">' + (career.college.school || '-') + ' (' + (career.college.division || '-') + ')</td>';
+                html += '<td class="tCenter mono">' + (s.gp || '-') + '</td><td class="tCenter mono">' + (s.gs || '-') + '</td><td class="tCenter mono">' + numStr(s.mpg || 0) + '</td>';
+                html += '<td class="tCenter">' + coloredStat(s.ppg, PPG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.apg, APG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.rpg, RPG_THRESH) + '</td>';
                 html += '<td class="tCenter">' + numStr(s.spg) + '</td><td class="tCenter">' + numStr(s.bpg) + '</td>';
-                html += '<td class="tCenter">' + pctStr(s.fg_pct) + '</td><td class="tCenter">' + pctStr(s.fg3_pct) + '</td><td class="tCenter">' + pctStr(s.ft_pct) + '</td></tr>';
+                html += '<td class="tCenter">' + coloredPct(s.fg_pct, FG_THRESH) + '</td><td class="tCenter">' + pctStr(s.fg3_pct) + '</td><td class="tCenter">' + pctStr(s.ft_pct) + '</td></tr>';
                 rowIdx++;
             }
         }
@@ -308,17 +323,17 @@
                 var team = getTeamById(pro.team_id);
                 var seasons = pro.seasons || [];
                 if (seasons.length === 0) {
-                    html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall">-</td><td class="tCenter gensmall">' + (pro.league || '-') + '</td><td class="gensmall">' + (team ? team.abbreviation : (pro.team_id || '-')) + '</td>';
+                    html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall">-</td><td class="tCenter">' + renderLeagueBadge(pro.league) + '</td><td class="gensmall">' + (team ? team.abbreviation : (pro.team_id || '-')) + '</td>';
                     html += '<td colspan="11" class="tCenter gensmall">No season data</td></tr>';
                     rowIdx++;
                 }
                 for (var j = 0; j < seasons.length; j++) {
                     var s = seasons[j];
-                    html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall">' + (s.year || '-') + '</td><td class="tCenter gensmall">' + (pro.league || '-') + '</td><td class="gensmall">' + (team ? team.abbreviation : (pro.team_id || '-')) + '</td>';
-                    html += '<td class="tCenter">' + (s.gp || '-') + '</td><td class="tCenter">' + (s.gs || '-') + '</td><td class="tCenter">' + numStr(s.mpg || 0) + '</td>';
-                    html += '<td class="tCenter">' + numStr(s.ppg) + '</td><td class="tCenter">' + numStr(s.apg) + '</td><td class="tCenter">' + numStr(s.rpg) + '</td>';
+                    html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge(pro.league) + '</td><td class="gensmall">' + renderTeamColorDot(team) + (team ? team.abbreviation : (pro.team_id || '-')) + '</td>';
+                    html += '<td class="tCenter mono">' + (s.gp || '-') + '</td><td class="tCenter mono">' + (s.gs || '-') + '</td><td class="tCenter mono">' + numStr(s.mpg || 0) + '</td>';
+                    html += '<td class="tCenter">' + coloredStat(s.ppg, PPG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.apg, APG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.rpg, RPG_THRESH) + '</td>';
                     html += '<td class="tCenter">' + numStr(s.spg) + '</td><td class="tCenter">' + numStr(s.bpg) + '</td>';
-                    html += '<td class="tCenter">' + pctStr(s.fg_pct) + '</td><td class="tCenter">' + pctStr(s.fg3_pct) + '</td><td class="tCenter">' + pctStr(s.ft_pct) + '</td></tr>';
+                    html += '<td class="tCenter">' + coloredPct(s.fg_pct, FG_THRESH) + '</td><td class="tCenter">' + pctStr(s.fg3_pct) + '</td><td class="tCenter">' + pctStr(s.ft_pct) + '</td></tr>';
                     rowIdx++;
                 }
             }
@@ -363,11 +378,12 @@
 
         var chartDefaults = getChartDefaults();
 
+        // Retro chart config: angular lines, larger points, ESPN colors
         var ppgCanvas = document.getElementById('ppg-chart');
         if (ppgCanvas) {
             new Chart(ppgCanvas, {
                 type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#0066CC', backgroundColor: 'rgba(0,102,204,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#CC0000', backgroundColor: 'rgba(204,0,0,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
                 options: chartDefaults
             });
         }
@@ -376,7 +392,7 @@
         if (apgCanvas) {
             new Chart(apgCanvas, {
                 type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#006600', backgroundColor: 'rgba(0,102,0,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#00CC00', backgroundColor: 'rgba(0,204,0,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
                 options: chartDefaults
             });
         }
@@ -385,23 +401,24 @@
         if (rpgCanvas) {
             new Chart(rpgCanvas, {
                 type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#CC6600', backgroundColor: 'rgba(204,102,0,0.1)', fill: true, tension: 0.3, pointRadius: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#FFCC00', backgroundColor: 'rgba(255,204,0,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
                 options: chartDefaults
             });
         }
 
         var shootingCanvas = document.getElementById('shooting-chart');
         if (shootingCanvas) {
+            var light = typeof isLightMode === 'function' && isLightMode();
             var legendDefaults = Object.assign({}, chartDefaults);
-            legendDefaults.plugins = { legend: { display: true, labels: { color: document.documentElement.classList.contains('dark') ? '#E0E0E0' : '#000', font: { family: 'Verdana, sans-serif', size: 8 } } } };
+            legendDefaults.plugins = { legend: { display: true, labels: { color: light ? '#000' : '#C0C0C0', font: { family: '"Lucida Console", monospace', size: 8 } } } };
             new Chart(shootingCanvas, {
                 type: 'bar',
                 data: {
                     labels: seasonLabels,
                     datasets: [
-                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#0066CC' },
-                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#006600' },
-                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#CC6600' }
+                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#CC0000', borderWidth: 0, borderRadius: 0 },
+                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#00CC00', borderWidth: 0, borderRadius: 0 },
+                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#FFCC00', borderWidth: 0, borderRadius: 0 }
                     ]
                 },
                 options: legendDefaults
@@ -419,12 +436,12 @@
         var d = player.draft;
         var team = getTeamById(d.team_id);
         var html = '';
-        html += '<tr class="row1"><td class="gensmall" style="width:100px;">Year</td><td class="gensmall">' + (d.year || '-') + '</td></tr>';
-        html += '<tr class="row2"><td class="gensmall">League</td><td class="gensmall">' + (d.league || '-') + '</td></tr>';
-        html += '<tr class="row1"><td class="gensmall">Round</td><td class="gensmall">' + (d.round || '-') + '</td></tr>';
-        html += '<tr class="row2"><td class="gensmall">Pick</td><td class="gensmall">' + (d.pick || '-') + '</td></tr>';
-        html += '<tr class="row1"><td class="gensmall">Team</td><td class="gensmall">' + (team ? team.name : (d.team_id || 'Undrafted')) + '</td></tr>';
-        if (player.is_fictional) html += '<tr class="row2"><td class="gensmall">Note</td><td class="gensmall fic">Fictional draft pick</td></tr>';
+        html += '<tr class="row1"><td class="gensmall" style="width:100px;">Year</td><td class="gensmall mono">' + (d.year || '-') + '</td></tr>';
+        html += '<tr class="row2"><td class="gensmall">League</td><td class="gensmall">' + renderLeagueBadge(d.league) + ' ' + (d.league || '-') + '</td></tr>';
+        html += '<tr class="row1"><td class="gensmall">Round</td><td class="gensmall"><span class="draft-pick-badge">R' + (d.round || '?') + '</span></td></tr>';
+        html += '<tr class="row2"><td class="gensmall">Pick</td><td class="gensmall"><span class="draft-pick-badge">P' + (d.pick || '?') + '</span></td></tr>';
+        html += '<tr class="row1"><td class="gensmall">Team</td><td class="gensmall">' + (team ? renderTeamColorDot(team) + team.name : (d.team_id || 'Undrafted')) + '</td></tr>';
+        if (player.is_fictional) html += '<tr class="row2"><td class="gensmall">Note</td><td class="gensmall fic">Fictional draft pick *</td></tr>';
         tbody.innerHTML = html;
     }
 
@@ -441,8 +458,9 @@
                 if (event) {
                     html += '<tr class="' + rowClass(i) + '"><td>';
                     html += '<div class="timeline-post">';
-                    html += '<div class="post-header"><span class="event-type">' + (event.type || '') + '</span><span class="gensmall">' + (event.date || '') + '</span>';
-                    if (isRecent(event.date)) html += ' <span class="blink-new">NEW</span>';
+                    html += '<div class="post-header">' + renderUrgencyTag(event.type) + '<span class="gensmall">' + (event.date || '') + '</span>';
+                    if (event.date) html += ' <span class="gensmall" style="color:var(--text-light);">' + relativeTime(event.date) + '</span>';
+                    if (isRecent(event.date)) html += ' <span class="tag-new">NEW</span>';
                     html += '</div>';
                     html += '<div class="post-body"><span class="bold">' + (event.title || '') + '</span><br><span class="gensmall">' + (event.description || '') + '</span></div>';
                     html += '</div></td></tr>';
@@ -473,7 +491,7 @@
                 html += '<table class="forumline"><tr><th class="catHead">Related Events</th></tr>';
                 for (var i = 0; i < events.length; i++) {
                     var e = events[i];
-                    html += '<tr class="' + rowClass(i) + '"><td><div class="timeline-post"><div class="post-header"><span class="event-type">' + (e.type||'') + '</span><span class="gensmall">' + (e.date||'') + '</span></div>';
+                    html += '<tr class="' + rowClass(i) + '"><td><div class="timeline-post"><div class="post-header">' + renderUrgencyTag(e.type) + '<span class="gensmall">' + (e.date||'') + '</span></div>';
                     html += '<div class="post-body"><span class="bold">' + (e.title||'') + '</span><br><span class="gensmall">' + (e.description||'') + '</span></div></div></td></tr>';
                 }
                 html += '</table>';
@@ -536,7 +554,7 @@
         container.innerHTML = html;
     }
 
-    // === Full Game Log (merged from gamelog.html) ===
+    // === Full Game Log ===
     function renderGameLogSection(player) {
         var container = document.getElementById('gamelog-section');
         if (!container) return;
@@ -574,15 +592,15 @@
         for (var i = 0; i < allGames.length; i++) {
             var g = allGames[i];
             var resultCls = (g.result || '').charAt(0) === 'W' ? 'result-w' : ((g.result || '').charAt(0) === 'L' ? 'result-l' : '');
-            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.opponent || '-') + '</td>';
+            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (g.date || '-') + '</td><td class="gensmall">' + (g.opponent || '-') + '</td>';
             html += '<td class="gensmall ' + resultCls + '">' + (g.result || '-') + '</td>';
             html += '<td class="gensmall">' + (g.team || '-') + '</td>';
-            html += '<td class="tCenter">' + (g.mins || '-') + '</td><td class="tCenter bold">' + (g.pts || 0) + '</td>';
-            html += '<td class="tCenter">' + (g.ast || 0) + '</td><td class="tCenter">' + (g.reb || 0) + '</td>';
-            html += '<td class="tCenter">' + (g.stl || 0) + '</td><td class="tCenter">' + (g.blk || 0) + '</td>';
-            html += '<td class="tCenter gensmall">' + (g.fg_made || 0) + '-' + (g.fg_att || 0) + '</td>';
-            html += '<td class="tCenter gensmall">' + (g.fg3_made || 0) + '-' + (g.fg3_att || 0) + '</td>';
-            html += '<td class="tCenter gensmall">' + (g.ft_made || 0) + '-' + (g.ft_att || 0) + '</td></tr>';
+            html += '<td class="tCenter mono">' + (g.mins || '-') + '</td><td class="tCenter bold mono">' + (g.pts || 0) + '</td>';
+            html += '<td class="tCenter mono">' + (g.ast || 0) + '</td><td class="tCenter mono">' + (g.reb || 0) + '</td>';
+            html += '<td class="tCenter mono">' + (g.stl || 0) + '</td><td class="tCenter mono">' + (g.blk || 0) + '</td>';
+            html += '<td class="tCenter gensmall mono">' + (g.fg_made || 0) + '-' + (g.fg_att || 0) + '</td>';
+            html += '<td class="tCenter gensmall mono">' + (g.fg3_made || 0) + '-' + (g.fg3_att || 0) + '</td>';
+            html += '<td class="tCenter gensmall mono">' + (g.ft_made || 0) + '-' + (g.ft_att || 0) + '</td></tr>';
         }
         html += '</table>';
         html += '<div class="gensmall" style="padding:2px;">' + allGames.length + ' games shown</div>';
@@ -604,7 +622,7 @@
             var a = awards[i];
             html += '<div class="trophy-item"><div class="trophy-name">' + (a.name || a) + '</div>';
             if (a.year) html += '<div class="trophy-year">' + a.year + '</div>';
-            if (a.league) html += '<div class="trophy-league">' + a.league + '</div>';
+            if (a.league) html += '<div class="trophy-league">' + renderLeagueBadge(a.league) + '</div>';
             html += '</div>';
         }
         html += '</div></td></tr></table>';
@@ -624,11 +642,11 @@
         html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Injury</th><th class="thHead">Severity</th><th class="thHead tCenter">Games Missed</th><th class="thHead">Return</th><th class="thHead">Notes</th></tr>';
         for (var i = 0; i < injuries.length; i++) {
             var inj = injuries[i];
-            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (inj.date || '-') + '</td>';
-            html += '<td class="gensmall">' + (inj.type || '-') + '</td>';
+            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (inj.date || '-') + '</td>';
+            html += '<td class="gensmall">' + renderStatusDot('injured') + (inj.type || '-') + '</td>';
             html += '<td>' + renderInjuryIndicator(inj.severity) + '</td>';
-            html += '<td class="tCenter">' + (inj.games_missed || 0) + '</td>';
-            html += '<td class="gensmall">' + (inj.return_date || 'TBD') + '</td>';
+            html += '<td class="tCenter mono">' + (inj.games_missed || 0) + '</td>';
+            html += '<td class="gensmall mono">' + (inj.return_date || 'TBD') + '</td>';
             html += '<td class="gensmall">' + (inj.notes || '') + '</td></tr>';
         }
         html += '</table>';
@@ -649,9 +667,9 @@
         for (var i = 0; i < txns.length; i++) {
             var t = txns[i];
             var team = t.to_team_id ? getTeamById(t.to_team_id) : null;
-            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (t.date || '-') + '</td>';
-            html += '<td>' + renderTxnType(t.type) + '</td>';
-            html += '<td class="gensmall">' + (team ? team.name : (t.to_team_id || '-')) + '</td>';
+            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (t.date || '-') + '</td>';
+            html += '<td>' + renderUrgencyTag(t.type) + '</td>';
+            html += '<td class="gensmall">' + (team ? renderTeamColorDot(team) + team.name : (t.to_team_id || '-')) + '</td>';
             html += '<td class="gensmall">' + (t.details || '') + '</td></tr>';
         }
         html += '</table>';
@@ -665,12 +683,12 @@
         if (!contract) { container.style.display = 'none'; return; }
 
         var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Contract Details</th></tr>';
-        html += '<tr class="row1"><td class="gensmall" style="width:140px;">Type</td><td class="gensmall">' + (contract.type || '-').replace(/_/g, ' ') + '</td></tr>';
+        html += '<tr class="row1"><td class="gensmall" style="width:140px;">Type</td><td class="gensmall">' + (contract.type || '-').replace(/_/g, ' ') + ' <span class="contract-type-badge">' + (contract.type || '').replace(/_/g, ' ').toUpperCase() + '</span></td></tr>';
         html += '<tr class="row2"><td class="gensmall">Total Value</td><td class="contract-value">' + formatCurrency(contract.total_value) + '</td></tr>';
-        html += '<tr class="row1"><td class="gensmall">Annual Value</td><td class="contract-value">' + formatCurrency(contract.annual_value) + '</td></tr>';
-        html += '<tr class="row2"><td class="gensmall">Years Remaining</td><td class="gensmall">' + (contract.years_remaining || '-') + '</td></tr>';
-        if (contract.player_option_year) html += '<tr class="row1"><td class="gensmall">Player Option</td><td class="gensmall">' + contract.player_option_year + '</td></tr>';
-        if (contract.team_option_year) html += '<tr class="row1"><td class="gensmall">Team Option</td><td class="gensmall">' + contract.team_option_year + '</td></tr>';
+        html += '<tr class="row1"><td class="gensmall">Annual Value</td><td class="contract-value">' + formatCurrency(contract.annual_value) + '/yr</td></tr>';
+        html += '<tr class="row2"><td class="gensmall">Years Remaining</td><td class="gensmall mono">' + (contract.years_remaining || '-') + '</td></tr>';
+        if (contract.player_option_year) html += '<tr class="row1"><td class="gensmall">Player Option</td><td class="gensmall mono">' + contract.player_option_year + '</td></tr>';
+        if (contract.team_option_year) html += '<tr class="row1"><td class="gensmall">Team Option</td><td class="gensmall mono">' + contract.team_option_year + '</td></tr>';
         html += '</table>';
         container.innerHTML = html;
     }
@@ -689,7 +707,7 @@
             var m = media[i];
             html += '<tr class="' + rowClass(i) + '"><td style="padding:3px 6px;">';
             html += '<div class="timeline-post">';
-            html += '<div class="post-header"><span class="event-type">' + (m.type || 'news').toUpperCase() + '</span>';
+            html += '<div class="post-header">' + renderUrgencyTag(m.type || 'news');
             html += '<span class="gensmall">' + (m.date || '') + '</span>';
             if (m.source) html += ' <span class="gensmall">- ' + m.source + '</span>';
             html += '</div>';
