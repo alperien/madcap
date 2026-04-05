@@ -63,7 +63,9 @@ function renderTeamLogo(team, size) {
     var isLarge = size === 'large';
     var cls = isLarge ? 'team-logo team-logo-lg' : 'team-logo team-logo-sm';
     if (team.logo_url) {
-        return '<span class="' + cls + '"><img src="' + team.logo_url + '" alt="' + (team.abbreviation || team.name || '') + '"></span>';
+        var fallbackColor = team.colors && team.colors[0] ? team.colors[0] : 'var(--cat-head-bg)';
+        var fallbackAbbr = (team.abbreviation || '?').substring(0, 3);
+        return '<span class="' + cls + '"><img src="' + team.logo_url + '" alt="' + (team.abbreviation || team.name || '') + '" onerror="this.parentNode.style.background=\'' + fallbackColor + '\';this.parentNode.textContent=\'' + fallbackAbbr + '\';"></span>';
     }
     // Fallback: colored abbreviation box
     var color = team.colors && team.colors[0] ? team.colors[0] : 'var(--cat-head-bg)';

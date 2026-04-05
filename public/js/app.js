@@ -803,7 +803,7 @@
         html += '<span class="gensmall" id="' + id + '-status"></span>';
         html += '</div>';
         html += '<div class="image-url-row" style="margin-top:3px;">';
-        html += '<input type="text" id="' + id + '-url" value="' + esc(currentUrl || '') + '" placeholder="Or paste image URL" style="font-size:8px;flex:1;" onchange="setImageFromUrl(\'' + id + '\')">';
+        html += '<input type="text" id="' + id + '-url" value="' + esc(currentUrl || '') + '" placeholder="Or paste image URL" style="font-size:8px;flex:1;" oninput="setImageFromUrl(\'' + id + '\')">';
         html += '</div>';
         html += '</div>';
         return html;
@@ -828,6 +828,9 @@
 
         fetch('api/upload', {
             method: 'POST',
+            headers: {
+                'Authorization': _authHeader
+            },
             body: formData
         }).then(function(r) {
             if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Upload failed'); });
