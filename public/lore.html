@@ -2,22 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MADCAP - Player Lore</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="body-container">
     <div id="page-header">
-        <nav id="main-nav"><ul>
-            <li><a href="index.html"><b>MADCAP</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="players.html"><b>Players</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="admin/login"><b>Admin</b></a></li>
-        </ul></nav>
+        <nav id="main-nav" aria-label="Main navigation"></nav>
+        <div id="top-bar"></div>
     </div>
     <div class="breadcrumb"><a href="index.html">MADCAP</a><span class="middot">&middot;</span><a href="players.html">Players</a><span class="middot">&middot;</span><span id="bc-player">Lore</span></div>
-    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading...</div>
+    <div id="loading-indicator" class="loading-text" style="display:none;">Loading data</div>
+    <div class="data-strip gensmall">Note: Lore is now available on the <a href="#" id="player-profile-link">player profile page</a> under the Lore tab.</div>
     <div id="lore-container"></div>
-    <div id="page-footer"><table class="forumline"><tr><td class="catHead tCenter">MADCAP v2.0</td></tr></table></div>
+    <div id="page-footer"></div>
 </div>
 <script src="js/app.js"></script>
 <script src="js/render.js"></script>
@@ -30,8 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var params = new URLSearchParams(window.location.search);
         var id = params.get('id');
         var player = getPlayerById(id);
-        if (!player) { document.getElementById('lore-container').innerHTML = '<p>Player not found.</p>'; return; }
+        if (!player) { document.getElementById('lore-container').innerHTML = '<p class="gensmall">Player not found.</p>'; return; }
         document.getElementById('bc-player').innerHTML = '<a href="player.html?id=' + id + '">' + player.name + '</a> - Lore';
+        document.getElementById('player-profile-link').href = 'player.html?id=' + id + '#lore';
         fetch('api/players/' + id + '/lore').then(function(r) { return r.json(); }).then(function(data) {
             var content = data.content || 'No lore available for this player.';
             var html = '<div class="data-strip"><span class="ds-label">Player:</span> <span class="ds-value"><a href="player.html?id=' + id + '">' + player.name + '</a></span>';
@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (player.is_fictional) html += ' <span class="fictional-badge">FICTIONAL</span>';
             html += '</div>';
             html += '<div class="lore-article">' + renderMarkdown(content) + '</div>';
-            // Related events
             var events = DATA.events.filter(function(e) { return e.player_id === id; });
             if (events.length > 0) {
                 html += '<table class="forumline"><tr><th class="catHead">Related Events</th></tr>';
@@ -53,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             document.getElementById('lore-container').innerHTML = html;
         });
+        renderFooter();
     });
 });
 </script>

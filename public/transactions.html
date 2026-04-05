@@ -2,57 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MADCAP - Transaction Log</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MADCAP Transaction Log">
+    <title>MADCAP - Transactions</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="body-container">
     <div id="page-header">
-        <nav id="main-nav"><ul>
-            <li><a href="index.html"><b>MADCAP</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="players.html"><b>Players</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="transactions.html"><b>Transactions</b></a></li><li><span class="middot">&middot;</span></li>
-            <li><a href="admin/login"><b>Admin</b></a></li>
-        </ul></nav>
+        <nav id="main-nav" aria-label="Main navigation"></nav>
+        <div id="top-bar"></div>
     </div>
-    <div class="breadcrumb"><a href="index.html">MADCAP</a><span class="middot">&middot;</span>Transaction Log</div>
-    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading...</div>
-    <div class="filters-bar">
-        <label>Type: <select id="filter-type" onchange="renderTxns()"><option value="">All</option><option value="drafted">Drafted</option><option value="traded">Traded</option><option value="signed">Signed</option><option value="waived">Waived</option></select></label>
+
+    <div class="breadcrumb">
+        <a href="index.html">MADCAP Index</a><span class="middot">&middot;</span> Transactions
     </div>
-    <div id="txn-container"></div>
-    <div id="page-footer"><table class="forumline"><tr><td class="catHead tCenter">MADCAP v2.0</td></tr></table></div>
+
+    <div id="loading-indicator" class="loading-text" style="display:none;">Loading data</div>
+    <div id="transactions-container"></div>
+    <div id="page-footer"></div>
 </div>
+
 <script src="js/app.js"></script>
 <script src="js/render.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var loading = document.getElementById('loading-indicator');
-    if (loading) loading.style.display = 'block';
-    loadAllData().then(function() { if (loading) loading.style.display = 'none'; renderTxns(); });
-});
-function renderTxns() {
-    var typeF = document.getElementById('filter-type').value;
-    var txns = (DATA.transactions || []).slice().reverse();
-    if (typeF) txns = txns.filter(function(t) { return t.type === typeF; });
-    var html = '<table class="forumline"><tr><th class="catHead" colspan="6">Transaction Log (' + txns.length + ' records)</th></tr>';
-    html += '<tr><th class="thHead">Date</th><th class="thHead">Type</th><th class="thHead">Player</th><th class="thHead">From</th><th class="thHead">To</th><th class="thHead">Details</th></tr>';
-    for (var i = 0; i < txns.length; i++) {
-        var t = txns[i]; var p = getPlayerById(t.player_id);
-        var from = t.from_team_id ? getTeamById(t.from_team_id) : null;
-        var to = t.to_team_id ? getTeamById(t.to_team_id) : null;
-        html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (t.date||'-') + '</td>';
-        html += '<td>' + renderTxnType(t.type) + '</td>';
-        html += '<td><a href="player.html?id=' + t.player_id + '">' + (p ? p.name : (t.player_id||'').replace(/_/g,' ')) + '</a></td>';
-        html += '<td class="gensmall">' + (from ? from.name : (t.from_team_id||'-')) + '</td>';
-        html += '<td class="gensmall">' + (to ? to.name : (t.to_team_id||'-')) + '</td>';
-        html += '<td class="gensmall">' + (t.details||'') + '</td></tr>';
-    }
-    if (txns.length === 0) html += '<tr class="row1"><td colspan="6" class="gensmall tCenter">No transactions</td></tr>';
-    html += '</table>';
-    document.getElementById('txn-container').innerHTML = html;
-}
-window.renderTxns = renderTxns;
+    document.addEventListener('DOMContentLoaded', function() {
+        var loading = document.getElementById('loading-indicator');
+        if (loading) loading.style.display = 'block';
+        loadAllData().then(function() {
+            if (loading) loading.style.display = 'none';
+            var container = document.getElementById('transactions-container');
+            var txns = DATA.transactions || [];
+            var html = '<div class="data-strip"><span class="gensmall">Showing ' + txns.length + ' transactions</span></div>';
+            html += '<table class="forumline"><tr><th class="catHead" colspan="6">Transaction Log</th></tr>';
+            html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Player</th><th class="thHead">Type</th><th class="thHead">Team</th><th class="thHead">Details</th></tr>';
+            for (var i = 0; i < txns.length; i++) {
+                var t = txns[i];
+                var player = getPlayerById(t.player_id);
+                var team = t.team_id ? getTeamById(t.team_id) : null;
+                var isNew = isRecent(t.date);
+                html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td>';
+                html += '<td class="gensmall">' + (t.date || '-') + (isNew ? ' <span class="blink-new">NEW</span>' : '') + '</td>';
+                html += '<td>' + (player ? '<a href="player.html?id=' + player.id + '">' + player.name + '</a>' : (t.player_id || '').replace(/_/g, ' ')) + '</td>';
+                html += '<td>' + renderTxnType(t.type) + '</td>';
+                html += '<td class="gensmall">' + (team ? team.name : (t.team_id || '-')) + '</td>';
+                html += '<td class="gensmall">' + (t.details || '') + '</td></tr>';
+            }
+            if (txns.length === 0) html += '<tr class="row1"><td colspan="6" class="gensmall" style="text-align:center;">No transactions</td></tr>';
+            html += '</table>';
+            container.innerHTML = html;
+            renderFooter();
+        }).catch(function(err) {
+            console.error('Failed to load data:', err);
+            if (loading) loading.textContent = 'Failed to load data. Please refresh.';
+        });
+    });
 </script>
 </body>
 </html>

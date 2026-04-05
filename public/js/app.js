@@ -6,6 +6,109 @@
 
     window.DATA = DATA;
 
+    // === NAV LINKS (single source of truth) ===
+    var NAV_LINKS = [
+        { href: 'index.html', label: 'MADCAP' },
+        { href: 'players.html', label: 'Players' },
+        { href: 'teams.html', label: 'Teams' },
+        { href: 'leagues.html', label: 'Leagues' },
+        { href: 'drafts.html', label: 'Drafts' },
+        { href: 'schedule.html', label: 'Schedule' },
+        { href: 'injuries.html', label: 'Injuries' },
+        { href: 'transactions.html', label: 'Transactions' },
+        { href: 'awards.html', label: 'Awards' },
+        { href: 'compare.html', label: 'Compare' },
+        { href: 'mockdraft.html', label: 'Mock Draft' }
+    ];
+
+    // === RENDER NAV BAR ===
+    function renderNav() {
+        var navEl = document.getElementById('main-nav');
+        if (!navEl) return;
+        var html = '<ul>';
+        for (var i = 0; i < NAV_LINKS.length; i++) {
+            if (i > 0) html += '<li><span class="middot" aria-hidden="true">&middot;</span></li>';
+            html += '<li><a href="' + NAV_LINKS[i].href + '"><b>' + NAV_LINKS[i].label + '</b></a></li>';
+        }
+        html += '</ul>';
+        navEl.innerHTML = html;
+    }
+
+    // === RENDER TOP BAR ===
+    function renderTopBar() {
+        var topBar = document.getElementById('top-bar');
+        if (!topBar) return;
+        var html = '';
+        // Dark mode toggle
+        html += '<button type="button" class="theme-toggle" id="theme-toggle-btn" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode">';
+        html += '<span id="theme-icon">' + (isDarkMode() ? 'LIGHT' : 'DARK') + '</span>';
+        html += '</button>';
+        html += '<span class="middot">&middot;</span>';
+        // Edit mode toggle
+        html += '<button type="button" class="edit-toggle-switch" id="edit-toggle-btn" onclick="toggleEditMode()" title="Toggle Edit Mode">';
+        html += '<span id="edit-icon">EDIT</span>';
+        html += '</button>';
+        html += '<span class="middot">&middot;</span>';
+        html += '<span class="gensmall last-updated" id="last-updated-text">Data is simulated</span>';
+        topBar.innerHTML = html;
+    }
+
+    // === RENDER FOOTER ===
+    function renderFooter() {
+        var footerEl = document.getElementById('page-footer');
+        if (!footerEl) return;
+        var now = new Date();
+        var timestamp = now.toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
+        var loadTime = ((performance.now()) / 1000).toFixed(3);
+        var html = '<table class="forumline"><tr><td class="catHead tCenter">';
+        html += 'MADCAP v2.0 &middot; Modular Athlete Database & Career Analysis Platform';
+        html += '</td></tr><tr><td class="row1"><div class="footer-retro">';
+        // 88x31 badges
+        html += '<div class="footer-badges">';
+        html += '<span class="footer-badge">BEST VIEWED<br>1024x768</span>';
+        html += '<span class="footer-badge">POWERED BY<br>FLASK</span>';
+        html += '<span class="footer-badge">MADCAP<br>v2.0</span>';
+        html += '<span class="footer-badge">VANILLA JS<br>NO FRAMEWORKS</span>';
+        html += '<span class="footer-badge">HTML 5<br>CERTIFIED</span>';
+        html += '</div>';
+        html += '<div class="footer-meta">';
+        html += 'Page generated in ' + loadTime + 's';
+        html += ' | Last database update: ' + timestamp;
+        html += ' | All data is simulated for entertainment purposes';
+        html += '<br>Best viewed at 1024x768 or higher resolution';
+        html += '</div>';
+        html += '</div></td></tr></table>';
+        footerEl.innerHTML = html;
+    }
+    window.renderFooter = renderFooter;
+
+    // === DARK MODE ===
+    function isDarkMode() {
+        return localStorage.getItem('madcap-dark-mode') === '1';
+    }
+
+    function applyDarkMode() {
+        if (isDarkMode()) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        var icon = document.getElementById('theme-icon');
+        if (icon) icon.textContent = isDarkMode() ? 'LIGHT' : 'DARK';
+    }
+
+    function toggleDarkMode() {
+        localStorage.setItem('madcap-dark-mode', isDarkMode() ? '0' : '1');
+        applyDarkMode();
+    }
+    window.toggleDarkMode = toggleDarkMode;
+
+    // Apply dark mode immediately to prevent flash
+    if (isDarkMode()) {
+        document.documentElement.classList.add('dark');
+    }
+
+    // === DATA LOADING ===
     function loadJSON(url) {
         return fetch(url).then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status + ' fetching ' + url);
@@ -101,6 +204,28 @@
         }
         return null;
     }
+
+    // --- Check if item is recently updated (within 7 days) ---
+    function isRecent(dateStr) {
+        if (!dateStr) return false;
+        var d = new Date(dateStr);
+        var now = new Date();
+        var diff = now - d;
+        return diff < 7 * 24 * 60 * 60 * 1000;
+    }
+    window.isRecent = isRecent;
+
+    // --- Calculate age from birthdate ---
+    function calculateAge(birthdate) {
+        if (!birthdate) return null;
+        var bd = new Date(birthdate);
+        var now = new Date();
+        var age = now.getFullYear() - bd.getFullYear();
+        var m = now.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < bd.getDate())) age--;
+        return age;
+    }
+    window.calculateAge = calculateAge;
 
     // --- Modal System ---
     function openModal(title, html, width) {
@@ -297,18 +422,33 @@
     window.loadAllData = loadAllData;
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    window.esc = esc;
 
     function toggleEditMode() {
         EDIT_MODE = !EDIT_MODE;
         var btn = document.getElementById('edit-toggle-btn');
         if (btn) {
-            btn.textContent = EDIT_MODE ? 'Exit Edit' : 'Edit';
-            btn.style.color = EDIT_MODE ? '#CC0000' : '#0066CC';
+            btn.className = 'edit-toggle-switch' + (EDIT_MODE ? ' active' : '');
+            var icon = document.getElementById('edit-icon');
+            if (icon) icon.textContent = EDIT_MODE ? 'EXIT EDIT' : 'EDIT';
         }
+        // Show/hide edit mode banner
+        var banner = document.getElementById('edit-mode-banner');
+        if (banner) banner.className = 'edit-mode-banner' + (EDIT_MODE ? ' visible' : '');
+        // Toggle body class for CSS edit highlighting
+        if (EDIT_MODE) {
+            document.body.classList.add('edit-mode');
+        } else {
+            document.body.classList.remove('edit-mode');
+        }
+        // Show/hide edit column headers
         var editHeaders = document.querySelectorAll('#edit-col-header');
         for (var i = 0; i < editHeaders.length; i++) editHeaders[i].style.display = EDIT_MODE ? '' : 'none';
-        var addBtns = document.querySelectorAll('#add-player-btn, #add-team-btn');
+        var addBtns = document.querySelectorAll('#add-player-btn, #add-team-btn, .add-btn');
         for (var i = 0; i < addBtns.length; i++) addBtns[i].style.display = EDIT_MODE ? '' : 'none';
+        // Show/hide bulk bars
+        var bulkBars = document.querySelectorAll('.bulk-bar');
+        for (var i = 0; i < bulkBars.length; i++) bulkBars[i].className = 'bulk-bar' + (EDIT_MODE ? ' visible' : '');
         refreshCurrentPage();
     }
     window.toggleEditMode = toggleEditMode;
@@ -338,4 +478,66 @@
     window.refreshCurrentPage = refreshCurrentPage;
 
     Object.defineProperty(window, 'EDIT_MODE', { get: function() { return EDIT_MODE; } });
+
+    // === Chart.js dark mode integration ===
+    function getChartDefaults() {
+        var dark = isDarkMode();
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: dark ? '#A0A0A0' : '#666', font: { family: 'Verdana, sans-serif', size: 8 } }, grid: { color: dark ? '#333355' : '#DDD' } },
+                y: { ticks: { color: dark ? '#A0A0A0' : '#666', font: { family: 'Verdana, sans-serif', size: 8 } }, grid: { color: dark ? '#333355' : '#DDD' } }
+            }
+        };
+    }
+    window.getChartDefaults = getChartDefaults;
+
+    // === Player Tab Navigation ===
+    function setupPlayerTabs() {
+        var tabBar = document.getElementById('player-tab-bar');
+        if (!tabBar) return;
+        var tabs = tabBar.querySelectorAll('a[data-tab]');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].addEventListener('click', function(e) {
+                e.preventDefault();
+                var target = this.getAttribute('data-tab');
+                // Deactivate all
+                var allTabs = tabBar.querySelectorAll('a[data-tab]');
+                for (var j = 0; j < allTabs.length; j++) allTabs[j].classList.remove('active');
+                var allContent = document.querySelectorAll('.player-tab-content');
+                for (var j = 0; j < allContent.length; j++) allContent[j].classList.remove('active');
+                // Activate selected
+                this.classList.add('active');
+                var el = document.getElementById('tab-' + target);
+                if (el) el.classList.add('active');
+                // Update URL hash
+                window.location.hash = target;
+            });
+        }
+        // Activate from hash
+        var hash = window.location.hash.replace('#', '');
+        if (hash) {
+            var tab = tabBar.querySelector('a[data-tab="' + hash + '"]');
+            if (tab) { tab.click(); return; }
+        }
+        // Default to first tab
+        if (tabs.length > 0) tabs[0].click();
+    }
+    window.setupPlayerTabs = setupPlayerTabs;
+
+    // === Initialize common elements on DOMContentLoaded ===
+    document.addEventListener('DOMContentLoaded', function() {
+        renderNav();
+        renderTopBar();
+        applyDarkMode();
+        // Add edit mode banner
+        var banner = document.createElement('div');
+        banner.id = 'edit-mode-banner';
+        banner.className = 'edit-mode-banner';
+        banner.textContent = '--- EDIT MODE ACTIVE --- Click fields to modify --- EDIT MODE ACTIVE ---';
+        var container = document.getElementById('body-container');
+        if (container) container.insertBefore(banner, container.firstChild.nextSibling);
+    });
 })();
