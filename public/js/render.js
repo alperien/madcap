@@ -192,7 +192,7 @@ function renderLeagueHub() {
     var html = '';
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
-        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td>' + renderLeagueBadge(l.level) + '<a href="leagues.html">' + (l.name || 'Unknown') + '</a></td><td class="gensmall">' + (l.level || '-') + '</td><td class="tCenter gensmall mono">' + (l.current_season || '-') + '</td><td class="tCenter mono">' + (l.teams ? l.teams.length : 0) + '</td></tr>';
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td>' + renderLeagueBadge(l.level) + '<a href="leagues.html?id=' + (l.id || '') + '">' + (l.name || 'Unknown') + '</a></td><td class="gensmall">' + (l.level || '-') + '</td><td class="tCenter gensmall mono">' + (l.current_season || '-') + '</td><td class="tCenter mono">' + (l.teams ? l.teams.length : 0) + '</td></tr>';
     }
     tbody.innerHTML = html;
 }
@@ -322,7 +322,7 @@ function renderSidebarLeagues() {
     var html = '';
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
-        html += '<li>' + renderLeagueBadge(l.level) + ' <a href="leagues.html">' + (l.abbreviation || l.name) + '</a> <span class="gensmall">(' + (l.level || '?') + ')</span></li>';
+        html += '<li>' + renderLeagueBadge(l.level) + ' <a href="leagues.html?id=' + (l.id || '') + '">' + (l.abbreviation || l.name) + '</a> <span class="gensmall">(' + (l.level || '?') + ')</span></li>';
     }
     ul.innerHTML = html;
 }
@@ -340,12 +340,13 @@ function renderSidebarStats() {
     el.innerHTML = '<span class="mono">DB Stats:</span><br>Players: <b class="mono">' + total + '</b> <span class="gensmall">(' + fic + ' fic, ' + real + ' real)</span><br>Teams: <b class="mono">' + teams + '</b><br>Games: <b class="mono">' + games + '</b> <span class="gensmall">(' + finishedGames + ' played)</span><br>Active Injuries: <b class="mono" style="color:var(--accent-red);">' + injuries + '</b><br>Transactions: <b class="mono">' + DATA.transactions.length + '</b>';
 }
 
-function renderStandings() {
+function renderStandings(filterLeagueId) {
     var container = document.getElementById('standings-container');
     if (!container) return;
     var html = '';
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
+        if (filterLeagueId && l.id !== filterLeagueId) continue;
         if (l.standings && Object.keys(l.standings).length > 0) {
             html += '<table class="forumline"><tr><th class="catHead" colspan="9">' + renderLeagueBadge(l.level) + ' ' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
             var confData = l.standings;

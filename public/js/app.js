@@ -623,7 +623,11 @@
             if (id && typeof renderTeamPage === 'function') renderTeamPage(id);
         }
         else if (path.indexOf('drafts.html') !== -1 && typeof renderDrafts === 'function') renderDrafts();
-        else if (path.indexOf('leagues.html') !== -1 && typeof renderStandings === 'function') renderStandings();
+        else if (path.indexOf('leagues.html') !== -1 && typeof renderStandings === 'function') {
+            var params = new URLSearchParams(window.location.search);
+            var leagueId = params.get('id');
+            renderStandings(leagueId || undefined);
+        }
         else if (path.indexOf('schedule.html') !== -1 && typeof renderSchedule === 'function') renderSchedule();
         else if (path.indexOf('injuries.html') !== -1 && typeof renderInjuryReport === 'function') renderInjuryReport();
         else if (path.indexOf('transactions.html') !== -1 && typeof renderTransactionFeed === 'function') renderTransactionFeed();

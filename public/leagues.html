@@ -34,7 +34,9 @@
         if (loading) loading.style.display = 'block';
         loadAllData().then(function() {
             if (loading) loading.style.display = 'none';
-            renderStandings();
+            var params = new URLSearchParams(window.location.search);
+            var leagueId = params.get('id');
+            renderStandings(leagueId || undefined);
             renderFooter();
         }).catch(function(err) {
             console.error('Failed to load data:', err);
