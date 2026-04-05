@@ -6,7 +6,7 @@
     <meta name="description" content="MADCAP Player Profile - Detailed player statistics and career information">
     <title>MADCAP - Player Profile</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- Charts rendered as pure HTML/CSS - no external library needed -->
 </head>
 <body>
 <div id="body-container">
@@ -32,26 +32,8 @@
     <!-- 3. Attributes, Badges & Tendencies (compact) -->
     <div id="attributes-section"></div>
 
-    <!-- 4. Stat Progression Charts (compact) -->
-    <div id="charts-section">
-        <table class="forumline">
-            <tr><th class="catHead" colspan="4">Stat Progression</th></tr>
-            <tr>
-                <td class="row1" style="width:25%;padding:2px;">
-                    <div class="chart-box"><div class="catHead">PPG</div><canvas id="ppg-chart" width="250" height="100"></canvas></div>
-                </td>
-                <td class="row2" style="width:25%;padding:2px;">
-                    <div class="chart-box"><div class="catHead">APG</div><canvas id="apg-chart" width="250" height="100"></canvas></div>
-                </td>
-                <td class="row1" style="width:25%;padding:2px;">
-                    <div class="chart-box"><div class="catHead">RPG</div><canvas id="rpg-chart" width="250" height="100"></canvas></div>
-                </td>
-                <td class="row2" style="width:25%;padding:2px;">
-                    <div class="chart-box"><div class="catHead">Shooting</div><canvas id="shooting-chart" width="250" height="100"></canvas></div>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <!-- 4. Stat Progression Charts (pure HTML/CSS) -->
+    <div id="charts-section"></div>
 
     <!-- 5. Career Statistics -->
     <a name="career-stats"></a>
