@@ -68,7 +68,8 @@
             html += '<tr class="' + rowClass(i) + '" style="border-left:3px solid ' + teamColor + ';">';
             html += '<td class="row-num">' + (i+1) + '</td>';
             if (EDIT_MODE) html += '<td class="tCenter"><input type="checkbox" class="bulk-checkbox" data-id="' + p.id + '"></td>';
-            html += '<td>' + renderStatusDot(p.status) + renderAvatar(p, 'small') + renderFlag(p.nationality) + '<a href="player.html?id=' + p.id + '">' + p.name + '</a>' + renderJerseyNum(p);
+            var pTipData = ' data-pname="' + p.name + '" data-ppos="' + (p.position||'-') + '" data-povr="' + (p.overall||'-') + '" data-page="' + (age||'-') + '" data-pht="' + (p.height||'-') + '" data-pwt="' + (p.weight||'-') + '" data-pteam="' + (team ? team.abbreviation : '-') + '" data-pppg="' + numStr(latestStats.ppg) + '" data-papg="' + numStr(latestStats.apg) + '" data-prpg="' + numStr(latestStats.rpg) + '" data-parch="' + (p.archetype||'-') + '"';
+            html += '<td>' + renderStatusDot(p.status) + renderAvatar(p, 'small') + renderFlag(p.nationality) + '<a href="player.html?id=' + p.id + '" class="player-link"' + pTipData + '>' + p.name + '</a>' + renderJerseyNum(p);
             if (p.is_fictional) html += ' <span class="fic" title="Fictional">*</span>';
             html += '</td>';
             html += '<td class="tCenter">' + renderPosBadge(p.position) + '</td>';
@@ -92,6 +93,24 @@
         // Update count
         var countEl = document.getElementById('player-count');
         if (countEl) countEl.textContent = 'Showing ' + players.length + ' of ' + DATA.players.length + ' players';
+
+        // Player name tooltips
+        if (!tbody._playerTipAttached) {
+            tbody._playerTipAttached = true;
+            attachTooltip(tbody, '.player-link', function(el) {
+                return '<div class="tt-season">' + el.getAttribute('data-pname') + '</div>' +
+                    '<div class="tt-row"><span class="tt-label">Position</span><span class="tt-value">' + el.getAttribute('data-ppos') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">Overall</span><span class="tt-value">' + el.getAttribute('data-povr') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">Archetype</span><span class="tt-value">' + el.getAttribute('data-parch') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">Age</span><span class="tt-value">' + el.getAttribute('data-page') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">Height</span><span class="tt-value">' + el.getAttribute('data-pht') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">Weight</span><span class="tt-value">' + el.getAttribute('data-pwt') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">Team</span><span class="tt-value">' + el.getAttribute('data-pteam') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">PPG</span><span class="tt-value">' + el.getAttribute('data-pppg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">APG</span><span class="tt-value">' + el.getAttribute('data-papg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">RPG</span><span class="tt-value">' + el.getAttribute('data-prpg') + '</span></div>';
+            });
+        }
     }
 
     function getLatestSeasonStats(player) {
