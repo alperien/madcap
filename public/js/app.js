@@ -169,8 +169,140 @@
             loadJSON('api/seasons').then(function(d) { DATA.seasons = d; })
         ]).then(function() {
             updateNavStats();
+            initGlobalTooltips();
         });
     }
+
+    // === Global hover tooltips for player/team/league links ===
+    function initGlobalTooltips() {
+        var tip = document.createElement('div');
+        tip.className = 'css-chart-tooltip';
+        tip.style.display = 'none';
+        document.body.appendChild(tip);
+
+        function showTip(html, e) {
+            tip.innerHTML = html;
+            tip.style.display = 'block';
+            positionTip(e);
+        }
+        function positionTip(e) {
+            var x = e.clientX + 12;
+            var y = e.clientY + 12;
+            if (x + 200 > window.innerWidth) x = e.clientX - 210;
+            if (y + 150 > window.innerHeight) y = e.clientY - 160;
+            tip.style.left = x + 'px';
+            tip.style.top = y + 'px';
+        }
+        function hideTip() { tip.style.display = 'none'; }
+
+        function getIdFromHref(href, page) {
+            if (!href) return null;
+            var idx = href.indexOf(page + '?id=');
+            if (idx === -1) return null;
+            var rest = href.substring(idx + page.length + 4);
+            return rest.split('&')[0] || null;
+        }
+
+        function playerTipHtml(p) {
+            if (!p) return null;
+            var team = typeof getPlayerTeam === 'function' ? getPlayerTeam(p) : null;
+            var age = typeof calculateAge === 'function' ? calculateAge(p.birthdate) : '-';
+            var stats = getPlayerLatestStats(p);
+            var h = '<div class="tt-season">' + p.name + '</div>';
+            h += '<div class="tt-row"><span class="tt-label">Position</span><span class="tt-value">' + (p.position||'-') + '</span></div>';
+            h += '<div class="tt-row"><span class="tt-label">Overall</span><span class="tt-value">' + (p.overall||'-') + '</span></div>';
+            if (p.archetype) h += '<div class="tt-row"><span class="tt-label">Archetype</span><span class="tt-value">' + p.archetype + '</span></div>';
+            h += '<div class="tt-row"><span class="tt-label">Age</span><span class="tt-value">' + (age||'-') + '</span></div>';
+            h += '<div class="tt-row"><span class="tt-label">Height</span><span class="tt-value">' + (p.height||'-') + '</span></div>';
+            if (team) h += '<div class="tt-row"><span class="tt-label">Team</span><span class="tt-value">' + team.abbreviation + '</span></div>';
+            if (stats.ppg != null) h += '<div class="tt-row"><span class="tt-label">PPG</span><span class="tt-value">' + numStr(stats.ppg) + '</span></div>';
+            if (stats.apg != null) h += '<div class="tt-row"><span class="tt-label">APG</span><span class="tt-value">' + numStr(stats.apg) + '</span></div>';
+            if (stats.rpg != null) h += '<div class="tt-row"><span class="tt-label">RPG</span><span class="tt-value">' + numStr(stats.rpg) + '</span></div>';
+            return h;
+        }
+
+        function teamTipHtml(t) {
+            if (!t) return null;
+            var h = '<div class="tt-season">' + t.name + '</div>';
+            h += '<div class="tt-row"><span class="tt-label">Abbrev</span><span class="tt-value">' + (t.abbreviation||'-') + '</span></div>';
+            if (t.city) h += '<div class="tt-row"><span class="tt-label">City</span><span class="tt-value">' + t.city + '</span></div>';
+            if (t.conference) h += '<div class="tt-row"><span class="tt-label">Conference</span><span class="tt-value">' + t.conference + '</span></div>';
+            if (t.division) h += '<div class="tt-row"><span class="tt-label">Division</span><span class="tt-value">' + t.division + '</span></div>';
+            if (t.record) h += '<div class="tt-row"><span class="tt-label">Record</span><span class="tt-value">' + t.record + '</span></div>';
+            return h;
+        }
+
+        function leagueTipHtml(el) {
+            var text = el.textContent.trim();
+            var league = null;
+            for (var i = 0; i < DATA.leagues.length; i++) {
+                if (DATA.leagues[i].level && DATA.leagues[i].level.toUpperCase().indexOf(text) !== -1) { league = DATA.leagues[i]; break; }
+                if (DATA.leagues[i].name && DATA.leagues[i].name.toUpperCase().indexOf(text) !== -1) { league = DATA.leagues[i]; break; }
+            }
+            if (!league) return '<div class="tt-season">' + text + '</div>';
+            var h = '<div class="tt-season">' + league.name + '</div>';
+            if (league.level) h += '<div class="tt-row"><span class="tt-label">Level</span><span class="tt-value">' + league.level + '</span></div>';
+            if (league.current_season) h += '<div class="tt-row"><span class="tt-label">Season</span><span class="tt-value">' + league.current_season + '</span></div>';
+            if (league.teams) h += '<div class="tt-row"><span class="tt-label">Teams</span><span class="tt-value">' + league.teams.length + '</span></div>';
+            return h;
+        }
+
+        // Helper to get latest stats from a player (works from global DATA)
+        function getPlayerLatestStats(player) {
+            var stats = { ppg: null, apg: null, rpg: null };
+            if (player.career && player.career.pro) {
+                for (var i = player.career.pro.length - 1; i >= 0; i--) {
+                    var pro = player.career.pro[i];
+                    if (pro.seasons && pro.seasons.length > 0) {
+                        var last = pro.seasons[pro.seasons.length - 1];
+                        return { ppg: last.ppg, apg: last.apg, rpg: last.rpg };
+                    }
+                }
+            }
+            if (player.career && player.career.college && player.career.college.seasons && player.career.college.seasons.length > 0) {
+                var last = player.career.college.seasons[player.career.college.seasons.length - 1];
+                return { ppg: last.ppg, apg: last.apg, rpg: last.rpg };
+            }
+            return stats;
+        }
+
+        document.body.addEventListener('mouseover', function(e) {
+            var el = e.target.closest('a[href*="player.html?id="]');
+            if (el) {
+                var id = getIdFromHref(el.getAttribute('href'), 'player.html');
+                var p = id ? getPlayerById(id) : null;
+                var html = playerTipHtml(p);
+                if (html) { showTip(html, e); return; }
+            }
+            el = e.target.closest('a[href*="team.html?id="]');
+            if (el) {
+                var id = getIdFromHref(el.getAttribute('href'), 'team.html');
+                var t = id ? getTeamById(id) : null;
+                var html = teamTipHtml(t);
+                if (html) { showTip(html, e); return; }
+            }
+            el = e.target.closest('.league-badge');
+            if (el) {
+                var html = leagueTipHtml(el);
+                if (html) { showTip(html, e); return; }
+            }
+            hideTip();
+        });
+
+        document.body.addEventListener('mousemove', function(e) {
+            if (tip.style.display !== 'none') positionTip(e);
+        });
+
+        document.body.addEventListener('mouseout', function(e) {
+            if (e.target.closest('a[href*="player.html"], a[href*="team.html"], .league-badge')) {
+                var related = e.relatedTarget;
+                if (!related || (!related.closest('a[href*="player.html"]') && !related.closest('a[href*="team.html"]') && !related.closest('.league-badge'))) {
+                    hideTip();
+                }
+            }
+        });
+    }
+    window.initGlobalTooltips = initGlobalTooltips;
 
     // --- Simple Markdown renderer ---
     function renderMarkdown(md) {
