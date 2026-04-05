@@ -71,6 +71,15 @@
       "from_team_id": "",
       "to_team_id": "",
       "details": "Test txn"
+    },
+    {
+      "id": "txn_009",
+      "date": "2025-04-01",
+      "type": "signed",
+      "player_id": "test",
+      "from_team_id": "",
+      "to_team_id": "",
+      "details": "Test txn"
     }
   ]
 }

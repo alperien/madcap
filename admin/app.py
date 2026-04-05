@@ -49,24 +49,27 @@ file_lock = threading.Lock()
 # --- CSRF ---
 MAX_CSRF_TOKENS = 100
 csrf_tokens = {}
+csrf_lock = threading.Lock()
 
 
 def generate_csrf_token():
     token = secrets.token_hex(32)
-    csrf_tokens[token] = datetime.now()
-    # Prune old tokens to prevent memory leak
-    if len(csrf_tokens) > MAX_CSRF_TOKENS:
-        sorted_tokens = sorted(csrf_tokens.items(), key=lambda x: x[1])
-        for old_token, _ in sorted_tokens[:len(csrf_tokens) - MAX_CSRF_TOKENS]:
-            csrf_tokens.pop(old_token, None)
+    with csrf_lock:
+        csrf_tokens[token] = datetime.now()
+        # Prune old tokens to prevent memory leak
+        if len(csrf_tokens) > MAX_CSRF_TOKENS:
+            sorted_tokens = sorted(csrf_tokens.items(), key=lambda x: x[1])
+            for old_token, _ in sorted_tokens[:len(csrf_tokens) - MAX_CSRF_TOKENS]:
+                csrf_tokens.pop(old_token, None)
     return token
 
 
 def validate_csrf_token(token):
-    if token in csrf_tokens:
-        del csrf_tokens[token]
-        return True
-    return False
+    with csrf_lock:
+        if token in csrf_tokens:
+            del csrf_tokens[token]
+            return True
+        return False
 
 
 def require_auth(f):
@@ -99,9 +102,10 @@ def require_auth(f):
 # --- YAML Data helpers ---
 def load_yaml(filepath):
     try:
-        with open(filepath, 'r') as f:
-            data = yaml.safe_load(f)
-            return data if data else {}
+        with file_lock:
+            with open(filepath, 'r') as f:
+                data = yaml.safe_load(f)
+                return data if data else {}
     except FileNotFoundError:
         return {}
     except yaml.YAMLError as e:
@@ -118,8 +122,9 @@ def save_yaml(filepath, data):
 
 def load_json_file(filepath):
     try:
-        with open(filepath, 'r') as f:
-            return json.load(f)
+        with file_lock:
+            with open(filepath, 'r') as f:
+                return json.load(f)
     except FileNotFoundError:
         return {}
     except json.JSONDecodeError as e:
@@ -448,10 +453,10 @@ def api_list_uploads():
 @require_auth
 def api_delete_upload(filename):
     """Delete an uploaded image."""
-    safe_name = filename.replace('..', '').replace('//', '/')
-    filepath = os.path.join(UPLOADS_DIR, safe_name)
-    filepath = os.path.normpath(filepath)
-    if not filepath.startswith(os.path.normpath(UPLOADS_DIR)):
+    # Normalize first, then validate the resolved path stays within UPLOADS_DIR
+    filepath = os.path.normpath(os.path.join(UPLOADS_DIR, filename))
+    if not filepath.startswith(os.path.normpath(UPLOADS_DIR) + os.sep) and \
+       filepath != os.path.normpath(UPLOADS_DIR):
         return jsonify({'error': 'Invalid path'}), 400
     if not os.path.isfile(filepath):
         return jsonify({'error': 'File not found'}), 404
@@ -574,9 +579,12 @@ def api_delete_player(player_id):
 
     delete_player_file(player_id)
 
-    lore_path = os.path.join(LORE_DIR, f"{player_id}.md")
-    if os.path.exists(lore_path):
-        os.remove(lore_path)
+    safe_id = sanitize_id(player_id)
+    if safe_id:
+        lore_path = os.path.join(LORE_DIR, f"{safe_id}.md")
+        with file_lock:
+            if os.path.exists(lore_path):
+                os.remove(lore_path)
 
     cleanup_player_references(player_id)
     logger.info(f"Deleted player: {player_id}")
@@ -586,17 +594,23 @@ def api_delete_player(player_id):
 # --- Player Lore (Markdown) ---
 @app.route('/api/players/<player_id>/lore')
 def api_get_lore(player_id):
-    content = get_lore(player_id)
-    return jsonify({'player_id': player_id, 'content': content})
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        return jsonify({'error': 'Invalid player ID'}), 400
+    content = get_lore(safe_id)
+    return jsonify({'player_id': safe_id, 'content': content})
 
 
 @app.route('/api/players/<player_id>/lore', methods=['PUT'])
 @require_auth
 def api_save_lore(player_id):
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        return jsonify({'error': 'Invalid player ID'}), 400
     body = request.json
     if not body or 'content' not in body:
         return jsonify({'error': 'Content required'}), 400
-    save_lore(player_id, body['content'])
+    save_lore(safe_id, body['content'])
     return jsonify({'ok': True})
 
 
@@ -2165,13 +2179,13 @@ def admin_panel():
 
     txn_html = ''
     for t in recent_txns:
-        txn_html += f'<tr class="row1"><td>{t.get("date","")}</td><td>{t.get("type","")}</td><td>{t.get("player_id","")}</td><td>{t.get("details","")[:60]}</td></tr>'
+        txn_html += f'<tr class="row1"><td>{html_escape(t.get("date",""))}</td><td>{html_escape(t.get("type",""))}</td><td>{html_escape(t.get("player_id",""))}</td><td>{html_escape(t.get("details","")[:60])}</td></tr>'
     if not txn_html:
         txn_html = '<tr class="row1"><td colspan="4">No transactions</td></tr>'
 
     inj_html = ''
     for i in active_injuries:
-        inj_html += f'<tr class="row1"><td>{i.get("player_id","")}</td><td>{i.get("type","")}</td><td>{i.get("severity","")}</td><td>{i.get("status","")}</td></tr>'
+        inj_html += f'<tr class="row1"><td>{html_escape(i.get("player_id",""))}</td><td>{html_escape(i.get("type",""))}</td><td>{html_escape(i.get("severity",""))}</td><td>{html_escape(i.get("status",""))}</td></tr>'
     if not inj_html:
         inj_html = '<tr class="row1"><td colspan="4">No active injuries</td></tr>'
 
@@ -2254,7 +2268,8 @@ def admin_players_list():
     rows = ''
     for p in players:
         fic = 'YES' if p.get('is_fictional') else 'no'
-        rows += f'<tr class="row1"><td><a href="/admin/players/{p["id"]}/edit">{p.get("name","")}</a></td><td>{p.get("position","")}</td><td>{p.get("overall","")}</td><td>{fic}</td><td>{p.get("status","")}</td><td><a href="/admin/players/{p["id"]}/edit">[edit]</a></td></tr>'
+        pid = html_escape(str(p.get("id", "")))
+        rows += f'<tr class="row1"><td><a href="/admin/players/{pid}/edit">{html_escape(str(p.get("name","")))}</a></td><td>{html_escape(str(p.get("position","")))}</td><td>{html_escape(str(p.get("overall","")))}</td><td>{fic}</td><td>{html_escape(str(p.get("status","")))}</td><td><a href="/admin/players/{pid}/edit">[edit]</a></td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Players</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2316,7 +2331,8 @@ def admin_teams_list():
     teams = get_all_teams()
     rows = ''
     for t in teams:
-        rows += f'<tr class="row1"><td>{t.get("name","")}</td><td>{t.get("abbreviation","")}</td><td>{t.get("league","")}</td><td><a href="/team.html?id={t["id"]}">[view]</a></td></tr>'
+        tid = html_escape(str(t.get("id", "")))
+        rows += f'<tr class="row1"><td>{html_escape(str(t.get("name","")))}</td><td>{html_escape(str(t.get("abbreviation","")))}</td><td>{html_escape(str(t.get("league","")))}</td><td><a href="/team.html?id={tid}">[view]</a></td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Teams</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2336,7 +2352,7 @@ def admin_games_list():
     games = get_games()
     rows = ''
     for g in games:
-        rows += f'<tr class="row1"><td>{g.get("date","")}</td><td>{g.get("away_team_id","") or g.get("away_team_name","?")}</td><td>{g.get("away_score",0)}-{g.get("home_score",0)}</td><td>{g.get("home_team_id","") or g.get("home_team_name","?")}</td><td>{g.get("status","")}</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(g.get("date","")))}</td><td>{html_escape(str(g.get("away_team_id","") or g.get("away_team_name","?")))}</td><td>{html_escape(str(g.get("away_score",0)))}-{html_escape(str(g.get("home_score",0)))}</td><td>{html_escape(str(g.get("home_team_id","") or g.get("home_team_name","?")))}</td><td>{html_escape(str(g.get("status","")))}</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Games</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2356,7 +2372,7 @@ def admin_transactions_list():
     txns = sorted(get_transactions(), key=lambda t: t.get('date', ''), reverse=True)
     rows = ''
     for t in txns:
-        rows += f'<tr class="row1"><td>{t.get("date","")}</td><td>{t.get("type","")}</td><td>{t.get("player_id","")}</td><td>{t.get("details","")}</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(t.get("date","")))}</td><td>{html_escape(str(t.get("type","")))}</td><td>{html_escape(str(t.get("player_id","")))}</td><td>{html_escape(str(t.get("details","")))}</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Transactions</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2376,7 +2392,7 @@ def admin_injuries_list():
     injuries = sorted(get_injuries(), key=lambda i: i.get('date', ''), reverse=True)
     rows = ''
     for i in injuries:
-        rows += f'<tr class="row1"><td>{i.get("date","")}</td><td>{i.get("player_id","")}</td><td>{i.get("type","")}</td><td>{i.get("severity","")}</td><td>{i.get("status","")}</td><td>{i.get("games_missed",0)}</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(i.get("date","")))}</td><td>{html_escape(str(i.get("player_id","")))}</td><td>{html_escape(str(i.get("type","")))}</td><td>{html_escape(str(i.get("severity","")))}</td><td>{html_escape(str(i.get("status","")))}</td><td>{html_escape(str(i.get("games_missed",0)))}</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Injuries</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2397,7 +2413,7 @@ def admin_awards_list():
     winners = awards_data.get('winners', [])
     rows = ''
     for w in winners:
-        rows += f'<tr class="row1"><td>{w.get("year","")}</td><td>{w.get("award_id","")}</td><td>{w.get("player_id","")}</td><td>{w.get("league","")}</td><td>{w.get("notes","")}</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(w.get("year","")))}</td><td>{html_escape(str(w.get("award_id","")))}</td><td>{html_escape(str(w.get("player_id","")))}</td><td>{html_escape(str(w.get("league","")))}</td><td>{html_escape(str(w.get("notes","")))}</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Awards</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2417,7 +2433,7 @@ def admin_mock_drafts_list():
     mocks = get_mock_drafts()
     rows = ''
     for m in mocks:
-        rows += f'<tr class="row1"><td>{m.get("title","")}</td><td>{m.get("year","")}</td><td>{m.get("author","")}</td><td>{len(m.get("picks",[]))} picks</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(m.get("title","")))}</td><td>{html_escape(str(m.get("year","")))}</td><td>{html_escape(str(m.get("author","")))}</td><td>{len(m.get("picks",[]))} picks</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Mock Drafts</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2437,7 +2453,7 @@ def admin_drafts_list():
     drafts = get_drafts()
     rows = ''
     for d in drafts:
-        rows += f'<tr class="row1"><td>{d.get("year","")}</td><td>{d.get("league","")}</td><td>{len(d.get("picks",[]))} picks</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(d.get("year","")))}</td><td>{html_escape(str(d.get("league","")))}</td><td>{len(d.get("picks",[]))} picks</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Drafts</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2457,7 +2473,7 @@ def admin_events_list():
     events = get_events()
     rows = ''
     for e in events:
-        rows += f'<tr class="row1"><td>{e.get("date","")}</td><td>{e.get("type","")}</td><td>{e.get("player_id","")}</td><td>{e.get("title","")}</td></tr>'
+        rows += f'<tr class="row1"><td>{html_escape(str(e.get("date","")))}</td><td>{html_escape(str(e.get("type","")))}</td><td>{html_escape(str(e.get("player_id","")))}</td><td>{html_escape(str(e.get("title","")))}</td></tr>'
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin - Events</title>
 <style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
@@ -2518,7 +2534,8 @@ def admin_import_submit():
             return redirect('/admin/games')
         return 'Invalid data format for target', 400
     except Exception as e:
-        return f'Import error: {e}', 400
+        logger.error(f"Import error: {e}")
+        return f'Import error: {html_escape(str(e))}', 400
 
 
 # ============================================
@@ -2526,19 +2543,22 @@ def admin_import_submit():
 # ============================================
 def cleanup_player_references(player_id):
     """Remove a deleted player from all team rosters and depth charts."""
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        return
     for team in get_all_teams():
         modified = False
-        if 'roster' in team and player_id in team['roster']:
+        if 'roster' in team and safe_id in team['roster']:
             team['roster'] = [
-                rid for rid in team['roster'] if rid != player_id
+                rid for rid in team['roster'] if rid != safe_id
             ]
             modified = True
         if 'depth_chart' in team:
             for pos in team['depth_chart']:
-                if player_id in team['depth_chart'][pos]:
+                if safe_id in team['depth_chart'][pos]:
                     team['depth_chart'][pos] = [
                         pid for pid in team['depth_chart'][pos]
-                        if pid != player_id
+                        if pid != safe_id
                     ]
                     modified = True
         if modified:
@@ -2583,7 +2603,7 @@ def serve_public(path):
 def not_found(e):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
-    return send_from_directory(PUBLIC_DIR, 'index.html')
+    return jsonify({'error': 'Not found'}), 404
 
 
 @app.errorhandler(500)

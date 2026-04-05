@@ -152,6 +152,9 @@
         return fetch(cacheBust, { cache: 'no-store' }).then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status + ' fetching ' + url);
             return r.json();
+        }).catch(function(err) {
+            console.error('Failed to load ' + url + ': ' + err.message);
+            return [];
         });
     }
 
@@ -308,13 +311,19 @@
     // --- Simple Markdown renderer ---
     function renderMarkdown(md) {
         if (!md) return '';
-        var html = md
+        // Sanitize HTML to prevent XSS - strip all tags first, then apply markdown
+        var sanitized = md
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        var html = sanitized
             .replace(/^### (.+)$/gm, '<h3>$1</h3>')
             .replace(/^## (.+)$/gm, '<h2>$1</h2>')
             .replace(/^# (.+)$/gm, '<h1>$1</h1>')
             .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
             .replace(/\*(.+?)\*/g, '<i>$1</i>')
-            .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+            .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
             .replace(/^- (.+)$/gm, '<li>$1</li>')
             .replace(/\n\n/g, '</p><p>')
             .replace(/\n/g, '<br>');
@@ -404,9 +413,12 @@
     function relativeTime(dateStr) {
         if (!dateStr) return '';
         var d = new Date(dateStr);
+        if (isNaN(d.getTime())) return '';
         var now = new Date();
         var diff = now - d;
+        if (diff < 0) return 'upcoming';
         var mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
         if (mins < 60) return mins + 'm ago';
         var hours = Math.floor(mins / 60);
         if (hours < 24) return hours + 'h ago';
