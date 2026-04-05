@@ -16,7 +16,7 @@
             var teamColor = t.colors && t.colors[0] ? t.colors[0] : 'transparent';
             html += '<tr class="' + rowClass(i) + '" style="border-left:3px solid ' + teamColor + ';">';
             html += '<td class="row-num">' + (i+1) + '</td>';
-            html += '<td>' + renderTeamLogo(t, 'small') + ' ' + renderTeamColorDot(t) + '<a href="team.html?id=' + t.id + '">' + (t.name || 'Unknown') + '</a></td>';
+            html += '<td>' + renderTeamLogo(t, 'small') + ' <a href="team.html?id=' + t.id + '">' + (t.name || 'Unknown') + '</a></td>';
             html += '<td class="tCenter gensmall mono">' + (t.abbreviation || '-') + '</td>';
             html += '<td class="gensmall">' + renderLeagueBadge(t.league) + '</td>';
             html += '<td class="gensmall">' + renderConfBadge(t.conference) + '</td>';
@@ -66,7 +66,7 @@
         html += '<div style="display:flex;align-items:center;gap:8px;">';
         html += renderTeamLogo(team, 'large');
         html += '<div>';
-        html += '<span class="team-name">' + renderTeamColorDot(team) + (team.name || 'Unknown') + ' (' + (team.abbreviation || '?') + ')</span><br>';
+        html += '<span class="team-name">' + (team.name || 'Unknown') + ' (' + (team.abbreviation || '?') + ')</span><br>';
         html += '<span class="gensmall">';
         html += 'League: ' + renderLeagueBadge(team.league) + ' <b>' + (team.league || '-') + '</b> &middot; ';
         html += 'Conference: ' + renderConfBadge(team.conference) + ' <b>' + (team.conference || '-') + '</b> &middot; ';
