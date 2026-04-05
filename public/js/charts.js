@@ -23,16 +23,24 @@
         }
     }
 
-    // Create a chart on a canvas element, destroying any previous instance
+    // Create a chart on a canvas element, destroying any previous instance.
+    // Clears the wrapper div entirely and creates a fresh canvas to avoid
+    // conflicts with Chart.js internal wrapper divs from previous instances.
     function createChart(canvasId, config) {
         destroyChart(canvasId);
-        var canvas = document.getElementById(canvasId);
-        if (!canvas) return null;
-        // Reset canvas to clear any stale state from a previous Chart instance
-        var parent = canvas.parentNode;
+        var wrapId = canvasId + '-wrap';
+        var wrap = document.getElementById(wrapId);
+        if (!wrap) {
+            // Fallback: find canvas directly and use its parent
+            var existing = document.getElementById(canvasId);
+            if (!existing) return null;
+            wrap = existing.parentNode;
+        }
+        // Clear all children (removes old canvas + any Chart.js wrapper divs)
+        wrap.innerHTML = '';
         var newCanvas = document.createElement('canvas');
         newCanvas.id = canvasId;
-        parent.replaceChild(newCanvas, canvas);
+        wrap.appendChild(newCanvas);
         var instance = new Chart(newCanvas, config);
         chartInstances[canvasId] = instance;
         return instance;
