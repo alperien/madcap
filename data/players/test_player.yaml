@@ -1,0 +1,9 @@
+id: test_player
+name: Test Player
+position: PG
+height: ''
+weight: 0
+overall: 70
+team_id: ''
+is_fictional: false
+bio: ''

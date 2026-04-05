@@ -65,6 +65,17 @@
       "return_date": null,
       "status": "active",
       "notes": ""
+    },
+    {
+      "id": "inj_007",
+      "player_id": "test",
+      "date": "",
+      "type": "Sprain",
+      "severity": "minor",
+      "games_missed": 0,
+      "return_date": null,
+      "status": "active",
+      "notes": ""
     }
   ]
 }
