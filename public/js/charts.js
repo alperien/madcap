@@ -13,7 +13,8 @@
         var tickColor = light ? '#666' : '#888';
         var legendColor = light ? '#000' : '#C0C0C0';
 
-        Chart.helpers.each(Chart.instances, function(instance) {
+        var instances = Object.values(Chart.instances || {});
+        instances.forEach(function(instance) {
             if (instance.options && instance.options.scales) {
                 if (instance.options.scales.x) {
                     instance.options.scales.x.ticks.color = tickColor;
