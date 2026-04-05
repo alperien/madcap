@@ -285,9 +285,11 @@ input.liteoption:active { border-style: inset; }
 .player-name { font-size: 14px; font-weight: bold; color: var(--text-color); }
 .player-meta { color: var(--text-muted); font-size: 9px; }
 .fictional-badge { background: var(--fictional-bg); color: #CCC; padding: 1px 4px; font-size: 8px; font-weight: bold; border: 1px solid var(--border-color); }
-.chart-box { border: 1px solid var(--border-color); margin: 2px 0; background: var(--info-box-bg); overflow: hidden; }
+.charts-grid { display: flex; gap: 2px; border: 1px solid var(--border-color); border-top: 0; padding: 2px; background: var(--row1-bg); }
+.charts-grid .chart-box { flex: 1 1 0; min-width: 0; }
+.chart-box { border: 1px solid var(--border-color); background: var(--info-box-bg); overflow: hidden; }
 .chart-box .catHead { font-size: 8px; padding: 1px 4px; background: var(--sub-cat-bg); color: var(--text-muted); font-family: Verdana, Tahoma, sans-serif; border: none; }
-.chart-canvas-wrap { position: relative; width: 100%; height: 120px; }
+.chart-canvas-wrap { position: relative; display: block; width: 100%; height: 120px; }
 
 /* === AVATAR (square retro) === */
 .player-avatar { width: 60px; height: 60px; background: var(--avatar-bg); color: #FFF; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; font-family: Arial, sans-serif; vertical-align: middle; margin-right: 8px; border: 3px solid var(--avatar-border); flex-shrink: 0; overflow: hidden; }

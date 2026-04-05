@@ -386,42 +386,46 @@
         }
         if (chartsSection) chartsSection.style.display = '';
 
-        // PPG line chart
-        createChart('ppg-chart', buildLineChartConfig(
-            'PPG',
-            allSeasons.map(function(s) { return s.ppg || 0; }),
-            seasonLabels,
-            '#6688AA',
-            'rgba(102,136,170,0.15)'
-        ));
+        // Defer chart creation to next animation frame so the DOM has
+        // finished layout and Chart.js can measure container dimensions.
+        requestAnimationFrame(function() {
+            // PPG line chart
+            createChart('ppg-chart', buildLineChartConfig(
+                'PPG',
+                allSeasons.map(function(s) { return s.ppg || 0; }),
+                seasonLabels,
+                '#6688AA',
+                'rgba(102,136,170,0.15)'
+            ));
 
-        // APG line chart
-        createChart('apg-chart', buildLineChartConfig(
-            'APG',
-            allSeasons.map(function(s) { return s.apg || 0; }),
-            seasonLabels,
-            '#5A8A5A',
-            'rgba(90,138,90,0.15)'
-        ));
+            // APG line chart
+            createChart('apg-chart', buildLineChartConfig(
+                'APG',
+                allSeasons.map(function(s) { return s.apg || 0; }),
+                seasonLabels,
+                '#5A8A5A',
+                'rgba(90,138,90,0.15)'
+            ));
 
-        // RPG line chart
-        createChart('rpg-chart', buildLineChartConfig(
-            'RPG',
-            allSeasons.map(function(s) { return s.rpg || 0; }),
-            seasonLabels,
-            '#8A8A5A',
-            'rgba(138,138,90,0.15)'
-        ));
+            // RPG line chart
+            createChart('rpg-chart', buildLineChartConfig(
+                'RPG',
+                allSeasons.map(function(s) { return s.rpg || 0; }),
+                seasonLabels,
+                '#8A8A5A',
+                'rgba(138,138,90,0.15)'
+            ));
 
-        // Shooting splits bar chart
-        createChart('shooting-chart', buildShootingChartConfig(
-            {
-                fg: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }),
-                fg3: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }),
-                ft: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; })
-            },
-            seasonLabels
-        ));
+            // Shooting splits bar chart
+            createChart('shooting-chart', buildShootingChartConfig(
+                {
+                    fg: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }),
+                    fg3: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }),
+                    ft: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; })
+                },
+                seasonLabels
+            ));
+        });
     }
 
     function renderDraftInfo(player) {
