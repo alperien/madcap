@@ -285,9 +285,25 @@ input.liteoption:active { border-style: inset; }
 .player-name { font-size: 14px; font-weight: bold; color: var(--text-color); }
 .player-meta { color: var(--text-muted); font-size: 9px; }
 .fictional-badge { background: var(--fictional-bg); color: #CCC; padding: 1px 4px; font-size: 8px; font-weight: bold; border: 1px solid var(--border-color); }
-.chart-box { border: 1px solid var(--border-color); margin: 2px 0; background: var(--info-box-bg); }
-.chart-box .catHead { font-size: 8px; padding: 1px 4px; background: var(--sub-cat-bg); color: var(--text-muted); font-family: Verdana, Tahoma, sans-serif; border: none; }
-.chart-canvas-wrap { position: relative; height: 100px; }
+/* === PURE CSS CHARTS === */
+.css-charts-grid { display: flex; gap: 2px; border: 1px solid var(--border-color); border-top: 0; padding: 2px; background: var(--row1-bg); }
+.css-chart-panel { flex: 1 1 0; min-width: 0; border: 1px solid var(--border-color); background: var(--info-box-bg); overflow: hidden; }
+.css-chart-panel .catHead { font-size: 8px; padding: 1px 4px; background: var(--sub-cat-bg); color: var(--text-muted); font-family: Verdana, Tahoma, sans-serif; border: none; }
+.css-chart-body { padding: 3px; }
+.css-bar-row { display: flex; align-items: center; margin-bottom: 1px; }
+.css-bar-label { width: 42px; font-size: 7px; color: var(--text-muted); font-family: 'Lucida Console', monospace; text-align: right; padding-right: 3px; flex-shrink: 0; overflow: hidden; white-space: nowrap; }
+.css-bar-track { flex: 1; height: 10px; background: var(--border-light); position: relative; }
+.css-bar-fill { height: 100%; }
+.css-bar-val { width: 28px; font-size: 7px; color: var(--text-color); font-family: 'Lucida Console', monospace; text-align: left; padding-left: 2px; flex-shrink: 0; }
+.css-bar-fill-ppg { background: #6688AA; }
+.css-bar-fill-apg { background: #5A8A5A; }
+.css-bar-fill-rpg { background: #8A8A5A; }
+.css-bar-fill-fg { background: #6688AA; }
+.css-bar-fill-fg3 { background: #5A8A5A; }
+.css-bar-fill-ft { background: #8A8A5A; }
+.css-shoot-legend { font-size: 7px; color: var(--text-muted); padding: 1px 3px; font-family: 'Lucida Console', monospace; }
+.css-shoot-legend span { margin-right: 6px; }
+.css-shoot-swatch { display: inline-block; width: 8px; height: 8px; vertical-align: middle; margin-right: 2px; }
 
 /* === AVATAR (square retro) === */
 .player-avatar { width: 60px; height: 60px; background: var(--avatar-bg); color: #FFF; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; font-family: Arial, sans-serif; vertical-align: middle; margin-right: 8px; border: 3px solid var(--avatar-border); flex-shrink: 0; overflow: hidden; }

@@ -343,6 +343,9 @@
     }
 
     function renderPlayerCharts(player) {
+        var chartsSection = document.getElementById('charts-section');
+        if (!chartsSection) return;
+
         var allSeasons = [];
         var seasonLabels = [];
 
@@ -373,59 +376,65 @@
             }
         }
 
-        var chartsSection = document.getElementById('charts-section');
-        if (allSeasons.length === 0) { if (chartsSection) chartsSection.style.display = 'none'; return; }
-        if (typeof Chart === 'undefined') { if (chartsSection) chartsSection.style.display = 'none'; return; }
-        if (chartsSection) chartsSection.style.display = '';
+        if (allSeasons.length === 0) { chartsSection.style.display = 'none'; return; }
+        chartsSection.style.display = '';
 
-        var chartDefaults = getChartDefaults();
-
-        // Retro chart config: angular lines, larger points, ESPN colors
-        var ppgCanvas = document.getElementById('ppg-chart');
-        if (ppgCanvas) {
-            new Chart(ppgCanvas, {
-                type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'PPG', data: allSeasons.map(function(s) { return s.ppg || 0; }), borderColor: '#6688AA', backgroundColor: 'rgba(102,136,170,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
-                options: chartDefaults
-            });
+        // Helper: build a bar chart panel (pure HTML)
+        function barPanel(title, key, colorClass, maxVal) {
+            var max = maxVal || 0;
+            for (var i = 0; i < allSeasons.length; i++) {
+                var v = Number(allSeasons[i][key]) || 0;
+                if (v > max) max = v;
+            }
+            if (max === 0) max = 1;
+            var h = '<div class="css-chart-panel"><div class="catHead">' + title + '</div><div class="css-chart-body">';
+            for (var i = 0; i < allSeasons.length; i++) {
+                var v = Number(allSeasons[i][key]) || 0;
+                var pct = Math.round((v / max) * 100);
+                h += '<div class="css-bar-row">';
+                h += '<div class="css-bar-label">' + seasonLabels[i] + '</div>';
+                h += '<div class="css-bar-track"><div class="css-bar-fill ' + colorClass + '" style="width:' + pct + '%"></div></div>';
+                h += '<div class="css-bar-val">' + numStr(v) + '</div>';
+                h += '</div>';
+            }
+            h += '</div></div>';
+            return h;
         }
 
-        var apgCanvas = document.getElementById('apg-chart');
-        if (apgCanvas) {
-            new Chart(apgCanvas, {
-                type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'APG', data: allSeasons.map(function(s) { return s.apg || 0; }), borderColor: '#5A8A5A', backgroundColor: 'rgba(90,138,90,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
-                options: chartDefaults
-            });
+        // Shooting panel with grouped bars (FG%, 3P%, FT%)
+        function shootPanel() {
+            var h = '<div class="css-chart-panel"><div class="catHead">Shooting</div>';
+            h += '<div class="css-shoot-legend">';
+            h += '<span><span class="css-shoot-swatch" style="background:#6688AA"></span>FG%</span>';
+            h += '<span><span class="css-shoot-swatch" style="background:#5A8A5A"></span>3P%</span>';
+            h += '<span><span class="css-shoot-swatch" style="background:#8A8A5A"></span>FT%</span>';
+            h += '</div><div class="css-chart-body">';
+            for (var i = 0; i < allSeasons.length; i++) {
+                var fg = Math.round((Number(allSeasons[i].fg_pct) || 0) * 100);
+                var fg3 = Math.round((Number(allSeasons[i].fg3_pct) || 0) * 100);
+                var ft = Math.round((Number(allSeasons[i].ft_pct) || 0) * 100);
+                h += '<div class="css-bar-row">';
+                h += '<div class="css-bar-label">' + seasonLabels[i] + '</div>';
+                h += '<div class="css-bar-track">';
+                h += '<div class="css-bar-fill css-bar-fill-fg" style="width:' + fg + '%;position:absolute;top:0;height:33%"></div>';
+                h += '<div class="css-bar-fill css-bar-fill-fg3" style="width:' + fg3 + '%;position:absolute;top:33%;height:34%"></div>';
+                h += '<div class="css-bar-fill css-bar-fill-ft" style="width:' + ft + '%;position:absolute;top:67%;height:33%"></div>';
+                h += '</div>';
+                h += '<div class="css-bar-val">' + fg + '%</div>';
+                h += '</div>';
+            }
+            h += '</div></div>';
+            return h;
         }
 
-        var rpgCanvas = document.getElementById('rpg-chart');
-        if (rpgCanvas) {
-            new Chart(rpgCanvas, {
-                type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#8A8A5A', backgroundColor: 'rgba(138,138,90,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
-                options: chartDefaults
-            });
-        }
-
-        var shootingCanvas = document.getElementById('shooting-chart');
-        if (shootingCanvas) {
-            var light = typeof isLightMode === 'function' && isLightMode();
-            var legendDefaults = Object.assign({}, chartDefaults);
-            legendDefaults.plugins = { legend: { display: true, labels: { color: light ? '#000' : '#C0C0C0', font: { family: '"Lucida Console", monospace', size: 8 } } } };
-            new Chart(shootingCanvas, {
-                type: 'bar',
-                data: {
-                    labels: seasonLabels,
-                    datasets: [
-                        { label: 'FG%', data: allSeasons.map(function(s) { return (s.fg_pct || 0) * 100; }), backgroundColor: '#6688AA', borderWidth: 0, borderRadius: 0 },
-                        { label: '3P%', data: allSeasons.map(function(s) { return (s.fg3_pct || 0) * 100; }), backgroundColor: '#5A8A5A', borderWidth: 0, borderRadius: 0 },
-                        { label: 'FT%', data: allSeasons.map(function(s) { return (s.ft_pct || 0) * 100; }), backgroundColor: '#8A8A5A', borderWidth: 0, borderRadius: 0 }
-                    ]
-                },
-                options: legendDefaults
-            });
-        }
+        var html = '<div class="catHead" style="border:1px solid var(--border-color);border-bottom:0;">Stat Progression</div>';
+        html += '<div class="css-charts-grid">';
+        html += barPanel('PPG', 'ppg', 'css-bar-fill-ppg', 0);
+        html += barPanel('APG', 'apg', 'css-bar-fill-apg', 0);
+        html += barPanel('RPG', 'rpg', 'css-bar-fill-rpg', 0);
+        html += shootPanel();
+        html += '</div>';
+        chartsSection.innerHTML = html;
     }
 
     function renderDraftInfo(player) {
