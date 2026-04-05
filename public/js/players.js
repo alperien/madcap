@@ -691,12 +691,24 @@
 
         html += '</tr></table>';
         container.innerHTML = html;
+
+        // Tooltips for attributes, badges
+        attachTooltip(container, '.attr-cell', function(el) {
+            return '<div class="tt-season">' + el.getAttribute('data-attr-name') + '</div>' +
+                '<div class="tt-row"><span class="tt-label">Rating</span><span class="tt-value">' + el.getAttribute('data-attr-val') + '/99</span></div>' +
+                '<div class="tt-row"><span class="tt-label">Grade</span><span class="tt-value">' + el.getAttribute('data-attr-rating') + '</span></div>';
+        });
+        attachTooltip(container, '.badge-tag', function(el) {
+            return '<div class="tt-season">' + el.getAttribute('data-badge-name') + '</div>' +
+                '<div class="tt-row"><span class="tt-label">Tier</span><span class="tt-value">' + el.getAttribute('data-badge-tier') + '</span></div>';
+        });
     }
 
     function renderAttrCell(label, value) {
         var cls = value < 60 ? 'attr-low' : (value < 80 ? 'attr-mid' : 'attr-high');
+        var rating = value >= 90 ? 'Elite' : (value >= 80 ? 'High' : (value >= 70 ? 'Above Avg' : (value >= 60 ? 'Average' : 'Below Avg')));
         var pct = Math.min(100, Math.max(0, value));
-        return '<div class="attr-cell"><span class="attr-label">' + label + '</span><span class="attr-track"><span class="attr-fill ' + cls + '" style="width:' + pct + '%"></span></span><span class="attr-val">' + value + '</span></div>';
+        return '<div class="attr-cell" data-attr-name="' + label + '" data-attr-val="' + value + '" data-attr-rating="' + rating + '"><span class="attr-label">' + label + '</span><span class="attr-track"><span class="attr-fill ' + cls + '" style="width:' + pct + '%"></span></span><span class="attr-val">' + value + '</span></div>';
     }
 
     // === Full Game Log ===
@@ -801,13 +813,19 @@
         html += '<tr><td class="row1" style="padding:4px;"><div class="trophy-case">';
         for (var i = 0; i < awards.length; i++) {
             var a = awards[i];
-            html += '<div class="trophy-item"><div class="trophy-name">' + (a.name || a) + '</div>';
+            html += '<div class="trophy-item" data-award-name="' + (a.name || a) + '" data-award-year="' + (a.year || '') + '" data-award-league="' + (a.league || '') + '"><div class="trophy-name">' + (a.name || a) + '</div>';
             if (a.year) html += '<div class="trophy-year">' + a.year + '</div>';
             if (a.league) html += '<div class="trophy-league">' + renderLeagueBadge(a.league) + '</div>';
             html += '</div>';
         }
         html += '</div></td></tr></table>';
         container.innerHTML = html;
+
+        attachTooltip(container, '.trophy-item', function(el) {
+            return '<div class="tt-season">' + el.getAttribute('data-award-name') + '</div>' +
+                (el.getAttribute('data-award-year') ? '<div class="tt-row"><span class="tt-label">Season</span><span class="tt-value">' + el.getAttribute('data-award-year') + '</span></div>' : '') +
+                (el.getAttribute('data-award-league') ? '<div class="tt-row"><span class="tt-label">League</span><span class="tt-value">' + el.getAttribute('data-award-league') + '</span></div>' : '');
+        });
     }
 
     function renderInjuryHistory(player) {
@@ -823,7 +841,7 @@
         html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Injury</th><th class="thHead">Severity</th><th class="thHead tCenter">Games Missed</th><th class="thHead">Return</th><th class="thHead">Notes</th></tr>';
         for (var i = 0; i < injuries.length; i++) {
             var inj = injuries[i];
-            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (inj.date || '-') + '</td>';
+            html += '<tr class="' + rowClass(i) + ' hover-row" data-inj-type="' + (inj.type||'-') + '" data-inj-sev="' + (inj.severity||'-') + '" data-inj-missed="' + (inj.games_missed||0) + '" data-inj-date="' + (inj.date||'-') + '" data-inj-return="' + (inj.return_date||'TBD') + '" data-inj-notes="' + (inj.notes||'').replace(/"/g, '&quot;') + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (inj.date || '-') + '</td>';
             html += '<td class="gensmall">' + renderStatusDot('injured') + (inj.type || '-') + '</td>';
             html += '<td>' + renderInjuryIndicator(inj.severity) + '</td>';
             html += '<td class="tCenter mono">' + (inj.games_missed || 0) + '</td>';
@@ -832,6 +850,16 @@
         }
         html += '</table>';
         container.innerHTML = html;
+
+        attachTooltip(container, '.hover-row', function(el) {
+            if (!el.getAttribute('data-inj-type')) return null;
+            return '<div class="tt-season">' + el.getAttribute('data-inj-type') + '</div>' +
+                '<div class="tt-row"><span class="tt-label">Date</span><span class="tt-value">' + el.getAttribute('data-inj-date') + '</span></div>' +
+                '<div class="tt-row"><span class="tt-label">Severity</span><span class="tt-value">' + el.getAttribute('data-inj-sev') + '</span></div>' +
+                '<div class="tt-row"><span class="tt-label">Games Out</span><span class="tt-value">' + el.getAttribute('data-inj-missed') + '</span></div>' +
+                '<div class="tt-row"><span class="tt-label">Return</span><span class="tt-value">' + el.getAttribute('data-inj-return') + '</span></div>' +
+                (el.getAttribute('data-inj-notes') ? '<div class="tt-row"><span class="tt-label">Notes</span><span class="tt-value">' + el.getAttribute('data-inj-notes') + '</span></div>' : '');
+        });
     }
 
     function renderTransactionLog(player) {
@@ -848,13 +876,21 @@
         for (var i = 0; i < txns.length; i++) {
             var t = txns[i];
             var team = t.to_team_id ? getTeamById(t.to_team_id) : null;
-            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (t.date || '-') + '</td>';
+            html += '<tr class="' + rowClass(i) + ' hover-row" data-txn-type="' + (t.type||'-') + '" data-txn-date="' + (t.date||'-') + '" data-txn-team="' + (team ? team.name : (t.to_team_id||'-')) + '" data-txn-details="' + (t.details||'').replace(/"/g, '&quot;') + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (t.date || '-') + '</td>';
             html += '<td>' + renderUrgencyTag(t.type) + '</td>';
             html += '<td class="gensmall">' + (team ? renderTeamColorDot(team) + team.name : (t.to_team_id || '-')) + '</td>';
             html += '<td class="gensmall">' + (t.details || '') + '</td></tr>';
         }
         html += '</table>';
         container.innerHTML = html;
+
+        attachTooltip(container, '.hover-row', function(el) {
+            if (!el.getAttribute('data-txn-type')) return null;
+            return '<div class="tt-season">' + el.getAttribute('data-txn-type').toUpperCase() + '</div>' +
+                '<div class="tt-row"><span class="tt-label">Date</span><span class="tt-value">' + el.getAttribute('data-txn-date') + '</span></div>' +
+                '<div class="tt-row"><span class="tt-label">Team</span><span class="tt-value">' + el.getAttribute('data-txn-team') + '</span></div>' +
+                '<div class="tt-row"><span class="tt-label">Details</span><span class="tt-value">' + el.getAttribute('data-txn-details') + '</span></div>';
+        });
     }
 
     function renderContractDetails(player) {

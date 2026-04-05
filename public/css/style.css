@@ -561,6 +561,13 @@ table.forumline tr:hover td { background: var(--row-hover) !important; }
 
 
 
+/* === Generic hover row === */
+.hover-row { cursor: default; }
+.hover-row:hover td { background: var(--row-hover) !important; }
+/* Trophy hover */
+.trophy-item { cursor: default; transition: background 0.15s; }
+.trophy-item:hover { background: var(--row-hover); }
+
 /* === INJURY STATUS === */
 .injury-status { font-size: 8px; font-weight: bold; padding: 1px 3px; }
 .injury-active, .injury-day-to-day { color: var(--accent-red); }

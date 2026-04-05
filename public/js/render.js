@@ -377,7 +377,8 @@ function renderAttributeBar(label, value) {
 
 function renderBadgePill(badge) {
     var tier = (badge.tier || 'bronze').replace(/ /g, '_');
-    return '<span class="badge-tag badge-' + tier + '"><span class="badge-tier-icon"></span>' + (badge.name || '?') + '</span>';
+    var tierLabel = tier.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+    return '<span class="badge-tag badge-' + tier + '" data-badge-name="' + (badge.name || '?') + '" data-badge-tier="' + tierLabel + '"><span class="badge-tier-icon"></span>' + (badge.name || '?') + '</span>';
 }
 
 function renderInjuryIndicator(severity) {
@@ -567,4 +568,40 @@ function renderSchedule() {
     // Show count
     var countEl = document.getElementById('schedule-count');
     if (countEl) countEl.textContent = 'Showing ' + games.length + ' of ' + DATA.games.length + ' games';
+}
+
+// === Shared tooltip utility ===
+// Creates a single tooltip element and attaches hover handlers to a container.
+// selector: CSS selector for hoverable elements within container
+// contentFn: function(el) that returns tooltip HTML string
+function attachTooltip(container, selector, contentFn) {
+    if (!container) return;
+    var tip = document.createElement('div');
+    tip.className = 'css-chart-tooltip';
+    tip.style.display = 'none';
+    document.body.appendChild(tip);
+
+    container.addEventListener('mouseover', function(e) {
+        var el = e.target.closest(selector);
+        if (!el || !container.contains(el)) { tip.style.display = 'none'; return; }
+        var html = contentFn(el);
+        if (!html) { tip.style.display = 'none'; return; }
+        tip.innerHTML = html;
+        tip.style.display = 'block';
+    });
+    container.addEventListener('mousemove', function(e) {
+        if (tip.style.display === 'none') return;
+        var x = e.clientX + 12;
+        var y = e.clientY + 12;
+        if (x + 180 > window.innerWidth) x = e.clientX - 190;
+        if (y + 120 > window.innerHeight) y = e.clientY - 130;
+        tip.style.left = x + 'px';
+        tip.style.top = y + 'px';
+    });
+    container.addEventListener('mouseout', function(e) {
+        if (!e.relatedTarget || !container.contains(e.relatedTarget)) {
+            tip.style.display = 'none';
+        }
+    });
+    return tip;
 }
