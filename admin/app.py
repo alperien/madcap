@@ -1719,6 +1719,205 @@ def api_update_player_contract(player_id):
 
 
 # ============================================
+# API: Player Tendencies, Measurements, Draft, Jersey History
+# ============================================
+@app.route('/api/players/<player_id>/tendencies')
+def api_player_tendencies(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('tendencies', {}))
+
+
+@app.route('/api/players/<player_id>/tendencies', methods=['PUT'])
+@require_auth
+def api_update_player_tendencies(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    player['tendencies'] = body
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/measurements')
+def api_player_measurements(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('measurements', {}))
+
+
+@app.route('/api/players/<player_id>/measurements', methods=['PUT'])
+@require_auth
+def api_update_player_measurements(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    player['measurements'] = body
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/draft')
+def api_player_draft(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('draft', {}))
+
+
+@app.route('/api/players/<player_id>/draft', methods=['PUT'])
+@require_auth
+def api_update_player_draft(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    draft = player.get('draft', {})
+    for key in ['year', 'league', 'round', 'pick', 'team_id']:
+        if key in body:
+            draft[key] = body[key]
+    if 'year' in body:
+        draft['year'] = safe_int(body['year'], draft.get('year', 2024))
+    if 'round' in body:
+        draft['round'] = safe_int(body['round'], draft.get('round', 1))
+    if 'pick' in body:
+        draft['pick'] = safe_int(body['pick'], draft.get('pick', 1))
+    player['draft'] = draft
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/jersey-history')
+def api_player_jersey_history(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('jersey_history', []))
+
+
+@app.route('/api/players/<player_id>/jersey-history', methods=['POST'])
+@require_auth
+def api_add_player_jersey(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    entry = {
+        'team_id': body.get('team_id', ''),
+        'number': safe_int(body.get('number', 0), 0),
+        'years': body.get('years', '')
+    }
+    player.setdefault('jersey_history', []).append(entry)
+    save_player(player)
+    return jsonify({'ok': True}), 201
+
+
+@app.route('/api/players/<player_id>/jersey-history/<int:idx>', methods=['PUT'])
+@require_auth
+def api_update_player_jersey(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    history = player.get('jersey_history', [])
+    if idx >= len(history):
+        return jsonify({'error': 'Jersey entry not found'}), 404
+    for key in ['team_id', 'years']:
+        if key in body:
+            history[idx][key] = body[key]
+    if 'number' in body:
+        history[idx]['number'] = safe_int(body['number'], history[idx].get('number', 0))
+    player['jersey_history'] = history
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/jersey-history/<int:idx>', methods=['DELETE'])
+@require_auth
+def api_delete_player_jersey(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    history = player.get('jersey_history', [])
+    if idx >= len(history):
+        return jsonify({'error': 'Jersey entry not found'}), 404
+    history.pop(idx)
+    player['jersey_history'] = history
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+# ============================================
+# API: Team Roster, Depth Chart, Season Record
+# ============================================
+@app.route('/api/teams/<team_id>/roster', methods=['PUT'])
+@require_auth
+def api_update_team_roster(team_id):
+    team = get_team_by_id(team_id)
+    if not team:
+        return jsonify({'error': 'Team not found'}), 404
+    body = request.json
+    if not body or 'roster' not in body:
+        return jsonify({'error': 'roster array required'}), 400
+    team['roster'] = body['roster']
+    save_team(team)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/teams/<team_id>/depth-chart', methods=['PUT'])
+@require_auth
+def api_update_team_depth_chart(team_id):
+    team = get_team_by_id(team_id)
+    if not team:
+        return jsonify({'error': 'Team not found'}), 404
+    body = request.json
+    if not body or 'depth_chart' not in body:
+        return jsonify({'error': 'depth_chart object required'}), 400
+    team['depth_chart'] = body['depth_chart']
+    save_team(team)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/teams/<team_id>/season', methods=['PUT'])
+@require_auth
+def api_update_team_season(team_id):
+    team = get_team_by_id(team_id)
+    if not team:
+        return jsonify({'error': 'Team not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    season = team.get('current_season', {})
+    for key in ['year', 'conference_rank', 'division_rank']:
+        if key in body:
+            season[key] = body[key]
+    for key in ['wins', 'losses']:
+        if key in body:
+            season[key] = safe_int(body[key], season.get(key, 0))
+    if 'wins' in body or 'losses' in body:
+        w = season.get('wins', 0)
+        l = season.get('losses', 0)
+        season['win_pct'] = round(w / (w + l), 3) if (w + l) > 0 else 0.0
+    team['current_season'] = season
+    save_team(team)
+    return jsonify({'ok': True})
+
+
+# ============================================
 # API: Mock Drafts (JSON)
 # ============================================
 @app.route('/api/mock-drafts')

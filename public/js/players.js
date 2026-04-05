@@ -83,7 +83,7 @@
             html += '<td class="tCenter gensmall">' + coloredStat(latestStats.rpg, RPG_THRESH) + '</td>';
             html += '<td class="tCenter gensmall">' + renderStatusDot(p.status) + (p.status || '-') + '</td>';
             if (EDIT_MODE) {
-                html += '<td class="tCenter"><a href="#" onclick="openPlayerEditor(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
+                html += '<td class="tCenter"><a href="#" onclick="openPlayerBioEditor(DATA.players.find(function(x){return x.id===\'' + p.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deletePlayer(\'' + p.id + '\');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
             }
             html += '</tr>';
         }
@@ -205,7 +205,7 @@
 
         var html = '<table class="forumline player-header-table">';
         html += '<tr><th class="catHead" colspan="4">Player Profile';
-        if (EDIT_MODE) html += ' <a href="#" onclick="openPlayerEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openPlayerBioEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
         html += '</th></tr>';
         html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;border-left:4px solid ' + teamColor + ';">';
         html += '<div class="player-header-content">';
@@ -362,7 +362,22 @@
             }
         }
         if (!html) html = '<tr class="row1"><td colspan="15" class="gensmall" style="text-align:center;">No career stats available</td></tr>';
+        // Add season buttons when in edit mode
+        if (EDIT_MODE && player.is_fictional) {
+            html += '<tr class="row1"><td colspan="15" class="tCenter gensmall" style="padding:4px;">';
+            html += '<a href="#" onclick="openSeasonEditor(\'' + player.id + '\',\'highschool\',null,null);return false;" class="add-btn" style="display:inline;">[+ HS Season]</a> ';
+            html += '<a href="#" onclick="openSeasonEditor(\'' + player.id + '\',\'college\',null,null);return false;" class="add-btn" style="display:inline;">[+ College Season]</a> ';
+            html += '<a href="#" onclick="openAddProTeamSeasonEditor(\'' + player.id + '\');return false;" class="add-btn" style="display:inline;">[+ Pro Season]</a>';
+            html += '</td></tr>';
+        }
         tbody.innerHTML = html;
+        // Update header with edit count
+        var csHeader = document.getElementById('career-stats-header');
+        if (csHeader) {
+            var headerHtml = 'Career Statistics';
+            if (EDIT_MODE && player.is_fictional) headerHtml += ' <span class="gensmall" style="color:var(--link-color);">[editable]</span>';
+            csHeader.innerHTML = headerHtml;
+        }
 
         // Career stats tooltip
         var csTable = tbody.closest('table');
@@ -578,6 +593,14 @@
         html += '<tr class="row1"><td class="gensmall">Team</td><td class="gensmall">' + (team ? renderTeamColorDot(team) + team.name : (d.team_id || 'Undrafted')) + '</td></tr>';
         if (player.is_fictional) html += '<tr class="row2"><td class="gensmall">Note</td><td class="gensmall fic">Fictional draft pick *</td></tr>';
         tbody.innerHTML = html;
+        // Add edit link to draft header
+        var draftTable = document.getElementById('draft-info-table-wrap');
+        if (draftTable && EDIT_MODE) {
+            var header = draftTable.querySelector('th.catHead');
+            if (header && header.textContent.indexOf('[edit]') === -1) {
+                header.innerHTML += ' <a href="#" onclick="openDraftEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+            }
+        }
     }
 
     function renderCareerTimeline(player) {
@@ -619,7 +642,9 @@
         container.innerHTML = '<div class="loading-text" style="padding:6px;">Loading lore</div>';
         fetch('api/players/' + player.id + '/lore').then(function(r) { return r.json(); }).then(function(data) {
             var content = data.content || 'No lore available for this player.';
-            var html = '<div class="lore-article">' + renderMarkdown(content) + '</div>';
+            var html = '';
+            if (EDIT_MODE) html += '<div style="margin-bottom:4px;"><a href="#" onclick="openLoreEditor(\'' + player.id + '\');return false;" class="edit-btn" style="color:var(--link-color);font-size:9px;font-weight:bold;">[Edit Lore]</a></div>';
+            html += '<div class="lore-article">' + renderMarkdown(content) + '</div>';
             // Related events
             var events = DATA.events.filter(function(e) { return e.player_id === player.id; });
             if (events.length > 0) {
@@ -653,7 +678,13 @@
         var tendencies = player.tendencies;
         if (!attrs && !badges && !tendencies) { container.style.display = 'none'; return; }
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="3">Attributes / Badges / Tendencies</th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="3">Attributes / Badges / Tendencies';
+        if (EDIT_MODE) {
+            html += ' <a href="#" onclick="openAttributesEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[attrs]</a>';
+            html += ' <a href="#" onclick="openAddBadgeEditor(\'' + player.id + '\');return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[+badge]</a>';
+            html += ' <a href="#" onclick="openTendenciesEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[tend]</a>';
+        }
+        html += '</th></tr>';
         html += '<tr>';
 
         // Column 1: Attributes (compact grid)
@@ -702,6 +733,14 @@
                 html += '<div class="badge-grid">';
                 for (var b = 0; b < tierBadges.length; b++) {
                     html += renderBadgePill(tierBadges[b]);
+                    if (EDIT_MODE) {
+                        // Find original index in badges array
+                        var origIdx = -1;
+                        for (var bi = 0; bi < badges.length; bi++) {
+                            if (badges[bi].name === tierBadges[b].name && badges[bi].tier === tierBadges[b].tier) { origIdx = bi; break; }
+                        }
+                        if (origIdx >= 0) html += '<a href="#" onclick="deleteBadge(\'' + player.id + '\',' + origIdx + ');return false;" class="gensmall" style="color:var(--accent-red);font-size:7px;vertical-align:super;">x</a>';
+                    }
                 }
                 html += '</div>';
             }
@@ -786,7 +825,9 @@
 
         allGames.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="14">Full Game Log <span class="gensmall" style="color:var(--link-color);">(' + allGames.length + ' total games)</span></th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="14">Full Game Log <span class="gensmall" style="color:var(--link-color);">(' + allGames.length + ' total games)</span>';
+        if (EDIT_MODE && player.is_fictional) html += ' <a href="#" onclick="openGameEditor(\'' + player.id + '\',\'pro\',0,null,null);return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[+ add game]</a>';
+        html += '</th></tr>';
         html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Opp</th><th class="thHead">Result</th><th class="thHead">Team</th><th class="thHead tCenter">MIN</th><th class="thHead tCenter">PTS</th><th class="thHead tCenter">AST</th><th class="thHead tCenter">REB</th><th class="thHead tCenter">STL</th><th class="thHead tCenter">BLK</th><th class="thHead tCenter">FG</th><th class="thHead tCenter">3P</th><th class="thHead tCenter">FT</th></tr>';
         for (var i = 0; i < allGames.length; i++) {
             var g = allGames[i];
@@ -851,13 +892,18 @@
             return;
         }
 
-        var html = '<table class="forumline"><tr><th class="catHead">Award Trophy Case</th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead">Award Trophy Case';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openAwardEditor(\'' + player.id + '\',null,null);return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[+ add]</a>';
+        html += '</th></tr>';
         html += '<tr><td class="row1" style="padding:4px;"><div class="trophy-case">';
         for (var i = 0; i < awards.length; i++) {
             var a = awards[i];
             html += '<div class="trophy-item" data-award-name="' + (a.name || a) + '" data-award-year="' + (a.year || '') + '" data-award-league="' + (a.league || '') + '"><div class="trophy-name">' + (a.name || a) + '</div>';
             if (a.year) html += '<div class="trophy-year">' + a.year + '</div>';
             if (a.league) html += '<div class="trophy-league">' + renderLeagueBadge(a.league) + '</div>';
+            if (EDIT_MODE) {
+                html += '<div style="margin-top:2px;"><a href="#" onclick="openAwardEditor(\'' + player.id + '\',' + i + ',DATA.players.find(function(p){return p.id===\'' + player.id + '\'}).awards[' + i + ']);return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteAward(\'' + player.id + '\',' + i + ');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></div>';
+            }
             html += '</div>';
         }
         html += '</div></td></tr></table>';
@@ -879,8 +925,13 @@
             return;
         }
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="7">Injury History</th></tr>';
-        html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Injury</th><th class="thHead">Severity</th><th class="thHead tCenter">Games Missed</th><th class="thHead">Return</th><th class="thHead">Notes</th></tr>';
+        var colCount = EDIT_MODE ? 8 : 7;
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="' + colCount + '">Injury History';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openInjuryEditor(\'' + player.id + '\',null,null);return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[+ add]</a>';
+        html += '</th></tr>';
+        html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Injury</th><th class="thHead">Severity</th><th class="thHead tCenter">Games Missed</th><th class="thHead">Return</th><th class="thHead">Notes</th>';
+        if (EDIT_MODE) html += '<th class="thHead tCenter">Actions</th>';
+        html += '</tr>';
         for (var i = 0; i < injuries.length; i++) {
             var inj = injuries[i];
             html += '<tr class="' + rowClass(i) + ' hover-row" data-inj-type="' + (inj.type||'-') + '" data-inj-sev="' + (inj.severity||'-') + '" data-inj-missed="' + (inj.games_missed||0) + '" data-inj-date="' + (inj.date||'-') + '" data-inj-return="' + (inj.return_date||'TBD') + '" data-inj-notes="' + (inj.notes||'').replace(/"/g, '&quot;') + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (inj.date || '-') + '</td>';
@@ -888,7 +939,11 @@
             html += '<td>' + renderInjuryIndicator(inj.severity) + '</td>';
             html += '<td class="tCenter mono">' + (inj.games_missed || 0) + '</td>';
             html += '<td class="gensmall mono">' + (inj.return_date || 'TBD') + '</td>';
-            html += '<td class="gensmall">' + (inj.notes || '') + '</td></tr>';
+            html += '<td class="gensmall">' + (inj.notes || '') + '</td>';
+            if (EDIT_MODE) {
+                html += '<td class="tCenter gensmall"><a href="#" onclick="openInjuryEditor(\'' + player.id + '\',' + i + ',getPlayerById(\'' + player.id + '\').injuries[' + i + ']);return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteInjury(\'' + player.id + '\',' + i + ');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
+            }
+            html += '</tr>';
         }
         html += '</table>';
         container.innerHTML = html;
@@ -913,15 +968,24 @@
             return;
         }
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="5">Transaction History</th></tr>';
-        html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Type</th><th class="thHead">Team</th><th class="thHead">Details</th></tr>';
+        var txnColCount = EDIT_MODE ? 6 : 5;
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="' + txnColCount + '">Transaction History';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openTransactionEditor(\'' + player.id + '\',null,null);return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[+ add]</a>';
+        html += '</th></tr>';
+        html += '<tr><th class="thHead">#</th><th class="thHead">Date</th><th class="thHead">Type</th><th class="thHead">Team</th><th class="thHead">Details</th>';
+        if (EDIT_MODE) html += '<th class="thHead tCenter">Actions</th>';
+        html += '</tr>';
         for (var i = 0; i < txns.length; i++) {
             var t = txns[i];
             var team = t.to_team_id ? getTeamById(t.to_team_id) : null;
             html += '<tr class="' + rowClass(i) + ' hover-row" data-txn-type="' + (t.type||'-') + '" data-txn-date="' + (t.date||'-') + '" data-txn-team="' + (team ? team.name : (t.to_team_id||'-')) + '" data-txn-details="' + (t.details||'').replace(/"/g, '&quot;') + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (t.date || '-') + '</td>';
             html += '<td>' + renderUrgencyTag(t.type) + '</td>';
             html += '<td class="gensmall">' + (team ? renderTeamColorDot(team) + team.name : (t.to_team_id || '-')) + '</td>';
-            html += '<td class="gensmall">' + (t.details || '') + '</td></tr>';
+            html += '<td class="gensmall">' + (t.details || '') + '</td>';
+            if (EDIT_MODE) {
+                html += '<td class="tCenter gensmall"><a href="#" onclick="openTransactionEditor(\'' + player.id + '\',' + i + ',getPlayerById(\'' + player.id + '\').transactions[' + i + ']);return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTransaction(\'' + player.id + '\',' + i + ');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
+            }
+            html += '</tr>';
         }
         html += '</table>';
         container.innerHTML = html;
@@ -941,7 +1005,9 @@
         var contract = player.contract;
         if (!contract) { container.style.display = 'none'; return; }
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Contract Details</th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Contract Details';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openContractEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+        html += '</th></tr>';
         html += '<tr class="row1"><td class="gensmall" style="width:140px;">Type</td><td class="gensmall">' + (contract.type || '-').replace(/_/g, ' ') + ' <span class="contract-type-badge">' + (contract.type || '').replace(/_/g, ' ').toUpperCase() + '</span></td></tr>';
         html += '<tr class="row2"><td class="gensmall">Total Value</td><td class="contract-value">' + formatCurrency(contract.total_value) + '</td></tr>';
         html += '<tr class="row1"><td class="gensmall">Annual Value</td><td class="contract-value">' + formatCurrency(contract.annual_value) + '/yr</td></tr>';
@@ -961,7 +1027,9 @@
             return;
         }
 
-        var html = '<table class="forumline"><tr><th class="catHead">Media Clippings</th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead">Media Clippings';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openMediaEditor(\'' + player.id + '\',null,null);return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[+ add]</a>';
+        html += '</th></tr>';
         for (var i = 0; i < media.length; i++) {
             var m = media[i];
             html += '<tr class="' + rowClass(i) + '"><td style="padding:3px 6px;">';
@@ -969,6 +1037,10 @@
             html += '<div class="post-header">' + renderUrgencyTag(m.type || 'news');
             html += '<span class="gensmall">' + (m.date || '') + '</span>';
             if (m.source) html += ' <span class="gensmall">- ' + m.source + '</span>';
+            if (EDIT_MODE) {
+                html += ' <a href="#" onclick="openMediaEditor(\'' + player.id + '\',' + i + ',getPlayerById(\'' + player.id + '\').media[' + i + ']);return false;" class="gensmall">[edit]</a>';
+                html += ' <a href="#" onclick="deleteMedia(\'' + player.id + '\',' + i + ');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a>';
+            }
             html += '</div>';
             html += '<div class="post-body"><span class="bold">' + (m.headline || '') + '</span><br><span class="gensmall">' + (m.content || '') + '</span></div>';
             html += '</div></td></tr>';
@@ -986,7 +1058,9 @@
             return;
         }
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Physical Measurements</th></tr>';
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Physical Measurements';
+        if (EDIT_MODE) html += ' <a href="#" onclick="openMeasurementsEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+        html += '</th></tr>';
         html += '<tr><td class="row1" style="padding:4px;"><table class="measurements-table">';
         var fields = {
             wingspan: 'Wingspan', standing_reach: 'Standing Reach', hand_length: 'Hand Length',

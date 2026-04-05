@@ -658,6 +658,10 @@
         else if (path.indexOf('drafts.html') !== -1 && typeof renderDrafts === 'function') renderDrafts();
         else if (path.indexOf('leagues.html') !== -1 && typeof renderStandings === 'function') renderStandings();
         else if (path.indexOf('schedule.html') !== -1 && typeof renderSchedule === 'function') renderSchedule();
+        else if (path.indexOf('injuries.html') !== -1 && typeof renderInjuryReport === 'function') renderInjuryReport();
+        else if (path.indexOf('transactions.html') !== -1 && typeof renderTransactionFeed === 'function') renderTransactionFeed();
+        else if (path.indexOf('awards.html') !== -1 && typeof renderAwards === 'function') renderAwards();
+        else if (path.indexOf('mockdraft.html') !== -1 && typeof renderMockDraft === 'function') renderMockDraft();
         else if (path.indexOf('index.html') !== -1 || path === '/') {
             if (typeof renderLeagueHub === 'function') renderLeagueHub();
             if (typeof renderFictionalList === 'function') renderFictionalList();
@@ -714,6 +718,207 @@
         if (tabs.length > 0) tabs[0].click();
     }
     window.setupPlayerTabs = setupPlayerTabs;
+
+    // === SHARED EDITOR INFRASTRUCTURE ===
+
+    // --- Toast Notification System ---
+    function showToast(message, type) {
+        type = type || 'success';
+        var container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(function() { toast.classList.add('toast-visible'); }, 10);
+        setTimeout(function() {
+            toast.classList.remove('toast-visible');
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 3000);
+    }
+    window.showToast = showToast;
+
+    // --- API Helper with auth error handling ---
+    function apiCall(url, method, body) {
+        var opts = {
+            method: method || 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (body && method !== 'GET') opts.body = JSON.stringify(body);
+        return fetch(url, opts).then(function(r) {
+            if (r.status === 401) {
+                showToast('Not authenticated. Please log in via Admin panel.', 'error');
+                throw new Error('Unauthorized');
+            }
+            if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Request failed'); });
+            return r.json();
+        });
+    }
+    window.apiCall = apiCall;
+
+    // --- Form Building Helpers ---
+    function formRow(label, inputHtml) {
+        return '<div class="form-row"><label>' + label + '</label>' + inputHtml + '</div>';
+    }
+    window.formRow = formRow;
+
+    function formInput(id, value, opts) {
+        opts = opts || {};
+        var type = opts.type || 'text';
+        var placeholder = opts.placeholder || '';
+        var extra = opts.required ? ' required' : '';
+        if (opts.min !== undefined) extra += ' min="' + opts.min + '"';
+        if (opts.max !== undefined) extra += ' max="' + opts.max + '"';
+        if (opts.step !== undefined) extra += ' step="' + opts.step + '"';
+        if (opts.maxlength) extra += ' maxlength="' + opts.maxlength + '"';
+        return '<input type="' + type + '" id="' + id + '" value="' + esc(String(value != null ? value : '')) + '" placeholder="' + esc(placeholder) + '"' + extra + '>';
+    }
+    window.formInput = formInput;
+
+    function formSelect(id, options, selected) {
+        var html = '<select id="' + id + '">';
+        for (var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var val = typeof opt === 'object' ? opt.value : opt;
+            var label = typeof opt === 'object' ? opt.label : opt;
+            html += '<option value="' + esc(String(val)) + '"' + (String(val) === String(selected) ? ' selected' : '') + '>' + esc(String(label)) + '</option>';
+        }
+        html += '</select>';
+        return html;
+    }
+    window.formSelect = formSelect;
+
+    function formTextarea(id, value, rows) {
+        return '<textarea id="' + id + '" rows="' + (rows || 4) + '">' + esc(value || '') + '</textarea>';
+    }
+    window.formTextarea = formTextarea;
+
+    function formNumber(id, value, min, max, step) {
+        var extra = '';
+        if (min !== undefined) extra += ' min="' + min + '"';
+        if (max !== undefined) extra += ' max="' + max + '"';
+        if (step !== undefined) extra += ' step="' + step + '"';
+        return '<input type="number" id="' + id + '" value="' + (value != null ? value : '') + '"' + extra + '>';
+    }
+    window.formNumber = formNumber;
+
+    function formSlider(id, value, min, max, labelText) {
+        min = min || 0;
+        max = max || 99;
+        value = value || 0;
+        return '<div class="slider-row"><span class="slider-label">' + esc(labelText || id) + '</span>' +
+            '<input type="range" id="' + id + '" min="' + min + '" max="' + max + '" value="' + value + '" ' +
+            'oninput="document.getElementById(\'' + id + '-val\').textContent=this.value">' +
+            '<span class="slider-value" id="' + id + '-val">' + value + '</span></div>';
+    }
+    window.formSlider = formSlider;
+
+    // --- Team Picker Dropdown ---
+    function teamSelectOptions(selectedId) {
+        var opts = [{ value: '', label: '-- None --' }];
+        for (var i = 0; i < DATA.teams.length; i++) {
+            var t = DATA.teams[i];
+            opts.push({ value: t.id, label: t.abbreviation + ' - ' + t.name });
+        }
+        return formSelect('tf-team-pick', opts, selectedId || '');
+    }
+    window.teamSelectOptions = teamSelectOptions;
+
+    function teamSelectOptionsWithId(id, selectedId) {
+        var opts = [{ value: '', label: '-- None --' }];
+        for (var i = 0; i < DATA.teams.length; i++) {
+            var t = DATA.teams[i];
+            opts.push({ value: t.id, label: t.abbreviation + ' - ' + t.name });
+        }
+        return formSelect(id, opts, selectedId || '');
+    }
+    window.teamSelectOptionsWithId = teamSelectOptionsWithId;
+
+    // --- Player Picker Dropdown ---
+    function playerSelectOptions(id, selectedId) {
+        var opts = [{ value: '', label: '-- None --' }];
+        for (var i = 0; i < DATA.players.length; i++) {
+            var p = DATA.players[i];
+            opts.push({ value: p.id, label: p.name + ' (' + (p.position || '?') + ')' });
+        }
+        return formSelect(id, opts, selectedId || '');
+    }
+    window.playerSelectOptions = playerSelectOptions;
+
+    // --- Editable Section Header ---
+    function editSectionHeader(title, editOnclick, colspan) {
+        var html = '<tr><th class="catHead" colspan="' + (colspan || 2) + '">' + title;
+        if (EDIT_MODE && editOnclick) {
+            html += ' <a href="#" onclick="' + editOnclick + ';return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+        }
+        html += '</th></tr>';
+        return html;
+    }
+    window.editSectionHeader = editSectionHeader;
+
+    // --- Add Row Button ---
+    function addRowButton(label, onclick, colspan) {
+        if (!EDIT_MODE) return '';
+        return '<tr class="row1"><td colspan="' + (colspan || 2) + '" class="tCenter">' +
+            '<a href="#" onclick="' + onclick + ';return false;" class="add-btn" style="display:inline;">[+ ' + label + ']</a>' +
+            '</td></tr>';
+    }
+    window.addRowButton = addRowButton;
+
+    // --- Edit/Delete Action Cell ---
+    function editDeleteCell(editOnclick, deleteOnclick) {
+        if (!EDIT_MODE) return '';
+        return '<td class="tCenter gensmall" style="white-space:nowrap;">' +
+            '<a href="#" onclick="' + editOnclick + ';return false;" class="gensmall">[edit]</a> ' +
+            '<a href="#" onclick="' + deleteOnclick + ';return false;" class="gensmall" style="color:var(--accent-red);">[del]</a>' +
+            '</td>';
+    }
+    window.editDeleteCell = editDeleteCell;
+
+    // --- Confirm Delete Helper ---
+    function confirmAndDelete(entityName, url, callback) {
+        if (!confirm('Delete this ' + entityName + '?')) return;
+        apiCall(url, 'DELETE').then(function() {
+            showToast(entityName + ' deleted', 'success');
+            if (callback) callback();
+            else loadAllData().then(refreshCurrentPage);
+        }).catch(function(err) {
+            showToast('Error: ' + err.message, 'error');
+        });
+    }
+    window.confirmAndDelete = confirmAndDelete;
+
+    // --- Save and Refresh Helper ---
+    function saveAndRefresh(url, method, body, successMsg) {
+        return apiCall(url, method, body).then(function() {
+            closeModal();
+            showToast(successMsg || 'Saved', 'success');
+            return loadAllData().then(refreshCurrentPage);
+        }).catch(function(err) {
+            showToast('Error: ' + err.message, 'error');
+        });
+    }
+    window.saveAndRefresh = saveAndRefresh;
+
+    // --- Keyboard shortcuts ---
+    document.addEventListener('keydown', function(e) {
+        // Escape to close modal
+        if (e.key === 'Escape') closeModal();
+        // Ctrl+S to save active form
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            var modal = document.getElementById('modal-overlay');
+            if (modal) {
+                e.preventDefault();
+                var saveBtn = modal.querySelector('.btn-primary');
+                if (saveBtn) saveBtn.click();
+            }
+        }
+    });
 
     // === Initialize common elements on DOMContentLoaded ===
     document.addEventListener('DOMContentLoaded', function() {

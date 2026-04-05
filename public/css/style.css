@@ -757,6 +757,55 @@ html.light .comparison-table .worse { background: #E8D4D4; color: #7A3A3A; }
 /* === JERSEY NUMBER === */
 .jersey-num { font-size: 8px; color: var(--accent-red); font-weight: bold; vertical-align: super; margin-left: 1px; font-family: 'Lucida Console', monospace; }
 
+/* === TOAST NOTIFICATIONS === */
+.toast-container { position: fixed; top: 12px; right: 12px; z-index: 10001; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.toast { padding: 6px 14px; font-size: 10px; font-family: Verdana, Tahoma, sans-serif; border: 1px solid; opacity: 0; transform: translateX(40px); transition: opacity 0.3s, transform 0.3s; pointer-events: auto; max-width: 320px; }
+.toast-visible { opacity: 1; transform: translateX(0); }
+.toast-success { background: #1A3A1A; color: #4CAF50; border-color: #2E5E2E; }
+.toast-error { background: #3A1A1A; color: #F44336; border-color: #5E2E2E; }
+.toast-info { background: #1A2A3A; color: #2196F3; border-color: #2E3E5E; }
+.light .toast-success { background: #E8F5E9; color: #2E7D32; border-color: #A5D6A7; }
+.light .toast-error { background: #FFEBEE; color: #C62828; border-color: #EF9A9A; }
+.light .toast-info { background: #E3F2FD; color: #1565C0; border-color: #90CAF9; }
+
+/* === EDITOR FORM STYLES === */
+.form-row { margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.form-row label { font-size: 9px; font-weight: bold; min-width: 100px; color: var(--text-color); }
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row input[type="date"],
+.form-row select,
+.form-row textarea { flex: 1; padding: 3px 5px; font-size: 9px; font-family: Verdana, Tahoma, sans-serif; background: var(--input-bg, var(--row1-bg)); color: var(--text-color); border: 1px solid var(--border-color); }
+.form-row textarea { resize: vertical; min-height: 48px; }
+.form-actions { margin-top: 8px; text-align: right; padding-top: 6px; border-top: 1px solid var(--border-color); }
+.btn-primary { background: var(--cat-head-bg); color: #FFF; border: 1px solid var(--cat-head-bg2); padding: 3px 12px; font-size: 9px; cursor: pointer; font-weight: bold; font-family: Verdana, Tahoma, sans-serif; }
+.btn-primary:hover { background: var(--cat-head-bg2); }
+.btn-secondary { background: var(--row2-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 3px 12px; font-size: 9px; cursor: pointer; font-family: Verdana, Tahoma, sans-serif; }
+.btn-secondary:hover { background: var(--row-hover); }
+.btn-danger { background: #5E2E2E; color: #F44336; border: 1px solid #8B0000; padding: 3px 12px; font-size: 9px; cursor: pointer; font-family: Verdana, Tahoma, sans-serif; }
+.btn-danger:hover { background: #8B0000; color: #FFF; }
+
+/* === SLIDER ROWS (Attributes/Tendencies) === */
+.slider-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.slider-label { font-size: 8px; min-width: 110px; text-align: right; color: var(--text-color); }
+.slider-row input[type="range"] { flex: 1; height: 12px; -webkit-appearance: none; appearance: none; background: var(--border-color); outline: none; border-radius: 2px; }
+.slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 14px; background: var(--cat-head-bg); cursor: pointer; border: 1px solid var(--cat-head-bg2); }
+.slider-value { font-size: 9px; font-family: 'Lucida Console', monospace; min-width: 24px; text-align: center; color: var(--link-color); font-weight: bold; }
+
+/* === EDIT MODE SECTION HIGHLIGHTS === */
+body.edit-mode .forumline th.catHead:hover { background: var(--cat-head-bg2); cursor: pointer; }
+body.edit-mode .edit-btn { font-size: 8px; margin-left: 4px; }
+body.edit-mode .add-btn { font-size: 9px; color: var(--link-color); font-weight: bold; }
+body.edit-mode .add-btn:hover { color: #FFF; }
+
+/* === MODAL ENHANCEMENTS === */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding-top: 40px; overflow-y: auto; }
+.modal-dialog { background: var(--body-bg); border: 1px solid var(--border-color); max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto; }
+.modal-header { background: var(--cat-head-bg); color: #FFF; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { margin: 0; font-size: 11px; }
+.modal-close { background: none; border: none; color: #FFF; font-size: 16px; cursor: pointer; padding: 0 4px; }
+.modal-body { padding: 8px; }
+
 /* === RESPONSIVE TWEAKS === */
 @media (max-width: 800px) {
     .three-column td.col-left,

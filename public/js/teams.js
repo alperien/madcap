@@ -25,7 +25,7 @@
             html += '<td class="tCenter mono">' + pctStr(cs.win_pct) + '</td>';
             html += '<td class="tCenter mono">' + (cs.conference_rank || '-') + '</td>';
             if (EDIT_MODE) {
-                html += '<td class="tCenter"><a href="#" onclick="openTeamEditor(DATA.teams.find(function(x){return x.id===\'' + t.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTeam(\'' + t.id + '\');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
+                html += '<td class="tCenter"><a href="#" onclick="openTeamBioEditor(DATA.teams.find(function(x){return x.id===\'' + t.id + '\'}));return false;" class="gensmall">[edit]</a> <a href="#" onclick="deleteTeam(\'' + t.id + '\');return false;" class="gensmall" style="color:var(--accent-red);">[del]</a></td>';
             }
             html += '</tr>';
         }
@@ -57,7 +57,10 @@
         var teamColor2 = team.colors && team.colors[1] ? team.colors[1] : teamColor;
         var html = '<table class="forumline">';
         html += '<tr><th class="catHead" style="background:' + teamColor + ';border-color:' + teamColor2 + ';" colspan="4">Team Profile';
-        if (EDIT_MODE) html += ' <a href="#" onclick="openTeamEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+        if (EDIT_MODE) {
+            html += ' <a href="#" onclick="openTeamBioEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+            html += ' <a href="#" onclick="openTeamSeasonEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[season]</a>';
+        }
         html += '</th></tr>';
         html += '<tr class="row1"><td colspan="4" style="padding:4px 6px;border-left:4px solid ' + teamColor + ';">';
         html += '<span class="team-name">' + renderTeamColorDot(team) + (team.name || 'Unknown') + ' (' + (team.abbreviation || '?') + ')</span><br>';
@@ -131,6 +134,13 @@
         }
         if (!html) html = '<tr class="row1"><td colspan="8" class="gensmall" style="text-align:center;">No roster data available</td></tr>';
         tbody.innerHTML = html;
+        // Add roster edit link to header
+        var rosterHeader = document.getElementById('roster-header');
+        if (rosterHeader) {
+            var rh = 'Roster';
+            if (EDIT_MODE) rh += ' <a href="#" onclick="openRosterEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit roster]</a>';
+            rosterHeader.innerHTML = rh;
+        }
     }
 
     function renderDepthChart(team) {
@@ -167,6 +177,13 @@
             html += '</tr>';
         }
         tbody.innerHTML = html;
+        // Add depth chart edit link to header
+        var dcHeader = document.getElementById('depth-chart-header');
+        if (dcHeader) {
+            var dh = 'Depth Chart';
+            if (EDIT_MODE) dh += ' <a href="#" onclick="openDepthChartEditor(getTeamById(\'' + team.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
+            dcHeader.innerHTML = dh;
+        }
     }
 
     function renderTeamGames(team) {
