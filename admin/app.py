@@ -6,9 +6,16 @@ import threading
 import secrets
 import logging
 import re
+from html import escape as html_escape
 from functools import wraps
 from datetime import datetime
-from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for
+from flask import (
+    Flask, request, jsonify, send_from_directory,
+    session, redirect, url_for,
+)
+
+# Regex for valid resource IDs: alphanumeric, underscores, hyphens only
+_VALID_ID_RE = re.compile(r'^[a-zA-Z0-9_-]+$')
 
 # --- Configuration ---
 app = Flask(__name__, static_folder='static')
@@ -60,15 +67,26 @@ def validate_csrf_token(token):
 def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if 'authenticated' in session:
+        # Session-based auth (login form)
+        if session.get('authenticated'):
+            # For mutating methods, also require valid CSRF token
+            if request.method in ('POST', 'PUT', 'DELETE'):
+                token = (
+                    request.headers.get('X-CSRF-Token')
+                    or request.form.get('csrf_token')
+                )
+                if not token or not validate_csrf_token(token):
+                    # Allow session auth without CSRF for JSON API calls
+                    content_type = request.content_type or ''
+                    if 'application/json' not in content_type:
+                        return jsonify({'error': 'Invalid CSRF token'}), 403
             return f(*args, **kwargs)
+        # HTTP Basic auth (API clients)
         auth = request.authorization
-        if auth and auth.username == ADMIN_USER and auth.password == ADMIN_PASS:
+        if (auth
+                and auth.username == ADMIN_USER
+                and auth.password == ADMIN_PASS):
             return f(*args, **kwargs)
-        if request.method in ('POST', 'PUT', 'DELETE'):
-            token = request.headers.get('X-CSRF-Token') or request.form.get('csrf_token')
-            if token and validate_csrf_token(token) and session.get('authenticated'):
-                return f(*args, **kwargs)
         return jsonify({'error': 'Unauthorized'}), 401
     return decorated
 
@@ -123,19 +141,30 @@ def get_all_players():
 
 
 def get_player_by_id(player_id):
-    filepath = os.path.join(PLAYERS_DIR, f"{player_id}.yaml")
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        return {}
+    filepath = os.path.join(PLAYERS_DIR, f"{safe_id}.yaml")
     return load_yaml(filepath)
 
 
 def save_player(player):
-    filepath = os.path.join(PLAYERS_DIR, f"{player['id']}.yaml")
+    safe_id = sanitize_id(player.get('id'))
+    if not safe_id:
+        logger.error("Refusing to save player with invalid ID")
+        return
+    filepath = os.path.join(PLAYERS_DIR, f"{safe_id}.yaml")
     save_yaml(filepath, player)
 
 
 def delete_player_file(player_id):
-    filepath = os.path.join(PLAYERS_DIR, f"{player_id}.yaml")
-    if os.path.exists(filepath):
-        os.remove(filepath)
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        return
+    filepath = os.path.join(PLAYERS_DIR, f"{safe_id}.yaml")
+    with file_lock:
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
 
 def get_all_teams():
@@ -150,23 +179,37 @@ def get_all_teams():
 
 
 def get_team_by_id(team_id):
-    filepath = os.path.join(TEAMS_DIR, f"{team_id}.yaml")
+    safe_id = sanitize_id(team_id)
+    if not safe_id:
+        return {}
+    filepath = os.path.join(TEAMS_DIR, f"{safe_id}.yaml")
     return load_yaml(filepath)
 
 
 def save_team(team):
-    filepath = os.path.join(TEAMS_DIR, f"{team['id']}.yaml")
+    safe_id = sanitize_id(team.get('id'))
+    if not safe_id:
+        logger.error("Refusing to save team with invalid ID")
+        return
+    filepath = os.path.join(TEAMS_DIR, f"{safe_id}.yaml")
     save_yaml(filepath, team)
 
 
 def delete_team_file(team_id):
-    filepath = os.path.join(TEAMS_DIR, f"{team_id}.yaml")
-    if os.path.exists(filepath):
-        os.remove(filepath)
+    safe_id = sanitize_id(team_id)
+    if not safe_id:
+        return
+    filepath = os.path.join(TEAMS_DIR, f"{safe_id}.yaml")
+    with file_lock:
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
 
 def get_lore(player_id):
-    filepath = os.path.join(LORE_DIR, f"{player_id}.md")
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        return ''
+    filepath = os.path.join(LORE_DIR, f"{safe_id}.md")
     try:
         with open(filepath, 'r') as f:
             return f.read()
@@ -175,11 +218,16 @@ def get_lore(player_id):
 
 
 def save_lore(player_id, content):
+    safe_id = sanitize_id(player_id)
+    if not safe_id:
+        logger.error("Refusing to save lore with invalid player ID")
+        return
     if not os.path.exists(LORE_DIR):
         os.makedirs(LORE_DIR)
-    filepath = os.path.join(LORE_DIR, f"{player_id}.md")
-    with open(filepath, 'w') as f:
-        f.write(content)
+    filepath = os.path.join(LORE_DIR, f"{safe_id}.md")
+    with file_lock:
+        with open(filepath, 'w') as f:
+            f.write(content)
 
 
 def get_leagues():
@@ -219,6 +267,34 @@ def get_seasons():
 
 
 # --- Validation ---
+def sanitize_id(resource_id):
+    """Validate and sanitize a resource ID to prevent path traversal.
+
+    Returns the ID if valid, or None if it contains illegal characters.
+    """
+    if not resource_id or not isinstance(resource_id, str):
+        return None
+    if not _VALID_ID_RE.match(resource_id):
+        return None
+    return resource_id
+
+
+def safe_int(value, default=0):
+    """Safely convert a value to int, returning default on failure."""
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+
+def _safe_float(value, default=0.0):
+    """Safely convert a value to float, returning default on failure."""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+
 def validate_string(val, field, max_len=200, required=False):
     if required and (val is None or val == ''):
         return None, f'{field} is required'
@@ -263,7 +339,7 @@ def admin_login():
 def render_admin_login(error=None):
     csrf = generate_csrf_token()
     session['csrf_token'] = csrf
-    error_html = f'<p style="color:red;">{error}</p>' if error else ''
+    error_html = f'<p style="color:red;">{html_escape(error)}</p>' if error else ''
     return f'''<!DOCTYPE html>
 <html><head><title>MADCAP Admin Login</title>
 <style>
@@ -331,10 +407,10 @@ def api_create_player():
             'name': name,
             'position': body.get('position', 'PG'),
             'height': body.get('height', '6\'0"'),
-            'weight': int(body.get('weight', 180)),
+            'weight': safe_int(body.get('weight', 180), 180),
             'birthdate': body.get('birthdate', '2000-01-01'),
             'nationality': body.get('nationality', 'USA'),
-            'overall': int(body.get('overall', 70)),
+            'overall': safe_int(body.get('overall', 70), 70),
             'archetype': body.get('archetype', 'All-Around'),
             'status': body.get('status', 'active'),
             'is_fictional': True,
@@ -361,8 +437,8 @@ def api_create_player():
             'name': name,
             'position': body.get('position', 'PG'),
             'height': body.get('height', ''),
-            'weight': body.get('weight', 0),
-            'overall': int(body.get('overall', 70)),
+            'weight': safe_int(body.get('weight', 0), 0),
+            'overall': safe_int(body.get('overall', 70), 70),
             'team_id': body.get('team_id', ''),
             'is_fictional': False,
             'bio': body.get('bio', '')
@@ -388,9 +464,9 @@ def api_update_player(player_id):
         if key in body:
             player[key] = body[key]
     if 'weight' in body:
-        player['weight'] = int(body['weight'])
+        player['weight'] = safe_int(body['weight'], player.get('weight', 0))
     if 'overall' in body:
-        player['overall'] = int(body['overall'])
+        player['overall'] = safe_int(body['overall'], player.get('overall', 70))
     if 'is_fictional' in body:
         player['is_fictional'] = bool(body['is_fictional'])
 
@@ -570,6 +646,8 @@ def api_delete_season(player_id, level, season_idx):
         if season_idx < len(seasons):
             seasons.pop(season_idx)
             career['highschool']['seasons'] = seasons
+    else:
+        return jsonify({'error': 'Invalid level'}), 400
 
     player['career'] = career
     save_player(player)
@@ -654,11 +732,14 @@ def api_update_player_game(player_id, level, season_idx, game_idx):
         return jsonify({'error': 'Request body required'}), 400
 
     career = player.get('career', {})
-    games = _get_games_list(career, level, season_idx)
+    team_idx = body.get('team_idx', 0)
+    games = _get_games_list(career, level, season_idx, team_idx)
     if games is None or game_idx >= len(games):
         return jsonify({'error': 'Game not found'}), 404
 
-    for key in ['date', 'opponent', 'pts', 'ast', 'reb', 'stl', 'blk', 'fg_made', 'fg_att', 'fg3_made', 'fg3_att', 'ft_made', 'ft_att', 'mins', 'result']:
+    for key in ['date', 'opponent', 'pts', 'ast', 'reb', 'stl', 'blk',
+                'fg_made', 'fg_att', 'fg3_made', 'fg3_att',
+                'ft_made', 'ft_att', 'mins', 'result']:
         if key in body:
             games[game_idx][key] = body[key]
 
@@ -676,20 +757,21 @@ def api_delete_player_game(player_id, level, season_idx, game_idx):
         return jsonify({'error': 'Player not found'}), 404
 
     career = player.get('career', {})
-    games = _get_games_list(career, level, season_idx)
+    req_body = request.json or {}
+    team_idx = req_body.get('team_idx', 0)
+    games = _get_games_list(career, level, season_idx, team_idx)
     if games is None or game_idx >= len(games):
         return jsonify({'error': 'Game not found'}), 404
 
     games.pop(game_idx)
-    _save_games_list(career, level, season_idx, games, request.json or {})
+    _save_games_list(career, level, season_idx, games, req_body)
     player['career'] = career
     save_player(player)
     return jsonify({'ok': True})
 
 
-def _get_games_list(career, level, season_idx):
+def _get_games_list(career, level, season_idx, team_idx=0):
     if level == 'pro':
-        team_idx = 0
         pro_entries = career.get('pro', [])
         if team_idx < len(pro_entries):
             seasons = pro_entries[team_idx].get('seasons', [])
@@ -826,6 +908,8 @@ def api_add_award(player_id, level, season_idx):
         if season_idx < len(seasons):
             seasons[season_idx].setdefault('awards', []).append(body['award'])
             career['highschool']['seasons'] = seasons
+    else:
+        return jsonify({'error': 'Invalid level'}), 400
 
     player['career'] = career
     save_player(player)
@@ -874,15 +958,15 @@ def api_create_team():
         'city': body.get('city', ''),
         'state': body.get('state', ''),
         'arena': body.get('arena', ''),
-        'founded': int(body.get('founded', 2024)),
+        'founded': safe_int(body.get('founded', 2024), 2024),
         'colors': body.get('colors', ['#000000', '#FFFFFF']),
         'current_season': {
             'year': body.get('season_year', '2024-25'),
-            'wins': int(body.get('wins', 0)),
-            'losses': int(body.get('losses', 0)),
-            'win_pct': float(body.get('win_pct', 0.0)),
-            'conference_rank': int(body.get('conference_rank', 0)),
-            'division_rank': int(body.get('division_rank', 0))
+            'wins': safe_int(body.get('wins', 0), 0),
+            'losses': safe_int(body.get('losses', 0), 0),
+            'win_pct': _safe_float(body.get('win_pct', 0.0), 0.0),
+            'conference_rank': safe_int(body.get('conference_rank', 0), 0),
+            'division_rank': safe_int(body.get('division_rank', 0), 0)
         },
         'roster': body.get('roster', []),
         'depth_chart': body.get('depth_chart', {'PG': [], 'SG': [], 'SF': [], 'PF': [], 'C': []}),
@@ -912,7 +996,7 @@ def api_update_team(team_id):
         if key in body:
             team[key] = body[key]
     if 'founded' in body:
-        team['founded'] = int(body['founded'])
+        team['founded'] = safe_int(body['founded'], team.get('founded', 2024))
     if 'head_coach' in body or 'gm' in body:
         team['staff'] = {
             'head_coach': body.get('head_coach', team.get('staff', {}).get('head_coach', '')),
@@ -953,7 +1037,7 @@ def api_games():
 def api_game(game_id):
     games = get_games()
     for g in games:
-        if g['id'] == game_id:
+        if g.get('id') == game_id:
             return jsonify(g)
     return jsonify({'error': 'Game not found'}), 404
 
@@ -981,8 +1065,8 @@ def api_create_game():
         'season': body.get('season', '2024-25'),
         'home_team_id': body.get('home_team_id', ''),
         'away_team_id': body.get('away_team_id', ''),
-        'home_score': int(body.get('home_score', 0)),
-        'away_score': int(body.get('away_score', 0)),
+        'home_score': safe_int(body.get('home_score', 0), 0),
+        'away_score': safe_int(body.get('away_score', 0), 0),
         'status': body.get('status', 'scheduled'),
         'venue': body.get('venue', ''),
         'attendance': body.get('attendance'),
@@ -1002,14 +1086,14 @@ def api_update_game(game_id):
         return jsonify({'error': 'Request body required'}), 400
 
     for i, g in enumerate(games):
-        if g['id'] == game_id:
+        if g.get('id') == game_id:
             for key in ['date', 'time', 'league', 'season', 'home_team_id', 'away_team_id', 'status', 'venue', 'box_score']:
                 if key in body:
                     games[i][key] = body[key]
             if 'home_score' in body:
-                games[i]['home_score'] = int(body['home_score'])
+                games[i]['home_score'] = safe_int(body['home_score'], 0)
             if 'away_score' in body:
-                games[i]['away_score'] = int(body['away_score'])
+                games[i]['away_score'] = safe_int(body['away_score'], 0)
             if 'attendance' in body:
                 games[i]['attendance'] = body['attendance']
             save_json_file(os.path.join(DATA_DIR, 'games.json'), {'games': games})
@@ -1037,9 +1121,9 @@ def api_leagues():
 @app.route('/api/leagues/<league_id>')
 def api_league(league_id):
     leagues = get_leagues()
-    for l in leagues:
-        if l['id'] == league_id:
-            return jsonify(l)
+    for lg in leagues:
+        if lg.get('id') == league_id:
+            return jsonify(lg)
     return jsonify({'error': 'League not found'}), 404
 
 
@@ -1053,7 +1137,7 @@ def api_create_league():
     leagues = get_leagues()
     new_id = body.get('id', body.get('name', 'new_league').lower().replace(' ', '_'))
 
-    if any(l['id'] == new_id for l in leagues):
+    if any(lg.get('id') == new_id for lg in leagues):
         return jsonify({'error': f'League ID {new_id} already exists'}), 409
 
     new_league = {
@@ -1079,9 +1163,10 @@ def api_update_league(league_id):
     if not body:
         return jsonify({'error': 'Request body required'}), 400
 
-    for i, l in enumerate(leagues):
-        if l['id'] == league_id:
-            for key in ['name', 'abbreviation', 'level', 'country', 'current_season', 'teams', 'standings']:
+    for i, lg in enumerate(leagues):
+        if lg.get('id') == league_id:
+            for key in ['name', 'abbreviation', 'level', 'country',
+                        'current_season', 'teams', 'standings']:
                 if key in body:
                     leagues[i][key] = body[key]
             save_json_file(os.path.join(DATA_DIR, 'leagues.json'), {'leagues': leagues})
@@ -1094,7 +1179,7 @@ def api_update_league(league_id):
 @require_auth
 def api_delete_league(league_id):
     leagues = get_leagues()
-    filtered = [l for l in leagues if l['id'] != league_id]
+    filtered = [lg for lg in leagues if lg.get('id') != league_id]
     if len(filtered) == len(leagues):
         return jsonify({'error': 'League not found'}), 404
     save_json_file(os.path.join(DATA_DIR, 'leagues.json'), {'leagues': filtered})
@@ -1123,7 +1208,7 @@ def api_create_draft():
         return jsonify({'error': 'Request body required'}), 400
 
     drafts = get_drafts()
-    year = int(body.get('year', 2024))
+    year = safe_int(body.get('year', 2024), 2024)
 
     if any(d['year'] == year for d in drafts):
         return jsonify({'error': f'Draft for year {year} already exists'}), 409
@@ -1178,7 +1263,7 @@ def api_events():
 def api_event(event_id):
     events = get_events()
     for e in events:
-        if e['id'] == event_id:
+        if e.get('id') == event_id:
             return jsonify(e)
     return jsonify({'error': 'Event not found'}), 404
 
@@ -1222,7 +1307,7 @@ def api_update_event(event_id):
         return jsonify({'error': 'Request body required'}), 400
 
     for i, e in enumerate(events):
-        if e['id'] == event_id:
+        if e.get('id') == event_id:
             for key in ['date', 'player_id', 'type', 'title', 'description', 'tags', 'media']:
                 if key in body:
                     events[i][key] = body[key]
@@ -1289,7 +1374,7 @@ def api_update_transaction(txn_id):
         return jsonify({'error': 'Request body required'}), 400
 
     for i, t in enumerate(txns):
-        if t['id'] == txn_id:
+        if t.get('id') == txn_id:
             for key in ['date', 'type', 'player_id', 'from_team_id', 'to_team_id', 'details']:
                 if key in body:
                     txns[i][key] = body[key]
@@ -1368,7 +1453,7 @@ def api_create_injury():
         'date': body.get('date', ''),
         'type': body.get('type', ''),
         'severity': body.get('severity', 'minor'),
-        'games_missed': int(body.get('games_missed', 0)),
+        'games_missed': safe_int(body.get('games_missed', 0), 0),
         'return_date': body.get('return_date'),
         'status': body.get('status', 'active'),
         'notes': body.get('notes', '')
@@ -1387,12 +1472,12 @@ def api_update_injury(inj_id):
         return jsonify({'error': 'Request body required'}), 400
 
     for i, inj in enumerate(injuries):
-        if inj['id'] == inj_id:
+        if inj.get('id') == inj_id:
             for key in ['player_id', 'date', 'type', 'severity', 'return_date', 'status', 'notes']:
                 if key in body:
                     injuries[i][key] = body[key]
             if 'games_missed' in body:
-                injuries[i]['games_missed'] = int(body['games_missed'])
+                injuries[i]['games_missed'] = safe_int(body['games_missed'], 0)
             save_json_file(os.path.join(DATA_DIR, 'injuries.json'), {'injuries': injuries})
             return jsonify({'ok': True})
     return jsonify({'error': 'Injury not found'}), 404
@@ -1431,7 +1516,7 @@ def api_add_player_injury(player_id):
         'date': body.get('date', ''),
         'type': body.get('type', ''),
         'severity': body.get('severity', 'minor'),
-        'games_missed': int(body.get('games_missed', 0)),
+        'games_missed': safe_int(body.get('games_missed', 0), 0),
         'return_date': body.get('return_date'),
         'notes': body.get('notes', '')
     }
@@ -1456,7 +1541,7 @@ def api_update_player_injury(player_id, idx):
         if key in body:
             injuries[idx][key] = body[key]
     if 'games_missed' in body:
-        injuries[idx]['games_missed'] = int(body['games_missed'])
+        injuries[idx]['games_missed'] = safe_int(body['games_missed'], 0)
     player['injuries'] = injuries
     save_player(player)
     return jsonify({'ok': True})
@@ -1645,7 +1730,7 @@ def api_mock_drafts():
 def api_mock_draft(mock_id):
     mocks = get_mock_drafts()
     for m in mocks:
-        if m['id'] == mock_id:
+        if m.get('id') == mock_id:
             return jsonify(m)
     return jsonify({'error': 'Mock draft not found'}), 404
 
@@ -1664,7 +1749,7 @@ def api_create_mock_draft():
         'author': body.get('author', 'MADCAP Scouting'),
         'date': body.get('date', ''),
         'league': body.get('league', 'NBA'),
-        'year': int(body.get('year', 2025)),
+        'year': safe_int(body.get('year', 2025), 2025),
         'picks': body.get('picks', [])
     }
     mocks.append(new_mock)
@@ -1680,12 +1765,12 @@ def api_update_mock_draft(mock_id):
     if not body:
         return jsonify({'error': 'Request body required'}), 400
     for i, m in enumerate(mocks):
-        if m['id'] == mock_id:
+        if m.get('id') == mock_id:
             for key in ['title', 'author', 'date', 'league', 'picks']:
                 if key in body:
                     mocks[i][key] = body[key]
             if 'year' in body:
-                mocks[i]['year'] = int(body['year'])
+                mocks[i]['year'] = safe_int(body['year'], mocks[i].get('year', 2025))
             save_json_file(os.path.join(DATA_DIR, 'mock_drafts.json'), {'mock_drafts': mocks})
             return jsonify({'ok': True})
     return jsonify({'error': 'Mock draft not found'}), 404
@@ -1928,8 +2013,11 @@ def admin_player_save(player_id):
             data['id'] = player_id
         save_player(data)
         return redirect(f'/admin/players/{player_id}/edit')
-    except (json.JSONDecodeError, Exception) as e:
-        return f'Error saving: {e}', 400
+    except json.JSONDecodeError as e:
+        return f'Error parsing JSON: {html_escape(str(e))}', 400
+    except Exception as e:
+        logger.error(f"Error saving player {player_id}: {e}")
+        return 'Error saving player data', 400
 
 
 @app.route('/admin/teams')
@@ -2147,24 +2235,40 @@ def admin_import_submit():
 # Reference cleanup
 # ============================================
 def cleanup_player_references(player_id):
+    """Remove a deleted player from all team rosters and depth charts."""
     for team in get_all_teams():
-        if 'roster' in team:
-            team['roster'] = [rid for rid in team['roster'] if rid != player_id]
+        modified = False
+        if 'roster' in team and player_id in team['roster']:
+            team['roster'] = [
+                rid for rid in team['roster'] if rid != player_id
+            ]
+            modified = True
         if 'depth_chart' in team:
             for pos in team['depth_chart']:
-                team['depth_chart'][pos] = [pid for pid in team['depth_chart'][pos] if pid != player_id]
-        save_team(team)
+                if player_id in team['depth_chart'][pos]:
+                    team['depth_chart'][pos] = [
+                        pid for pid in team['depth_chart'][pos]
+                        if pid != player_id
+                    ]
+                    modified = True
+        if modified:
+            save_team(team)
 
 
 def cleanup_team_references(team_id):
+    """Clear references to a deleted team from all player records."""
     for player in get_all_players():
+        modified = False
         if 'career' in player and 'pro' in player['career']:
             for pro in player['career']['pro']:
                 if pro.get('team_id') == team_id:
                     pro['team_id'] = ''
+                    modified = True
         if 'draft' in player and player['draft'].get('team_id') == team_id:
             player['draft']['team_id'] = ''
-        save_player(player)
+            modified = True
+        if modified:
+            save_player(player)
 
 
 # ============================================
