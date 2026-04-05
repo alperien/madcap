@@ -1,1 +1,125 @@
-{"games": []}
+{
+  "games": [
+    {
+      "id": "game_001",
+      "date": "2024-10-23",
+      "time": "19:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_cha",
+      "away_team_id": "",
+      "away_team_name": "Toronto Raptors",
+      "home_score": 110,
+      "away_score": 102,
+      "status": "final",
+      "venue": "Spectrum Center",
+      "attendance": 18200,
+      "box_score": {
+        "home": [
+          {"player_id": "marcus_thompson", "mins": 34, "pts": 21, "ast": 8, "reb": 4, "stl": 2, "blk": 0, "tov": 3, "fg_made": 8, "fg_att": 16, "fg3_made": 3, "fg3_att": 7, "ft_made": 2, "ft_att": 2, "plus_minus": 12, "fouls": 2},
+          {"player_id": "jamal_reeves", "mins": 30, "pts": 16, "ast": 3, "reb": 7, "stl": 2, "blk": 1, "tov": 1, "fg_made": 6, "fg_att": 12, "fg3_made": 2, "fg3_att": 4, "ft_made": 2, "ft_att": 3, "plus_minus": 8, "fouls": 3},
+          {"player_id": "cameron_sheffield", "mins": 30, "pts": 16, "ast": 2, "reb": 4, "stl": 1, "blk": 0, "tov": 1, "fg_made": 6, "fg_att": 12, "fg3_made": 3, "fg3_att": 6, "ft_made": 1, "ft_att": 1, "plus_minus": 10, "fouls": 1},
+          {"player_id": "sebastian_wilkins", "mins": 30, "pts": 14, "ast": 2, "reb": 10, "stl": 1, "blk": 2, "tov": 2, "fg_made": 6, "fg_att": 10, "fg3_made": 0, "fg3_att": 1, "ft_made": 2, "ft_att": 3, "plus_minus": 6, "fouls": 4}
+        ],
+        "away": []
+      }
+    },
+    {
+      "id": "game_002",
+      "date": "2024-10-25",
+      "time": "20:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "",
+      "home_team_name": "Detroit Pistons",
+      "away_team_id": "nba_cha",
+      "home_score": 98,
+      "away_score": 115,
+      "status": "final",
+      "venue": "Little Caesars Arena",
+      "attendance": 15800,
+      "box_score": {
+        "home": [],
+        "away": [
+          {"player_id": "marcus_thompson", "mins": 34, "pts": 22, "ast": 9, "reb": 4, "stl": 2, "blk": 0, "tov": 2, "fg_made": 8, "fg_att": 17, "fg3_made": 3, "fg3_att": 7, "ft_made": 3, "ft_att": 3, "plus_minus": 18, "fouls": 1},
+          {"player_id": "sebastian_wilkins", "mins": 28, "pts": 16, "ast": 2, "reb": 9, "stl": 1, "blk": 2, "tov": 1, "fg_made": 7, "fg_att": 12, "fg3_made": 0, "fg3_att": 1, "ft_made": 2, "ft_att": 3, "plus_minus": 14, "fouls": 3}
+        ]
+      }
+    },
+    {
+      "id": "game_003",
+      "date": "2025-01-05",
+      "time": "15:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "",
+      "home_team_name": "Boston Celtics",
+      "away_team_id": "nba_cha",
+      "home_score": 112,
+      "away_score": 105,
+      "status": "final",
+      "venue": "TD Garden",
+      "attendance": 19156,
+      "box_score": {
+        "home": [],
+        "away": [
+          {"player_id": "marcus_thompson", "mins": 36, "pts": 26, "ast": 10, "reb": 5, "stl": 1, "blk": 0, "tov": 4, "fg_made": 10, "fg_att": 20, "fg3_made": 3, "fg3_att": 8, "ft_made": 3, "ft_att": 4, "plus_minus": -4, "fouls": 2},
+          {"player_id": "jamal_reeves", "mins": 32, "pts": 14, "ast": 2, "reb": 6, "stl": 2, "blk": 1, "tov": 2, "fg_made": 5, "fg_att": 12, "fg3_made": 2, "fg3_att": 5, "ft_made": 2, "ft_att": 2, "plus_minus": -6, "fouls": 3}
+        ]
+      }
+    },
+    {
+      "id": "game_004",
+      "date": "2025-02-20",
+      "time": "19:30",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_cha",
+      "away_team_id": "",
+      "away_team_name": "Milwaukee Bucks",
+      "home_score": 122,
+      "away_score": 115,
+      "status": "final",
+      "venue": "Spectrum Center",
+      "attendance": 18500,
+      "box_score": {
+        "home": [
+          {"player_id": "marcus_thompson", "mins": 38, "pts": 30, "ast": 11, "reb": 6, "stl": 2, "blk": 0, "tov": 3, "fg_made": 11, "fg_att": 20, "fg3_made": 4, "fg3_att": 9, "ft_made": 4, "ft_att": 4, "plus_minus": 10, "fouls": 2},
+          {"player_id": "jamal_reeves", "mins": 34, "pts": 22, "ast": 4, "reb": 8, "stl": 3, "blk": 2, "tov": 1, "fg_made": 9, "fg_att": 16, "fg3_made": 2, "fg3_att": 5, "ft_made": 2, "ft_att": 2, "plus_minus": 8, "fouls": 2},
+          {"player_id": "sebastian_wilkins", "mins": 34, "pts": 20, "ast": 2, "reb": 12, "stl": 1, "blk": 3, "tov": 2, "fg_made": 9, "fg_att": 14, "fg3_made": 0, "fg3_att": 2, "ft_made": 2, "ft_att": 3, "plus_minus": 6, "fouls": 4}
+        ],
+        "away": []
+      }
+    },
+    {
+      "id": "game_005",
+      "date": "2025-03-10",
+      "time": "19:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_cha",
+      "away_team_id": "nba_lal",
+      "home_score": 0,
+      "away_score": 0,
+      "status": "scheduled",
+      "venue": "Spectrum Center",
+      "attendance": null,
+      "box_score": {"home": [], "away": []}
+    },
+    {
+      "id": "game_006",
+      "date": "2025-03-15",
+      "time": "20:00",
+      "league": "NBA",
+      "season": "2024-25",
+      "home_team_id": "nba_lal",
+      "away_team_id": "nba_cha",
+      "home_score": 0,
+      "away_score": 0,
+      "status": "scheduled",
+      "venue": "Crypto.com Arena",
+      "attendance": null,
+      "box_score": {"home": [], "away": []}
+    }
+  ]
+}

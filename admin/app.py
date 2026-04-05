@@ -198,6 +198,26 @@ def get_events():
     return load_json_file(os.path.join(DATA_DIR, 'events.json')).get('events', [])
 
 
+def get_transactions():
+    return load_json_file(os.path.join(DATA_DIR, 'transactions.json')).get('transactions', [])
+
+
+def get_injuries():
+    return load_json_file(os.path.join(DATA_DIR, 'injuries.json')).get('injuries', [])
+
+
+def get_awards():
+    return load_json_file(os.path.join(DATA_DIR, 'awards.json'))
+
+
+def get_mock_drafts():
+    return load_json_file(os.path.join(DATA_DIR, 'mock_drafts.json')).get('mock_drafts', [])
+
+
+def get_seasons():
+    return load_json_file(os.path.join(DATA_DIR, 'seasons.json')).get('seasons', [])
+
+
 # --- Validation ---
 def validate_string(val, field, max_len=200, required=False):
     if required and (val is None or val == ''):
@@ -262,37 +282,6 @@ body{{font-family:Verdana,sans-serif;background:#E5E5E5;display:flex;justify-con
 <label>Password:<br><input type="password" name="password" required></label>
 <input type="submit" value="Login">
 </form></div></body></html>'''
-
-
-@app.route('/admin/panel')
-@require_auth
-def admin_panel():
-    return '''<!DOCTYPE html>
-<html><head><title>MADCAP Admin Panel</title>
-<style>
-body{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;}
-.container{max-width:900px;margin:0 auto;}
-h1{color:#0066CC;font-size:18px;}
-table{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;margin-bottom:16px;}
-th,td{border:1px solid #B0B0B0;padding:6px 8px;text-align:left;font-size:11px;}
-th{background:#0066CC;color:#FFF;}
-a{color:#0000FF;}
-</style></head><body>
-<div class="container">
-<h1>MADCAP Admin Panel</h1>
-<p><a href="/">View Site</a> | <a href="/admin/logout">Logout</a></p>
-<h2>API Endpoints</h2>
-<table>
-<tr><th>Resource</th><th>GET</th><th>POST</th><th>PUT</th><th>DELETE</th></tr>
-<tr><td>Players</td><td>/api/players</td><td>/api/players</td><td>/api/players/&lt;id&gt;</td><td>/api/players/&lt;id&gt;</td></tr>
-<tr><td>Teams</td><td>/api/teams</td><td>/api/teams</td><td>/api/teams/&lt;id&gt;</td><td>/api/teams/&lt;id&gt;</td></tr>
-<tr><td>Games</td><td>/api/games</td><td>/api/games</td><td>/api/games/&lt;id&gt;</td><td>/api/games/&lt;id&gt;</td></tr>
-<tr><td>Leagues</td><td>/api/leagues</td><td>/api/leagues</td><td>/api/leagues/&lt;id&gt;</td><td>/api/leagues/&lt;id&gt;</td></tr>
-<tr><td>Drafts</td><td>/api/drafts</td><td>/api/drafts</td><td>/api/drafts/&lt;year&gt;</td><td>/api/drafts/&lt;year&gt;</td></tr>
-<tr><td>Events</td><td>/api/events</td><td>/api/events</td><td>/api/events/&lt;id&gt;</td><td>/api/events/&lt;id&gt;</td></tr>
-</table>
-<p class="gensmall">Use Basic Auth (admin/madcap) or login session for API access.</p>
-</div></body></html>'''
 
 
 @app.route('/admin/logout')
@@ -1252,6 +1241,906 @@ def api_delete_event(event_id):
         return jsonify({'error': 'Event not found'}), 404
     save_json_file(os.path.join(DATA_DIR, 'events.json'), {'events': filtered})
     return jsonify({'ok': True})
+
+
+# ============================================
+# API: Transactions (JSON)
+# ============================================
+@app.route('/api/transactions')
+def api_transactions():
+    return jsonify(get_transactions())
+
+
+@app.route('/api/transactions', methods=['POST'])
+@require_auth
+def api_create_transaction():
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+
+    txns = get_transactions()
+    existing_ids = {t['id'] for t in txns}
+    counter = len(txns) + 1
+    new_id = f'txn_{counter:03d}'
+    while new_id in existing_ids:
+        counter += 1
+        new_id = f'txn_{counter:03d}'
+
+    new_txn = {
+        'id': new_id,
+        'date': body.get('date', ''),
+        'type': body.get('type', 'signed'),
+        'player_id': body.get('player_id', ''),
+        'from_team_id': body.get('from_team_id', ''),
+        'to_team_id': body.get('to_team_id', ''),
+        'details': body.get('details', '')
+    }
+    txns.append(new_txn)
+    save_json_file(os.path.join(DATA_DIR, 'transactions.json'), {'transactions': txns})
+    return jsonify(new_txn), 201
+
+
+@app.route('/api/transactions/<txn_id>', methods=['PUT'])
+@require_auth
+def api_update_transaction(txn_id):
+    txns = get_transactions()
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+
+    for i, t in enumerate(txns):
+        if t['id'] == txn_id:
+            for key in ['date', 'type', 'player_id', 'from_team_id', 'to_team_id', 'details']:
+                if key in body:
+                    txns[i][key] = body[key]
+            save_json_file(os.path.join(DATA_DIR, 'transactions.json'), {'transactions': txns})
+            return jsonify({'ok': True})
+    return jsonify({'error': 'Transaction not found'}), 404
+
+
+@app.route('/api/transactions/<txn_id>', methods=['DELETE'])
+@require_auth
+def api_delete_transaction(txn_id):
+    txns = get_transactions()
+    filtered = [t for t in txns if t['id'] != txn_id]
+    if len(filtered) == len(txns):
+        return jsonify({'error': 'Transaction not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'transactions.json'), {'transactions': filtered})
+    return jsonify({'ok': True})
+
+
+# --- Player-specific transactions ---
+@app.route('/api/players/<player_id>/transactions')
+def api_player_transactions(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('transactions', []))
+
+
+@app.route('/api/players/<player_id>/transactions', methods=['POST'])
+@require_auth
+def api_add_player_transaction(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    txn = {
+        'date': body.get('date', ''),
+        'type': body.get('type', 'signed'),
+        'from_team_id': body.get('from_team_id', ''),
+        'to_team_id': body.get('to_team_id', ''),
+        'details': body.get('details', '')
+    }
+    player.setdefault('transactions', []).append(txn)
+    save_player(player)
+    return jsonify({'ok': True}), 201
+
+
+# ============================================
+# API: Injuries (JSON)
+# ============================================
+@app.route('/api/injuries')
+def api_injuries():
+    return jsonify(get_injuries())
+
+
+@app.route('/api/injuries', methods=['POST'])
+@require_auth
+def api_create_injury():
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+
+    injuries = get_injuries()
+    existing_ids = {inj['id'] for inj in injuries}
+    counter = len(injuries) + 1
+    new_id = f'inj_{counter:03d}'
+    while new_id in existing_ids:
+        counter += 1
+        new_id = f'inj_{counter:03d}'
+
+    new_inj = {
+        'id': new_id,
+        'player_id': body.get('player_id', ''),
+        'date': body.get('date', ''),
+        'type': body.get('type', ''),
+        'severity': body.get('severity', 'minor'),
+        'games_missed': int(body.get('games_missed', 0)),
+        'return_date': body.get('return_date'),
+        'status': body.get('status', 'active'),
+        'notes': body.get('notes', '')
+    }
+    injuries.append(new_inj)
+    save_json_file(os.path.join(DATA_DIR, 'injuries.json'), {'injuries': injuries})
+    return jsonify(new_inj), 201
+
+
+@app.route('/api/injuries/<inj_id>', methods=['PUT'])
+@require_auth
+def api_update_injury(inj_id):
+    injuries = get_injuries()
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+
+    for i, inj in enumerate(injuries):
+        if inj['id'] == inj_id:
+            for key in ['player_id', 'date', 'type', 'severity', 'return_date', 'status', 'notes']:
+                if key in body:
+                    injuries[i][key] = body[key]
+            if 'games_missed' in body:
+                injuries[i]['games_missed'] = int(body['games_missed'])
+            save_json_file(os.path.join(DATA_DIR, 'injuries.json'), {'injuries': injuries})
+            return jsonify({'ok': True})
+    return jsonify({'error': 'Injury not found'}), 404
+
+
+@app.route('/api/injuries/<inj_id>', methods=['DELETE'])
+@require_auth
+def api_delete_injury(inj_id):
+    injuries = get_injuries()
+    filtered = [inj for inj in injuries if inj['id'] != inj_id]
+    if len(filtered) == len(injuries):
+        return jsonify({'error': 'Injury not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'injuries.json'), {'injuries': filtered})
+    return jsonify({'ok': True})
+
+
+# --- Player-specific injuries ---
+@app.route('/api/players/<player_id>/injuries')
+def api_player_injuries(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('injuries', []))
+
+
+@app.route('/api/players/<player_id>/injuries', methods=['POST'])
+@require_auth
+def api_add_player_injury(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    inj = {
+        'date': body.get('date', ''),
+        'type': body.get('type', ''),
+        'severity': body.get('severity', 'minor'),
+        'games_missed': int(body.get('games_missed', 0)),
+        'return_date': body.get('return_date'),
+        'notes': body.get('notes', '')
+    }
+    player.setdefault('injuries', []).append(inj)
+    save_player(player)
+    return jsonify({'ok': True}), 201
+
+
+@app.route('/api/players/<player_id>/injuries/<int:idx>', methods=['PUT'])
+@require_auth
+def api_update_player_injury(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    injuries = player.get('injuries', [])
+    if idx >= len(injuries):
+        return jsonify({'error': 'Injury entry not found'}), 404
+    for key in ['date', 'type', 'severity', 'return_date', 'notes']:
+        if key in body:
+            injuries[idx][key] = body[key]
+    if 'games_missed' in body:
+        injuries[idx]['games_missed'] = int(body['games_missed'])
+    player['injuries'] = injuries
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/injuries/<int:idx>', methods=['DELETE'])
+@require_auth
+def api_delete_player_injury(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    injuries = player.get('injuries', [])
+    if idx >= len(injuries):
+        return jsonify({'error': 'Injury entry not found'}), 404
+    injuries.pop(idx)
+    player['injuries'] = injuries
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+# ============================================
+# API: Awards (JSON)
+# ============================================
+@app.route('/api/awards')
+def api_awards():
+    return jsonify(get_awards())
+
+
+# --- Player-specific awards ---
+@app.route('/api/players/<player_id>/awards')
+def api_player_awards(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('awards', []))
+
+
+@app.route('/api/players/<player_id>/awards', methods=['POST'])
+@require_auth
+def api_add_player_award(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    award = {
+        'year': body.get('year', ''),
+        'name': body.get('name', ''),
+        'league': body.get('league', 'NBA')
+    }
+    player.setdefault('awards', []).append(award)
+    save_player(player)
+    return jsonify({'ok': True}), 201
+
+
+@app.route('/api/players/<player_id>/awards/<int:idx>', methods=['PUT'])
+@require_auth
+def api_update_player_award(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    awards = player.get('awards', [])
+    if idx >= len(awards):
+        return jsonify({'error': 'Award entry not found'}), 404
+    for key in ['year', 'name', 'league']:
+        if key in body:
+            awards[idx][key] = body[key]
+    player['awards'] = awards
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/awards/<int:idx>', methods=['DELETE'])
+@require_auth
+def api_delete_player_award(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    awards = player.get('awards', [])
+    if idx >= len(awards):
+        return jsonify({'error': 'Award entry not found'}), 404
+    awards.pop(idx)
+    player['awards'] = awards
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+# ============================================
+# API: Player Attributes, Badges, Contract
+# ============================================
+@app.route('/api/players/<player_id>/attributes')
+def api_player_attributes(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('attributes', {}))
+
+
+@app.route('/api/players/<player_id>/attributes', methods=['PUT'])
+@require_auth
+def api_update_player_attributes(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    player['attributes'] = body
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/badges')
+def api_player_badges(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('badges', []))
+
+
+@app.route('/api/players/<player_id>/badges', methods=['POST'])
+@require_auth
+def api_add_player_badge(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    badge = {'name': body.get('name', ''), 'tier': body.get('tier', 'bronze')}
+    player.setdefault('badges', []).append(badge)
+    save_player(player)
+    return jsonify({'ok': True}), 201
+
+
+@app.route('/api/players/<player_id>/badges/<int:idx>', methods=['DELETE'])
+@require_auth
+def api_delete_player_badge(player_id, idx):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    badges = player.get('badges', [])
+    if idx >= len(badges):
+        return jsonify({'error': 'Badge not found'}), 404
+    badges.pop(idx)
+    player['badges'] = badges
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/players/<player_id>/contract')
+def api_player_contract(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(player.get('contract', {}))
+
+
+@app.route('/api/players/<player_id>/contract', methods=['PUT'])
+@require_auth
+def api_update_player_contract(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    player['contract'] = body
+    save_player(player)
+    return jsonify({'ok': True})
+
+
+# ============================================
+# API: Mock Drafts (JSON)
+# ============================================
+@app.route('/api/mock-drafts')
+def api_mock_drafts():
+    return jsonify(get_mock_drafts())
+
+
+@app.route('/api/mock-drafts/<mock_id>')
+def api_mock_draft(mock_id):
+    mocks = get_mock_drafts()
+    for m in mocks:
+        if m['id'] == mock_id:
+            return jsonify(m)
+    return jsonify({'error': 'Mock draft not found'}), 404
+
+
+@app.route('/api/mock-drafts', methods=['POST'])
+@require_auth
+def api_create_mock_draft():
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    mocks = get_mock_drafts()
+    new_id = body.get('id', f"mock_{body.get('year', 2025)}")
+    new_mock = {
+        'id': new_id,
+        'title': body.get('title', 'New Mock Draft'),
+        'author': body.get('author', 'MADCAP Scouting'),
+        'date': body.get('date', ''),
+        'league': body.get('league', 'NBA'),
+        'year': int(body.get('year', 2025)),
+        'picks': body.get('picks', [])
+    }
+    mocks.append(new_mock)
+    save_json_file(os.path.join(DATA_DIR, 'mock_drafts.json'), {'mock_drafts': mocks})
+    return jsonify(new_mock), 201
+
+
+@app.route('/api/mock-drafts/<mock_id>', methods=['PUT'])
+@require_auth
+def api_update_mock_draft(mock_id):
+    mocks = get_mock_drafts()
+    body = request.json
+    if not body:
+        return jsonify({'error': 'Request body required'}), 400
+    for i, m in enumerate(mocks):
+        if m['id'] == mock_id:
+            for key in ['title', 'author', 'date', 'league', 'picks']:
+                if key in body:
+                    mocks[i][key] = body[key]
+            if 'year' in body:
+                mocks[i]['year'] = int(body['year'])
+            save_json_file(os.path.join(DATA_DIR, 'mock_drafts.json'), {'mock_drafts': mocks})
+            return jsonify({'ok': True})
+    return jsonify({'error': 'Mock draft not found'}), 404
+
+
+@app.route('/api/mock-drafts/<mock_id>', methods=['DELETE'])
+@require_auth
+def api_delete_mock_draft(mock_id):
+    mocks = get_mock_drafts()
+    filtered = [m for m in mocks if m['id'] != mock_id]
+    if len(filtered) == len(mocks):
+        return jsonify({'error': 'Mock draft not found'}), 404
+    save_json_file(os.path.join(DATA_DIR, 'mock_drafts.json'), {'mock_drafts': filtered})
+    return jsonify({'ok': True})
+
+
+# ============================================
+# API: Seasons (JSON)
+# ============================================
+@app.route('/api/seasons')
+def api_seasons():
+    return jsonify(get_seasons())
+
+
+# ============================================
+# API: Player Comparison
+# ============================================
+@app.route('/api/compare')
+def api_compare():
+    ids_param = request.args.get('ids', '')
+    if not ids_param:
+        return jsonify({'error': 'ids parameter required (comma-separated)'}), 400
+    ids = [i.strip() for i in ids_param.split(',') if i.strip()]
+    if len(ids) < 2:
+        return jsonify({'error': 'At least 2 player IDs required'}), 400
+    players = []
+    for pid in ids:
+        p = get_player_by_id(pid)
+        if p:
+            players.append(p)
+    if len(players) < 2:
+        return jsonify({'error': 'Not enough valid players found'}), 404
+    return jsonify(players)
+
+
+# ============================================
+# API: Player Game Log (aggregated)
+# ============================================
+@app.route('/api/players/<player_id>/game-log')
+def api_player_game_log(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+
+    season_filter = request.args.get('season', '')
+    level_filter = request.args.get('level', '')
+    career = player.get('career', {})
+    game_log = []
+
+    def collect_games(seasons, level_name, team_label=''):
+        for s in (seasons or []):
+            if season_filter and s.get('year') != season_filter:
+                continue
+            for g in s.get('games', []):
+                entry = dict(g)
+                entry['season'] = s.get('year', '')
+                entry['level'] = level_name
+                entry['team'] = team_label
+                game_log.append(entry)
+
+    if not level_filter or level_filter == 'highschool':
+        hs = career.get('highschool', {})
+        collect_games(hs.get('seasons', []), 'highschool', hs.get('school', ''))
+
+    if not level_filter or level_filter == 'college':
+        col = career.get('college', {})
+        collect_games(col.get('seasons', []), 'college', col.get('school', ''))
+
+    if not level_filter or level_filter == 'pro':
+        for pro in career.get('pro', []):
+            team = get_team_by_id(pro.get('team_id', ''))
+            team_label = team['abbreviation'] if team else pro.get('team_id', '')
+            collect_games(pro.get('seasons', []), 'pro', team_label)
+
+    game_log.sort(key=lambda g: g.get('date', ''), reverse=True)
+    return jsonify(game_log)
+
+
+# ============================================
+# Admin UI: Dashboard & Management Pages
+# ============================================
+@app.route('/admin/panel')
+@require_auth
+def admin_panel():
+    players = get_all_players()
+    teams = get_all_teams()
+    games = get_games()
+    injuries = get_injuries()
+    transactions = get_transactions()
+    active_injuries = [i for i in injuries if i.get('status') in ('active', 'day-to-day')]
+    recent_txns = sorted(transactions, key=lambda t: t.get('date', ''), reverse=True)[:5]
+
+    txn_html = ''
+    for t in recent_txns:
+        txn_html += f'<tr class="row1"><td>{t.get("date","")}</td><td>{t.get("type","")}</td><td>{t.get("player_id","")}</td><td>{t.get("details","")[:60]}</td></tr>'
+    if not txn_html:
+        txn_html = '<tr class="row1"><td colspan="4">No transactions</td></tr>'
+
+    inj_html = ''
+    for i in active_injuries:
+        inj_html += f'<tr class="row1"><td>{i.get("player_id","")}</td><td>{i.get("type","")}</td><td>{i.get("severity","")}</td><td>{i.get("status","")}</td></tr>'
+    if not inj_html:
+        inj_html = '<tr class="row1"><td colspan="4">No active injuries</td></tr>'
+
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin Dashboard</title>
+<style>
+body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:1100px;margin:0 auto;}}
+h1{{color:#0066CC;font-size:18px;margin-bottom:8px;}}
+h2{{color:#0055AA;font-size:14px;margin:12px 0 4px;}}
+.stats-row{{display:flex;gap:12px;margin-bottom:12px;}}
+.stat-card{{background:#FFF;border:1px solid #B0B0B0;padding:12px;flex:1;text-align:center;}}
+.stat-card .num{{font-size:24px;font-weight:bold;color:#0066CC;}}
+.stat-card .label{{font-size:10px;color:#666;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;margin-bottom:12px;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;text-align:left;font-size:11px;}}
+th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}
+a{{color:#0000FF;}}
+.nav-links{{margin:8px 0;}}
+.nav-links a{{margin-right:8px;font-weight:bold;}}
+.quick-actions a{{display:inline-block;background:#0066CC;color:#FFF;padding:4px 12px;margin:2px 4px;text-decoration:none;font-size:10px;}}
+.quick-actions a:hover{{background:#0055AA;}}
+</style></head><body>
+<div class="container">
+<h1>MADCAP Admin Dashboard</h1>
+<div class="nav-links">
+<a href="/">View Site</a> | <a href="/admin/players">Players</a> | <a href="/admin/teams">Teams</a> |
+<a href="/admin/games">Games</a> | <a href="/admin/transactions">Transactions</a> |
+<a href="/admin/injuries">Injuries</a> | <a href="/admin/awards">Awards</a> |
+<a href="/admin/drafts">Drafts</a> | <a href="/admin/mock-drafts">Mock Drafts</a> |
+<a href="/admin/events">Events</a> | <a href="/admin/import">Bulk Import</a> |
+<a href="/admin/logout">Logout</a>
+</div>
+
+<div class="stats-row">
+<div class="stat-card"><div class="num">{len(players)}</div><div class="label">Players</div></div>
+<div class="stat-card"><div class="num">{len(teams)}</div><div class="label">Teams</div></div>
+<div class="stat-card"><div class="num">{len(games)}</div><div class="label">Games</div></div>
+<div class="stat-card"><div class="num">{len(active_injuries)}</div><div class="label">Active Injuries</div></div>
+<div class="stat-card"><div class="num">{len(transactions)}</div><div class="label">Transactions</div></div>
+</div>
+
+<h2>Recent Transactions</h2>
+<table><tr><th>Date</th><th>Type</th><th>Player</th><th>Details</th></tr>{txn_html}</table>
+
+<h2>Active Injuries</h2>
+<table><tr><th>Player</th><th>Injury</th><th>Severity</th><th>Status</th></tr>{inj_html}</table>
+
+<h2>Quick Actions</h2>
+<div class="quick-actions">
+<a href="/admin/players">Manage Players</a>
+<a href="/admin/games">Manage Games</a>
+<a href="/admin/transactions">Add Transaction</a>
+<a href="/admin/injuries">Update Injuries</a>
+</div>
+
+<h2>API Reference</h2>
+<table>
+<tr><th>Resource</th><th>GET</th><th>POST</th><th>PUT</th><th>DELETE</th></tr>
+<tr class="row1"><td>Players</td><td>/api/players</td><td>/api/players</td><td>/api/players/&lt;id&gt;</td><td>/api/players/&lt;id&gt;</td></tr>
+<tr class="row1"><td>Teams</td><td>/api/teams</td><td>/api/teams</td><td>/api/teams/&lt;id&gt;</td><td>/api/teams/&lt;id&gt;</td></tr>
+<tr class="row1"><td>Games</td><td>/api/games</td><td>/api/games</td><td>/api/games/&lt;id&gt;</td><td>/api/games/&lt;id&gt;</td></tr>
+<tr class="row1"><td>Transactions</td><td>/api/transactions</td><td>/api/transactions</td><td>/api/transactions/&lt;id&gt;</td><td>/api/transactions/&lt;id&gt;</td></tr>
+<tr class="row1"><td>Injuries</td><td>/api/injuries</td><td>/api/injuries</td><td>/api/injuries/&lt;id&gt;</td><td>/api/injuries/&lt;id&gt;</td></tr>
+<tr class="row1"><td>Awards</td><td>/api/awards</td><td>-</td><td>-</td><td>-</td></tr>
+<tr class="row1"><td>Mock Drafts</td><td>/api/mock-drafts</td><td>/api/mock-drafts</td><td>/api/mock-drafts/&lt;id&gt;</td><td>/api/mock-drafts/&lt;id&gt;</td></tr>
+<tr class="row1"><td>Seasons</td><td>/api/seasons</td><td>-</td><td>-</td><td>-</td></tr>
+<tr class="row1"><td>Compare</td><td>/api/compare?ids=a,b</td><td>-</td><td>-</td><td>-</td></tr>
+<tr class="row1"><td>Game Log</td><td>/api/players/&lt;id&gt;/game-log</td><td>-</td><td>-</td><td>-</td></tr>
+</table>
+<p style="font-size:10px;color:#666;">Use Basic Auth (admin/madcap) or login session for write access.</p>
+</div></body></html>'''
+
+
+@app.route('/admin/players')
+@require_auth
+def admin_players_list():
+    players = get_all_players()
+    rows = ''
+    for p in players:
+        fic = 'YES' if p.get('is_fictional') else 'no'
+        rows += f'<tr class="row1"><td><a href="/admin/players/{p["id"]}/edit">{p.get("name","")}</a></td><td>{p.get("position","")}</td><td>{p.get("overall","")}</td><td>{fic}</td><td>{p.get("status","")}</td><td><a href="/admin/players/{p["id"]}/edit">[edit]</a></td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Players</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Player Management</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Name</th><th>Pos</th><th>OVR</th><th>Fictional</th><th>Status</th><th>Actions</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/players/<player_id>/edit')
+@require_auth
+def admin_player_edit(player_id):
+    player = get_player_by_id(player_id)
+    if not player:
+        return 'Player not found', 404
+    csrf = generate_csrf_token()
+    data_json = json.dumps(player, indent=2)
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Edit {player.get("name","")}</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+textarea{{width:100%;height:500px;font-family:monospace;font-size:11px;border:1px solid #B0B0B0;}}
+input[type=submit]{{background:#0066CC;color:#FFF;border:none;padding:6px 16px;cursor:pointer;font-weight:bold;margin-top:8px;}}
+a{{color:#0000FF;}}.msg{{color:green;font-weight:bold;}}</style></head><body>
+<div class="container"><h1>Edit Player: {player.get("name","")}</h1>
+<p><a href="/admin/players">Back to Players</a> | <a href="/player.html?id={player_id}">View Profile</a></p>
+<form method="post" action="/admin/players/{player_id}/save">
+<input type="hidden" name="csrf_token" value="{csrf}">
+<p>Edit the full player YAML data below:</p>
+<textarea name="yaml_data">{data_json}</textarea>
+<br><input type="submit" value="Save Changes">
+</form></div></body></html>'''
+
+
+@app.route('/admin/players/<player_id>/save', methods=['POST'])
+@require_auth
+def admin_player_save(player_id):
+    yaml_data = request.form.get('yaml_data', '')
+    try:
+        data = json.loads(yaml_data)
+        if data.get('id') != player_id:
+            data['id'] = player_id
+        save_player(data)
+        return redirect(f'/admin/players/{player_id}/edit')
+    except (json.JSONDecodeError, Exception) as e:
+        return f'Error saving: {e}', 400
+
+
+@app.route('/admin/teams')
+@require_auth
+def admin_teams_list():
+    teams = get_all_teams()
+    rows = ''
+    for t in teams:
+        rows += f'<tr class="row1"><td>{t.get("name","")}</td><td>{t.get("abbreviation","")}</td><td>{t.get("league","")}</td><td><a href="/team.html?id={t["id"]}">[view]</a></td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Teams</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Team Management</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Name</th><th>Abbr</th><th>League</th><th>Actions</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/games')
+@require_auth
+def admin_games_list():
+    games = get_games()
+    rows = ''
+    for g in games:
+        rows += f'<tr class="row1"><td>{g.get("date","")}</td><td>{g.get("away_team_id","") or g.get("away_team_name","?")}</td><td>{g.get("away_score",0)}-{g.get("home_score",0)}</td><td>{g.get("home_team_id","") or g.get("home_team_name","?")}</td><td>{g.get("status","")}</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Games</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Game Management</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Date</th><th>Away</th><th>Score</th><th>Home</th><th>Status</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/transactions')
+@require_auth
+def admin_transactions_list():
+    txns = sorted(get_transactions(), key=lambda t: t.get('date', ''), reverse=True)
+    rows = ''
+    for t in txns:
+        rows += f'<tr class="row1"><td>{t.get("date","")}</td><td>{t.get("type","")}</td><td>{t.get("player_id","")}</td><td>{t.get("details","")}</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Transactions</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Transaction Log</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Date</th><th>Type</th><th>Player</th><th>Details</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/injuries')
+@require_auth
+def admin_injuries_list():
+    injuries = sorted(get_injuries(), key=lambda i: i.get('date', ''), reverse=True)
+    rows = ''
+    for i in injuries:
+        rows += f'<tr class="row1"><td>{i.get("date","")}</td><td>{i.get("player_id","")}</td><td>{i.get("type","")}</td><td>{i.get("severity","")}</td><td>{i.get("status","")}</td><td>{i.get("games_missed",0)}</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Injuries</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Injury Report</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Date</th><th>Player</th><th>Injury</th><th>Severity</th><th>Status</th><th>Games Missed</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/awards')
+@require_auth
+def admin_awards_list():
+    awards_data = get_awards()
+    winners = awards_data.get('winners', [])
+    rows = ''
+    for w in winners:
+        rows += f'<tr class="row1"><td>{w.get("year","")}</td><td>{w.get("award_id","")}</td><td>{w.get("player_id","")}</td><td>{w.get("league","")}</td><td>{w.get("notes","")}</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Awards</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Award History</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Year</th><th>Award</th><th>Player</th><th>League</th><th>Notes</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/mock-drafts')
+@require_auth
+def admin_mock_drafts_list():
+    mocks = get_mock_drafts()
+    rows = ''
+    for m in mocks:
+        rows += f'<tr class="row1"><td>{m.get("title","")}</td><td>{m.get("year","")}</td><td>{m.get("author","")}</td><td>{len(m.get("picks",[]))} picks</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Mock Drafts</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Mock Draft Management</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Title</th><th>Year</th><th>Author</th><th>Picks</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/drafts')
+@require_auth
+def admin_drafts_list():
+    drafts = get_drafts()
+    rows = ''
+    for d in drafts:
+        rows += f'<tr class="row1"><td>{d.get("year","")}</td><td>{d.get("league","")}</td><td>{len(d.get("picks",[]))} picks</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Drafts</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Draft Management</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Year</th><th>League</th><th>Picks</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/events')
+@require_auth
+def admin_events_list():
+    events = get_events()
+    rows = ''
+    for e in events:
+        rows += f'<tr class="row1"><td>{e.get("date","")}</td><td>{e.get("type","")}</td><td>{e.get("player_id","")}</td><td>{e.get("title","")}</td></tr>'
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Events</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+table{{width:100%;border-collapse:collapse;background:#FFF;border:1px solid #B0B0B0;}}
+th,td{{border:1px solid #B0B0B0;padding:4px 8px;font-size:11px;}}th{{background:#0066CC;color:#FFF;}}
+.row1{{background:#F5F5F5;}}a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Event Management</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<table><tr><th>Date</th><th>Type</th><th>Player</th><th>Title</th></tr>{rows}</table>
+</div></body></html>'''
+
+
+@app.route('/admin/import', methods=['GET'])
+@require_auth
+def admin_import_page():
+    csrf = generate_csrf_token()
+    return f'''<!DOCTYPE html>
+<html><head><title>MADCAP Admin - Bulk Import</title>
+<style>body{{font-family:Verdana,sans-serif;background:#E5E5E5;margin:0;padding:16px;font-size:11px;}}
+.container{{max-width:900px;margin:0 auto;}}h1{{color:#0066CC;font-size:16px;}}
+textarea{{width:100%;height:300px;font-family:monospace;font-size:11px;border:1px solid #B0B0B0;}}
+select,input[type=submit]{{font-size:11px;margin:4px;}}
+input[type=submit]{{background:#0066CC;color:#FFF;border:none;padding:6px 16px;cursor:pointer;font-weight:bold;}}
+a{{color:#0000FF;}}</style></head><body>
+<div class="container"><h1>Bulk Import Tool</h1>
+<p><a href="/admin/panel">Back to Dashboard</a></p>
+<form method="post" action="/admin/import">
+<input type="hidden" name="csrf_token" value="{csrf}">
+<label>Format: <select name="format"><option value="json">JSON</option><option value="yaml">YAML</option></select></label>
+<label>Target: <select name="target"><option value="player">Player</option><option value="team">Team</option><option value="game">Game</option></select></label>
+<br><textarea name="data" placeholder="Paste JSON or YAML data here..."></textarea>
+<br><input type="submit" value="Import">
+</form></div></body></html>'''
+
+
+@app.route('/admin/import', methods=['POST'])
+@require_auth
+def admin_import_submit():
+    fmt = request.form.get('format', 'json')
+    target = request.form.get('target', 'player')
+    raw = request.form.get('data', '')
+    try:
+        if fmt == 'yaml':
+            data = yaml.safe_load(raw)
+        else:
+            data = json.loads(raw)
+        if target == 'player' and isinstance(data, dict) and 'id' in data:
+            save_player(data)
+            return redirect('/admin/players')
+        elif target == 'team' and isinstance(data, dict) and 'id' in data:
+            save_team(data)
+            return redirect('/admin/teams')
+        elif target == 'game' and isinstance(data, dict):
+            games = get_games()
+            games.append(data)
+            save_json_file(os.path.join(DATA_DIR, 'games.json'), {'games': games})
+            return redirect('/admin/games')
+        return 'Invalid data format for target', 400
+    except Exception as e:
+        return f'Import error: {e}', 400
 
 
 # ============================================

@@ -1,9 +1,285 @@
 id: cameron_sheffield
 name: Cameron Sheffield
-position: SF
-height: 6'6"
-weight: 205
-overall: 68
-team_id: ncaa_duke
-is_fictional: false
-bio: 'Graduate transfer from Rice. Deep reserve wing. Veteran presence.'
+position: SG
+height: 6'4"
+weight: 195
+birthdate: '2002-06-22'
+nationality: USA
+overall: 72
+archetype: 3-and-D Wing
+status: active
+is_fictional: true
+avatar_url: ''
+
+injuries:
+  - date: '2024-11-20'
+    type: 'Hamstring Strain'
+    severity: 'minor'
+    games_missed: 4
+    return_date: '2024-12-01'
+    notes: 'Tightness reported during warmups'
+
+transactions:
+  - date: '2022-06-23'
+    type: 'drafted'
+    from_team_id: ''
+    to_team_id: 'nba_lal'
+    details: 'Selected 22nd overall in 2022 NBA Draft'
+  - date: '2024-02-08'
+    type: 'traded'
+    from_team_id: 'nba_lal'
+    to_team_id: 'nba_cha'
+    details: 'Traded to Charlotte in multi-player deal for veteran wing'
+
+awards:
+  - year: '2022-23'
+    name: 'All-Rookie Second Team'
+    league: 'NBA'
+  - year: '2021-22'
+    name: 'SEC All-Conference Second Team'
+    league: 'NCAA'
+
+attributes:
+  inside_scoring: 62
+  mid_range: 74
+  three_point: 82
+  free_throw: 80
+  ball_handling: 65
+  passing: 58
+  offensive_rebound: 32
+  defensive_rebound: 48
+  steal: 72
+  block: 42
+  lateral_quickness: 76
+  speed: 78
+  acceleration: 76
+  strength: 58
+  vertical: 72
+  stamina: 84
+
+badges:
+  - name: 'Catch & Shoot'
+    tier: 'gold'
+  - name: 'Corner Specialist'
+    tier: 'gold'
+  - name: 'Clamps'
+    tier: 'silver'
+  - name: 'Deadeye'
+    tier: 'silver'
+  - name: 'Pick Dodger'
+    tier: 'bronze'
+  - name: 'Hot Zone Hunter'
+    tier: 'silver'
+
+tendencies:
+  drive_tendency: 28
+  spot_up_tendency: 75
+  post_up_tendency: 3
+  iso_tendency: 15
+  pick_and_roll_tendency: 12
+
+measurements:
+  wingspan: "6'8\""
+  standing_reach: "8'4\""
+  hand_length: '8.75"'
+  hand_width: '9.25"'
+  body_fat_pct: 6.5
+  no_step_vertical: 28.0
+  max_vertical: 34.5
+  lane_agility: 10.55
+  three_quarter_sprint: 3.18
+
+contract:
+  type: 'rookie_scale'
+  years_remaining: 1
+  total_value: 4200000
+  annual_value: 4200000
+  team_option_year: 2026
+  player_option_year: null
+
+jersey_history:
+  - team_id: 'nba_lal'
+    number: 14
+    years: '2022-2024'
+  - team_id: 'nba_cha'
+    number: 14
+    years: '2024-present'
+
+career:
+  highschool:
+    school: Bartlett High School
+    state: TN
+    seasons:
+      - year: '2019-20'
+        ppg: 18.2
+        apg: 2.4
+        rpg: 4.8
+        spg: 1.6
+        bpg: 0.4
+        fg_pct: 0.462
+        fg3_pct: 0.402
+        ft_pct: 0.788
+        games: []
+    awards: []
+
+  college:
+    school: Tennessee
+    conference: SEC
+    division: NCAA D1
+    seasons:
+      - year: '2020-21'
+        ppg: 10.8
+        apg: 1.8
+        rpg: 3.6
+        spg: 1.0
+        bpg: 0.3
+        fg_pct: 0.448
+        fg3_pct: 0.388
+        ft_pct: 0.802
+        gp: 30
+        gs: 12
+        mpg: 22.4
+        games: []
+      - year: '2021-22'
+        ppg: 15.4
+        apg: 2.2
+        rpg: 4.2
+        spg: 1.3
+        bpg: 0.4
+        fg_pct: 0.458
+        fg3_pct: 0.412
+        ft_pct: 0.818
+        gp: 32
+        gs: 32
+        mpg: 28.6
+        games:
+          - date: '2022-02-05'
+            opponent: 'Kentucky'
+            pts: 24
+            ast: 3
+            reb: 5
+            stl: 2
+            blk: 0
+            fg_made: 8
+            fg_att: 15
+            fg3_made: 5
+            fg3_att: 9
+            ft_made: 3
+            ft_att: 3
+            mins: 32
+            result: 'W 78-72'
+    awards:
+      - 'SEC All-Conference Second Team (2022)'
+
+  pro:
+    - team_id: nba_lal
+      league: NBA
+      seasons:
+        - year: '2022-23'
+          ppg: 9.2
+          apg: 1.4
+          rpg: 2.8
+          spg: 0.8
+          bpg: 0.2
+          fg_pct: 0.438
+          fg3_pct: 0.378
+          ft_pct: 0.792
+          gp: 65
+          gs: 18
+          mpg: 20.2
+          games:
+            - date: '2022-10-18'
+              opponent: 'GSW'
+              pts: 14
+              ast: 2
+              reb: 3
+              stl: 1
+              blk: 0
+              fg_made: 5
+              fg_att: 10
+              fg3_made: 3
+              fg3_att: 6
+              ft_made: 1
+              ft_att: 1
+              mins: 22
+              result: 'L 109-123'
+        - year: '2023-24'
+          ppg: 11.4
+          apg: 1.6
+          rpg: 3.2
+          spg: 1.0
+          bpg: 0.3
+          fg_pct: 0.452
+          fg3_pct: 0.392
+          ft_pct: 0.808
+          gp: 48
+          gs: 22
+          mpg: 24.2
+          games: []
+    - team_id: nba_cha
+      league: NBA
+      seasons:
+        - year: '2023-24'
+          ppg: 12.8
+          apg: 1.8
+          rpg: 3.4
+          spg: 1.1
+          bpg: 0.3
+          fg_pct: 0.465
+          fg3_pct: 0.405
+          ft_pct: 0.815
+          gp: 26
+          gs: 26
+          mpg: 28.4
+          games: []
+        - year: '2024-25'
+          ppg: 13.4
+          apg: 2.0
+          rpg: 3.6
+          spg: 1.2
+          bpg: 0.3
+          fg_pct: 0.472
+          fg3_pct: 0.412
+          ft_pct: 0.822
+          gp: 58
+          gs: 58
+          mpg: 30.2
+          games:
+            - date: '2024-10-23'
+              opponent: 'TOR'
+              pts: 16
+              ast: 2
+              reb: 4
+              stl: 1
+              blk: 0
+              fg_made: 6
+              fg_att: 12
+              fg3_made: 3
+              fg3_att: 6
+              ft_made: 1
+              ft_att: 1
+              mins: 30
+              result: 'W 110-102'
+      awards:
+        - 'All-Rookie Second Team (2023)'
+
+draft:
+  year: 2022
+  league: NBA
+  round: 1
+  pick: 22
+  team_id: nba_lal
+
+media:
+  - date: '2024-02-09'
+    type: 'news'
+    headline: 'Sheffield Traded to Hornets in Deadline Deal'
+    content: 'Cameron Sheffield has been acquired by the Charlotte Hornets from the Los Angeles Lakers as part of a multi-player trade. Sheffield brings elite three-point shooting to Charlotte roster.'
+    source: 'MADCAP Transactions'
+  - date: '2025-01-15'
+    type: 'news'
+    headline: 'Sheffield Shooting 41.2% From Three in Breakout Season'
+    content: 'Cameron Sheffield has found his rhythm in Charlotte, shooting 41.2% from three-point range while taking on a larger role in the starting lineup.'
+    source: 'MADCAP News Wire'
+
+notes: 'Fictional draft pick. Elite three-point shooter with improving defensive ability. Traded mid-season to Charlotte.'
