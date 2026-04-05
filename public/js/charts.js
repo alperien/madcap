@@ -24,23 +24,36 @@
     }
 
     // Create a chart on a canvas element, destroying any previous instance.
-    // Clears the wrapper div entirely and creates a fresh canvas to avoid
-    // conflicts with Chart.js internal wrapper divs from previous instances.
+    // Uses responsive:false with explicit pixel dimensions measured from the
+    // wrapper container. This avoids all ResizeObserver/responsive-mode issues
+    // that cause Chart.js to render at 0x0 in complex layouts.
     function createChart(canvasId, config) {
         destroyChart(canvasId);
         var wrapId = canvasId + '-wrap';
         var wrap = document.getElementById(wrapId);
         if (!wrap) {
-            // Fallback: find canvas directly and use its parent
             var existing = document.getElementById(canvasId);
             if (!existing) return null;
             wrap = existing.parentNode;
         }
+        // Measure the wrapper's actual rendered dimensions
+        var rect = wrap.getBoundingClientRect();
+        var w = Math.floor(rect.width) || 200;
+        var h = Math.floor(rect.height) || 120;
         // Clear all children (removes old canvas + any Chart.js wrapper divs)
         wrap.innerHTML = '';
         var newCanvas = document.createElement('canvas');
         newCanvas.id = canvasId;
+        newCanvas.width = w;
+        newCanvas.height = h;
+        newCanvas.style.display = 'block';
+        newCanvas.style.width = w + 'px';
+        newCanvas.style.height = h + 'px';
         wrap.appendChild(newCanvas);
+        // Force responsive:false so Chart.js uses our explicit dimensions
+        config.options = config.options || {};
+        config.options.responsive = false;
+        config.options.maintainAspectRatio = false;
         var instance = new Chart(newCanvas, config);
         chartInstances[canvasId] = instance;
         return instance;
@@ -67,8 +80,7 @@
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: false,
                 animation: { duration: 0 },
                 plugins: {
                     legend: { display: false },
@@ -111,8 +123,7 @@
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: false,
                 animation: { duration: 0 },
                 plugins: {
                     legend: {
