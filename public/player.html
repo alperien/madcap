@@ -26,114 +26,88 @@
     <!-- 1. Player Header Info Box -->
     <div id="player-header-section"></div>
 
-    <!-- Tab Navigation (phpBB-style) -->
-    <div class="player-tab-bar" id="player-tab-bar" style="display:none;">
-        <a href="#overview" data-tab="overview" class="active">Overview</a>
-        <a href="#career" data-tab="career">Career Stats</a>
-        <a href="#gamelog" data-tab="gamelog">Game Log</a>
-        <a href="#awards" data-tab="awards">Awards & Transactions</a>
-        <a href="#lore" data-tab="lore">Lore</a>
-        <a href="#scouting" data-tab="scouting">Scouting</a>
-    </div>
+    <!-- 2. Quick Stats Strip -->
+    <div id="quick-stats-section"></div>
 
-    <!-- TAB: Overview -->
-    <div class="player-tab-content active" id="tab-overview">
-        <!-- 2K Attributes & Badges Panel -->
-        <div id="attributes-section"></div>
+    <!-- 3. Attributes, Badges & Tendencies (compact) -->
+    <div id="attributes-section"></div>
 
-        <!-- Quick Stats Summary -->
-        <div id="quick-stats-section"></div>
-
-        <!-- Stat Progression Charts -->
+    <!-- 4. Stat Progression Charts (compact) -->
+    <div id="charts-section">
         <table class="forumline">
-            <tr><th class="catHead" colspan="2">Stat Progression</th></tr>
+            <tr><th class="catHead" colspan="4">Stat Progression</th></tr>
             <tr>
-                <td class="row1" style="width:50%;padding:3px;">
-                    <div class="chart-box"><div class="catHead">PPG</div><canvas id="ppg-chart"></canvas></div>
+                <td class="row1" style="width:25%;padding:2px;">
+                    <div class="chart-box chart-compact"><div class="catHead">PPG</div><canvas id="ppg-chart"></canvas></div>
                 </td>
-                <td class="row2" style="width:50%;padding:3px;">
-                    <div class="chart-box"><div class="catHead">APG</div><canvas id="apg-chart"></canvas></div>
+                <td class="row2" style="width:25%;padding:2px;">
+                    <div class="chart-box chart-compact"><div class="catHead">APG</div><canvas id="apg-chart"></canvas></div>
                 </td>
-            </tr>
-            <tr>
-                <td class="row3" style="padding:3px;">
-                    <div class="chart-box"><div class="catHead">RPG</div><canvas id="rpg-chart"></canvas></div>
+                <td class="row1" style="width:25%;padding:2px;">
+                    <div class="chart-box chart-compact"><div class="catHead">RPG</div><canvas id="rpg-chart"></canvas></div>
                 </td>
-                <td class="row4" style="padding:3px;">
-                    <div class="chart-box"><div class="catHead">Shooting Splits</div><canvas id="shooting-chart"></canvas></div>
+                <td class="row2" style="width:25%;padding:2px;">
+                    <div class="chart-box chart-compact"><div class="catHead">Shooting</div><canvas id="shooting-chart"></canvas></div>
                 </td>
             </tr>
         </table>
     </div>
 
-    <!-- TAB: Career Stats -->
-    <div class="player-tab-content" id="tab-career">
-        <a name="career-stats"></a>
-        <table class="forumline">
-            <tr><th class="catHead" colspan="15">Career Statistics</th></tr>
-            <tr>
-                <th class="thHead">#</th><th class="thHead">Season</th><th class="thHead">Level</th><th class="thHead">Team/School</th>
-                <th class="thHead tCenter">GP</th><th class="thHead tCenter">GS</th><th class="thHead tCenter">MPG</th>
-                <th class="thHead tCenter">PPG</th><th class="thHead tCenter">APG</th><th class="thHead tCenter">RPG</th>
-                <th class="thHead tCenter">SPG</th><th class="thHead tCenter">BPG</th>
-                <th class="thHead tCenter">FG%</th><th class="thHead tCenter">3P%</th><th class="thHead tCenter">FT%</th>
-            </tr>
-            <tbody id="career-stats-body"></tbody>
-        </table>
+    <!-- 5. Career Statistics -->
+    <a name="career-stats"></a>
+    <table class="forumline">
+        <tr><th class="catHead" colspan="15">Career Statistics</th></tr>
+        <tr>
+            <th class="thHead">#</th><th class="thHead">Season</th><th class="thHead">Level</th><th class="thHead">Team/School</th>
+            <th class="thHead tCenter">GP</th><th class="thHead tCenter">GS</th><th class="thHead tCenter">MPG</th>
+            <th class="thHead tCenter">PPG</th><th class="thHead tCenter">APG</th><th class="thHead tCenter">RPG</th>
+            <th class="thHead tCenter">SPG</th><th class="thHead tCenter">BPG</th>
+            <th class="thHead tCenter">FG%</th><th class="thHead tCenter">3P%</th><th class="thHead tCenter">FT%</th>
+        </tr>
+        <tbody id="career-stats-body"></tbody>
+    </table>
 
-        <!-- Draft Information -->
-        <table class="forumline" id="draft-info-table-wrap">
-            <tr><th class="catHead" colspan="2">Draft Information</th></tr>
-            <tbody id="draft-info-body"></tbody>
-        </table>
+    <!-- 6. Game Log -->
+    <div id="gamelog-section"></div>
 
-        <!-- Contract Details -->
-        <div id="contract-section"></div>
+    <!-- 7. Draft Information -->
+    <table class="forumline" id="draft-info-table-wrap">
+        <tr><th class="catHead" colspan="2">Draft Information</th></tr>
+        <tbody id="draft-info-body"></tbody>
+    </table>
+
+    <!-- 8. Contract Details -->
+    <div id="contract-section"></div>
+
+    <!-- 9. Award Trophy Case -->
+    <div id="awards-section"></div>
+
+    <!-- 10. Injury History -->
+    <div id="injuries-section"></div>
+
+    <!-- 11. Transaction History -->
+    <div id="transactions-section"></div>
+
+    <!-- 12. Career Timeline / Lore -->
+    <table class="forumline">
+        <tr><th class="catHead">Career Timeline / Lore</th></tr>
+        <tbody id="career-timeline"></tbody>
+    </table>
+
+    <!-- 13. Full Lore Article -->
+    <div id="lore-article-section"></div>
+
+    <!-- 14. Scouting Notes -->
+    <div class="notes-box">
+        <div class="catHead">Scouting Notes</div>
+        <div class="notes-content" id="scouting-notes"></div>
     </div>
 
-    <!-- TAB: Game Log (merged from gamelog.html) -->
-    <div class="player-tab-content" id="tab-gamelog">
-        <div id="gamelog-section"></div>
-    </div>
+    <!-- 15. Media Clippings -->
+    <div id="media-section"></div>
 
-    <!-- TAB: Awards & Transactions -->
-    <div class="player-tab-content" id="tab-awards">
-        <!-- Award Trophy Case -->
-        <div id="awards-section"></div>
-
-        <!-- Injury History -->
-        <div id="injuries-section"></div>
-
-        <!-- Transaction History -->
-        <div id="transactions-section"></div>
-    </div>
-
-    <!-- TAB: Lore (merged from lore.html) -->
-    <div class="player-tab-content" id="tab-lore">
-        <!-- Career Timeline / Lore -->
-        <table class="forumline">
-            <tr><th class="catHead">Career Timeline / Lore</th></tr>
-            <tbody id="career-timeline"></tbody>
-        </table>
-
-        <!-- Full Lore Article (fetched from API) -->
-        <div id="lore-article-section"></div>
-    </div>
-
-    <!-- TAB: Scouting -->
-    <div class="player-tab-content" id="tab-scouting">
-        <!-- Scouting Notes -->
-        <div class="notes-box">
-            <div class="catHead">Scouting Notes</div>
-            <div class="notes-content" id="scouting-notes"></div>
-        </div>
-
-        <!-- Media Clippings -->
-        <div id="media-section"></div>
-
-        <!-- Physical Measurements -->
-        <div id="measurements-section"></div>
-    </div>
+    <!-- 16. Physical Measurements -->
+    <div id="measurements-section"></div>
 
     <div id="page-footer"></div>
 </div>
@@ -151,9 +125,6 @@
             var id = params.get('id');
             if (id) {
                 renderPlayerProfile(id);
-                var tabBar = document.getElementById('player-tab-bar');
-                if (tabBar) tabBar.style.display = '';
-                setupPlayerTabs();
             } else if (document.getElementById('player-header-section')) {
                 document.getElementById('player-header-section').innerHTML = '<table class="forumline"><tr><td class="row1" style="padding:6px;">No player ID specified. <a href="players.html">Browse players</a></td></tr></table>';
             }

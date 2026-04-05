@@ -401,7 +401,7 @@
         if (rpgCanvas) {
             new Chart(rpgCanvas, {
                 type: 'line',
-                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#FFCC00', backgroundColor: 'rgba(255,204,0,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
+                data: { labels: seasonLabels, datasets: [{ label: 'RPG', data: allSeasons.map(function(s) { return s.rpg || 0; }), borderColor: '#8A8A5A', backgroundColor: 'rgba(138,138,90,0.15)', fill: true, tension: 0, pointRadius: 5, pointStyle: 'rectRot', borderWidth: 3 }] },
                 options: chartDefaults
             });
         }
@@ -515,43 +515,95 @@
         if (!container) return;
         var attrs = player.attributes;
         var badges = player.badges;
-        if (!attrs && !badges) { container.style.display = 'none'; return; }
+        var tendencies = player.tendencies;
+        if (!attrs && !badges && !tendencies) { container.style.display = 'none'; return; }
 
-        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">2K Attributes & Badges</th></tr>';
-        html += '<tr><td class="row1" style="padding:4px;vertical-align:top;width:55%;">';
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="3">Attributes / Badges / Tendencies</th></tr>';
+        html += '<tr>';
+
+        // Column 1: Attributes (compact grid)
+        html += '<td class="row1" style="padding:3px;vertical-align:top;width:40%;">';
         if (attrs) {
+            html += '<div class="attr-grid">';
             var attrNames = {
-                inside_scoring: 'Inside Scoring', mid_range: 'Mid-Range', three_point: 'Three-Point',
-                free_throw: 'Free Throw', ball_handling: 'Ball Handling', passing: 'Passing',
-                offensive_rebound: 'Off. Rebound', defensive_rebound: 'Def. Rebound',
-                steal: 'Steal', block: 'Block', lateral_quickness: 'Lat. Quickness',
-                speed: 'Speed', acceleration: 'Acceleration', strength: 'Strength',
-                vertical: 'Vertical', stamina: 'Stamina'
+                inside_scoring: 'Inside', mid_range: 'Mid-Range', three_point: '3PT',
+                free_throw: 'FT', ball_handling: 'Handle', passing: 'Pass',
+                offensive_rebound: 'Off Reb', defensive_rebound: 'Def Reb',
+                steal: 'Steal', block: 'Block', lateral_quickness: 'Lat Quik',
+                speed: 'Speed', acceleration: 'Accel', strength: 'Strength',
+                vertical: 'Vert', stamina: 'Stamina'
             };
             for (var key in attrNames) {
                 if (attrs[key] !== undefined) {
-                    html += renderAttributeBar(attrNames[key], attrs[key]);
+                    html += renderAttrCell(attrNames[key], attrs[key]);
                 }
             }
+            html += '</div>';
+        } else {
+            html += '<span class="gensmall">No attribute data</span>';
         }
-        html += '</td><td class="row2" style="padding:4px;vertical-align:top;">';
+        html += '</td>';
+
+        // Column 2: Badges (grouped by tier)
+        html += '<td class="row2" style="padding:3px;vertical-align:top;width:35%;">';
         if (badges && badges.length > 0) {
-            html += '<div style="font-size:9px;font-weight:bold;margin-bottom:3px;">Badges:</div>';
+            // Group by tier
+            var tiers = { hall_of_fame: [], hof: [], gold: [], silver: [], bronze: [] };
+            var other = [];
             for (var i = 0; i < badges.length; i++) {
-                html += renderBadgePill(badges[i]);
+                var tier = (badges[i].tier || 'bronze').toLowerCase().replace(/ /g, '_');
+                if (tiers[tier]) tiers[tier].push(badges[i]);
+                else other.push(badges[i]);
             }
+            // Merge hof into hall_of_fame
+            tiers.hall_of_fame = tiers.hall_of_fame.concat(tiers.hof);
+            var tierOrder = ['hall_of_fame', 'gold', 'silver', 'bronze'];
+            var tierLabels = { hall_of_fame: 'HOF', gold: 'GOLD', silver: 'SILVER', bronze: 'BRONZE' };
+            for (var t = 0; t < tierOrder.length; t++) {
+                var tierKey = tierOrder[t];
+                var tierBadges = tiers[tierKey];
+                if (tierBadges.length === 0) continue;
+                html += '<div style="font-size:7px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:2px 0 1px;">' + tierLabels[tierKey] + '</div>';
+                html += '<div class="badge-grid">';
+                for (var b = 0; b < tierBadges.length; b++) {
+                    html += renderBadgePill(tierBadges[b]);
+                }
+                html += '</div>';
+            }
+            if (other.length > 0) {
+                html += '<div class="badge-grid" style="margin-top:2px;">';
+                for (var b = 0; b < other.length; b++) html += renderBadgePill(other[b]);
+                html += '</div>';
+            }
+        } else {
+            html += '<span class="gensmall">No badges</span>';
         }
-        if (player.tendencies) {
-            html += '<div style="font-size:9px;font-weight:bold;margin-top:6px;margin-bottom:3px;">Tendencies:</div>';
-            var tendNames = { drive_tendency: 'Drive', spot_up_tendency: 'Spot-Up', post_up_tendency: 'Post-Up', iso_tendency: 'Isolation', pick_and_roll_tendency: 'Pick & Roll' };
+        html += '</td>';
+
+        // Column 3: Tendencies (compact)
+        html += '<td class="row1" style="padding:3px;vertical-align:top;width:25%;">';
+        if (tendencies) {
+            html += '<div class="attr-grid">';
+            var tendNames = { drive_tendency: 'Drive', spot_up_tendency: 'Spot-Up', post_up_tendency: 'Post-Up', iso_tendency: 'ISO', pick_and_roll_tendency: 'PnR' };
             for (var key in tendNames) {
-                if (player.tendencies[key] !== undefined) {
-                    html += renderAttributeBar(tendNames[key], player.tendencies[key]);
+                if (tendencies[key] !== undefined) {
+                    html += renderAttrCell(tendNames[key], tendencies[key]);
                 }
             }
+            html += '</div>';
+        } else {
+            html += '<span class="gensmall">No tendency data</span>';
         }
-        html += '</td></tr></table>';
+        html += '</td>';
+
+        html += '</tr></table>';
         container.innerHTML = html;
+    }
+
+    function renderAttrCell(label, value) {
+        var cls = value < 60 ? 'attr-low' : (value < 80 ? 'attr-mid' : 'attr-high');
+        var pct = Math.min(100, Math.max(0, value));
+        return '<div class="attr-cell"><span class="attr-label">' + label + '</span><span class="attr-track"><span class="attr-fill ' + cls + '" style="width:' + pct + '%"></span></span><span class="attr-val">' + value + '</span></div>';
     }
 
     // === Full Game Log ===
