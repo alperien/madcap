@@ -54,6 +54,17 @@
       "return_date": null,
       "status": "day-to-day",
       "notes": "Listed as questionable for upcoming game"
+    },
+    {
+      "id": "inj_006",
+      "player_id": "test",
+      "date": "",
+      "type": "Sprain",
+      "severity": "minor",
+      "games_missed": 0,
+      "return_date": null,
+      "status": "active",
+      "notes": ""
     }
   ]
 }

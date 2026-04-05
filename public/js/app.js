@@ -441,6 +441,7 @@
         if (existing) existing.remove();
         document.body.style.overflow = '';
     }
+    window.openModal = openModal;
     window.closeModal = closeModal;
 
     // --- Player Modal Editor ---

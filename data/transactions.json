@@ -53,6 +53,15 @@
       "from_team_id": "",
       "to_team_id": "nba_cha",
       "details": "Re-signed 3yr/$45M extension with Charlotte Hornets"
+    },
+    {
+      "id": "txn_007",
+      "date": "2025-04-01",
+      "type": "signed",
+      "player_id": "test",
+      "from_team_id": "",
+      "to_team_id": "",
+      "details": "Test txn"
     }
   ]
 }

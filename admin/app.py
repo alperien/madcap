@@ -460,7 +460,7 @@ def api_update_player(player_id):
     if not body:
         return jsonify({'error': 'Request body required'}), 400
 
-    for key in ['name', 'position', 'height', 'nationality', 'archetype', 'status', 'notes', 'bio', 'team_id', 'avatar_url']:
+    for key in ['name', 'position', 'height', 'nationality', 'archetype', 'status', 'notes', 'bio', 'team_id', 'avatar_url', 'birthdate']:
         if key in body:
             player[key] = body[key]
     if 'weight' in body:
