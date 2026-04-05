@@ -113,11 +113,19 @@
         var bc = document.getElementById('breadcrumb-player');
         if (bc) bc.textContent = player.name;
         renderPlayerHeader(player);
+        renderAttributesPanel(player);
         renderCareerStats(player);
+        renderGameLogSection(player);
         renderPlayerCharts(player);
+        renderAwardTrophyCase(player);
+        renderInjuryHistory(player);
+        renderTransactionLog(player);
+        renderContractDetails(player);
         renderDraftInfo(player);
         renderCareerTimeline(player);
         renderScoutingNotes(player);
+        renderMediaClippings(player);
+        renderMeasurements(player);
     }
 
     function renderPlayerHeader(player) {
@@ -143,6 +151,15 @@
         html += '<br>';
         if (player.nationality) html += renderFlag(player.nationality, 'large');
         html += 'Nationality: ' + (player.nationality || '-') + ' &middot; DOB: ' + (player.birthdate || '-');
+        if (player.jersey_history && player.jersey_history.length > 0) {
+            var jh = player.jersey_history[player.jersey_history.length - 1];
+            html += ' &middot; Jersey: <b>#' + jh.number + '</b>';
+        }
+        html += '</span><br>';
+        html += '<span class="quick-links gensmall">';
+        html += '<a href="gamelog.html?id=' + player.id + '">Game Log</a> <span class="sep">|</span> ';
+        html += '<a href="compare.html?ids=' + player.id + ',">Compare</a> <span class="sep">|</span> ';
+        html += '<a href="lore.html?id=' + player.id + '">Lore</a>';
         html += '</span>';
         html += '</div></div>';
         html += '</td></tr></table>';
@@ -343,6 +360,225 @@
         var container = document.getElementById('scouting-notes');
         if (!container) return;
         container.innerHTML = '<span class="gensmall">' + (player.notes || 'No scouting notes available.') + '</span>';
+    }
+
+    // === NEW PLAYER PROFILE SECTIONS ===
+
+    function renderAttributesPanel(player) {
+        var container = document.getElementById('attributes-section');
+        if (!container) return;
+        var attrs = player.attributes;
+        var badges = player.badges;
+        if (!attrs && !badges) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">2K Attributes & Badges</th></tr>';
+        html += '<tr><td class="row1" style="padding:6px;vertical-align:top;width:55%;">';
+        if (attrs) {
+            var attrNames = {
+                inside_scoring: 'Inside Scoring', mid_range: 'Mid-Range', three_point: 'Three-Point',
+                free_throw: 'Free Throw', ball_handling: 'Ball Handling', passing: 'Passing',
+                offensive_rebound: 'Off. Rebound', defensive_rebound: 'Def. Rebound',
+                steal: 'Steal', block: 'Block', lateral_quickness: 'Lat. Quickness',
+                speed: 'Speed', acceleration: 'Acceleration', strength: 'Strength',
+                vertical: 'Vertical', stamina: 'Stamina'
+            };
+            for (var key in attrNames) {
+                if (attrs[key] !== undefined) {
+                    html += renderAttributeBar(attrNames[key], attrs[key]);
+                }
+            }
+        }
+        html += '</td><td class="row2" style="padding:6px;vertical-align:top;">';
+        if (badges && badges.length > 0) {
+            html += '<div style="font-size:10px;font-weight:bold;margin-bottom:4px;">Badges:</div>';
+            for (var i = 0; i < badges.length; i++) {
+                html += renderBadgePill(badges[i]);
+            }
+        }
+        if (player.tendencies) {
+            html += '<div style="font-size:10px;font-weight:bold;margin-top:8px;margin-bottom:4px;">Tendencies:</div>';
+            var tendNames = { drive_tendency: 'Drive', spot_up_tendency: 'Spot-Up', post_up_tendency: 'Post-Up', iso_tendency: 'Isolation', pick_and_roll_tendency: 'Pick & Roll' };
+            for (var key in tendNames) {
+                if (player.tendencies[key] !== undefined) {
+                    html += renderAttributeBar(tendNames[key], player.tendencies[key]);
+                }
+            }
+        }
+        html += '</td></tr></table>';
+        container.innerHTML = html;
+    }
+
+    function renderGameLogSection(player) {
+        var container = document.getElementById('gamelog-section');
+        if (!container) return;
+        var career = player.career || {};
+        var allGames = [];
+
+        function collectGames(seasons, level, team) {
+            for (var i = 0; i < (seasons || []).length; i++) {
+                var s = seasons[i];
+                for (var j = 0; j < (s.games || []).length; j++) {
+                    var g = s.games[j];
+                    allGames.push({ date: g.date, opponent: g.opponent, pts: g.pts, ast: g.ast, reb: g.reb, stl: g.stl, blk: g.blk, fg_made: g.fg_made, fg_att: g.fg_att, fg3_made: g.fg3_made, fg3_att: g.fg3_att, ft_made: g.ft_made, ft_att: g.ft_att, mins: g.mins, result: g.result, season: s.year, level: level, team: team });
+                }
+            }
+        }
+
+        if (career.pro) {
+            for (var i = 0; i < career.pro.length; i++) {
+                var team = getTeamById(career.pro[i].team_id);
+                collectGames(career.pro[i].seasons, 'PRO', team ? team.abbreviation : career.pro[i].team_id);
+            }
+        }
+        if (career.college) collectGames(career.college.seasons, 'COL', career.college.school || '');
+        if (career.highschool) collectGames(career.highschool.seasons, 'HS', career.highschool.school || '');
+
+        if (allGames.length === 0) { container.style.display = 'none'; return; }
+
+        allGames.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        var shown = allGames.slice(0, 10);
+
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="15">Recent Game Log <span class="gensmall" style="color:#FFD700;">(' + allGames.length + ' total games)</span> <a href="gamelog.html?id=' + player.id + '" style="color:#FFF;font-size:10px;">[Full Log]</a></th></tr>';
+        html += '<tr><th class="thHead">Date</th><th class="thHead">Opp</th><th class="thHead">Result</th><th class="thHead tCenter">MIN</th><th class="thHead tCenter">PTS</th><th class="thHead tCenter">AST</th><th class="thHead tCenter">REB</th><th class="thHead tCenter">STL</th><th class="thHead tCenter">BLK</th><th class="thHead tCenter">FG</th><th class="thHead tCenter">3P</th><th class="thHead tCenter">FT</th></tr>';
+        for (var i = 0; i < shown.length; i++) {
+            var g = shown[i];
+            var resultCls = (g.result || '').charAt(0) === 'W' ? 'result-w' : ((g.result || '').charAt(0) === 'L' ? 'result-l' : '');
+            html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.opponent || '-') + '</td>';
+            html += '<td class="gensmall ' + resultCls + '">' + (g.result || '-') + '</td>';
+            html += '<td class="tCenter">' + (g.mins || '-') + '</td><td class="tCenter bold">' + (g.pts || 0) + '</td>';
+            html += '<td class="tCenter">' + (g.ast || 0) + '</td><td class="tCenter">' + (g.reb || 0) + '</td>';
+            html += '<td class="tCenter">' + (g.stl || 0) + '</td><td class="tCenter">' + (g.blk || 0) + '</td>';
+            html += '<td class="tCenter gensmall">' + (g.fg_made || 0) + '-' + (g.fg_att || 0) + '</td>';
+            html += '<td class="tCenter gensmall">' + (g.fg3_made || 0) + '-' + (g.fg3_att || 0) + '</td>';
+            html += '<td class="tCenter gensmall">' + (g.ft_made || 0) + '-' + (g.ft_att || 0) + '</td></tr>';
+        }
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    function renderAwardTrophyCase(player) {
+        var container = document.getElementById('awards-section');
+        if (!container) return;
+        var awards = player.awards || [];
+        if (awards.length === 0) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead">Award Trophy Case</th></tr>';
+        html += '<tr><td class="row1" style="padding:6px;"><div class="trophy-case">';
+        for (var i = 0; i < awards.length; i++) {
+            var a = awards[i];
+            html += '<div class="trophy-item"><div class="trophy-name">' + (a.name || a) + '</div>';
+            if (a.year) html += '<div class="trophy-year">' + a.year + '</div>';
+            if (a.league) html += '<div class="trophy-league">' + a.league + '</div>';
+            html += '</div>';
+        }
+        html += '</div></td></tr></table>';
+        container.innerHTML = html;
+    }
+
+    function renderInjuryHistory(player) {
+        var container = document.getElementById('injuries-section');
+        if (!container) return;
+        var injuries = player.injuries || [];
+        if (injuries.length === 0) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="6">Injury History</th></tr>';
+        html += '<tr><th class="thHead">Date</th><th class="thHead">Injury</th><th class="thHead">Severity</th><th class="thHead tCenter">Games Missed</th><th class="thHead">Return</th><th class="thHead">Notes</th></tr>';
+        for (var i = 0; i < injuries.length; i++) {
+            var inj = injuries[i];
+            html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (inj.date || '-') + '</td>';
+            html += '<td class="gensmall">' + (inj.type || '-') + '</td>';
+            html += '<td>' + renderInjuryIndicator(inj.severity) + '</td>';
+            html += '<td class="tCenter">' + (inj.games_missed || 0) + '</td>';
+            html += '<td class="gensmall">' + (inj.return_date || 'TBD') + '</td>';
+            html += '<td class="gensmall">' + (inj.notes || '') + '</td></tr>';
+        }
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    function renderTransactionLog(player) {
+        var container = document.getElementById('transactions-section');
+        if (!container) return;
+        var txns = player.transactions || [];
+        if (txns.length === 0) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="4">Transaction History</th></tr>';
+        html += '<tr><th class="thHead">Date</th><th class="thHead">Type</th><th class="thHead">Team</th><th class="thHead">Details</th></tr>';
+        for (var i = 0; i < txns.length; i++) {
+            var t = txns[i];
+            var team = t.to_team_id ? getTeamById(t.to_team_id) : null;
+            html += '<tr class="' + rowClass(i) + '"><td class="gensmall">' + (t.date || '-') + '</td>';
+            html += '<td>' + renderTxnType(t.type) + '</td>';
+            html += '<td class="gensmall">' + (team ? team.name : (t.to_team_id || '-')) + '</td>';
+            html += '<td class="gensmall">' + (t.details || '') + '</td></tr>';
+        }
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    function renderContractDetails(player) {
+        var container = document.getElementById('contract-section');
+        if (!container) return;
+        var contract = player.contract;
+        if (!contract) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Contract Details</th></tr>';
+        html += '<tr class="row1"><td class="gensmall" style="width:140px;">Type</td><td class="gensmall">' + (contract.type || '-').replace(/_/g, ' ') + '</td></tr>';
+        html += '<tr class="row2"><td class="gensmall">Total Value</td><td class="contract-value">' + formatCurrency(contract.total_value) + '</td></tr>';
+        html += '<tr class="row1"><td class="gensmall">Annual Value</td><td class="contract-value">' + formatCurrency(contract.annual_value) + '</td></tr>';
+        html += '<tr class="row2"><td class="gensmall">Years Remaining</td><td class="gensmall">' + (contract.years_remaining || '-') + '</td></tr>';
+        if (contract.player_option_year) html += '<tr class="row1"><td class="gensmall">Player Option</td><td class="gensmall">' + contract.player_option_year + '</td></tr>';
+        if (contract.team_option_year) html += '<tr class="row1"><td class="gensmall">Team Option</td><td class="gensmall">' + contract.team_option_year + '</td></tr>';
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    function renderMediaClippings(player) {
+        var container = document.getElementById('media-section');
+        if (!container) return;
+        var media = player.media || [];
+        if (media.length === 0) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead">Media Clippings</th></tr>';
+        for (var i = 0; i < media.length; i++) {
+            var m = media[i];
+            html += '<tr class="' + rowClass(i) + '"><td style="padding:4px 8px;">';
+            html += '<div class="timeline-post">';
+            html += '<div class="post-header"><span class="event-type">' + (m.type || 'news').toUpperCase() + '</span>';
+            html += '<span class="gensmall">' + (m.date || '') + '</span>';
+            if (m.source) html += ' <span class="gensmall">- ' + m.source + '</span>';
+            html += '</div>';
+            html += '<div class="post-body"><span class="bold">' + (m.headline || '') + '</span><br><span class="gensmall">' + (m.content || '') + '</span></div>';
+            html += '</div></td></tr>';
+        }
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    function renderMeasurements(player) {
+        var container = document.getElementById('measurements-section');
+        if (!container) return;
+        var m = player.measurements;
+        if (!m) { container.style.display = 'none'; return; }
+
+        var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Physical Measurements</th></tr>';
+        html += '<tr><td class="row1" style="padding:6px;"><table class="measurements-table">';
+        var fields = {
+            wingspan: 'Wingspan', standing_reach: 'Standing Reach', hand_length: 'Hand Length',
+            hand_width: 'Hand Width', body_fat_pct: 'Body Fat %', no_step_vertical: 'No-Step Vertical',
+            max_vertical: 'Max Vertical', lane_agility: 'Lane Agility', three_quarter_sprint: '3/4 Sprint'
+        };
+        for (var key in fields) {
+            if (m[key] !== undefined) {
+                var val = m[key];
+                if (key === 'body_fat_pct') val = val + '%';
+                else if (key === 'no_step_vertical' || key === 'max_vertical') val = val + '"';
+                else if (key === 'lane_agility' || key === 'three_quarter_sprint') val = val + 's';
+                html += '<tr><td>' + fields[key] + '</td><td>' + val + '</td></tr>';
+            }
+        }
+        html += '</table></td></tr></table>';
+        container.innerHTML = html;
     }
 
     // Expose to global scope

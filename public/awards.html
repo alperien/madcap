@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MADCAP - Award History</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="body-container">
+    <div id="page-header">
+        <nav id="main-nav"><ul>
+            <li><a href="index.html"><b>MADCAP</b></a></li><li><span class="middot">&middot;</span></li>
+            <li><a href="players.html"><b>Players</b></a></li><li><span class="middot">&middot;</span></li>
+            <li><a href="awards.html"><b>Awards</b></a></li><li><span class="middot">&middot;</span></li>
+            <li><a href="admin/login"><b>Admin</b></a></li>
+        </ul></nav>
+    </div>
+    <div class="breadcrumb"><a href="index.html">MADCAP</a><span class="middot">&middot;</span>Award History</div>
+    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading...</div>
+    <div id="awards-container"></div>
+    <div id="page-footer"><table class="forumline"><tr><td class="catHead tCenter">MADCAP v2.0</td></tr></table></div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/render.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var loading = document.getElementById('loading-indicator');
+    if (loading) loading.style.display = 'block';
+    loadAllData().then(function() {
+        if (loading) loading.style.display = 'none';
+        var awards = DATA.awards || {};
+        var defs = awards.award_definitions || [];
+        var winners = awards.winners || [];
+        var html = '';
+        // Group winners by year
+        var years = {};
+        winners.forEach(function(w) { if (!years[w.year]) years[w.year] = []; years[w.year].push(w); });
+        var sortedYears = Object.keys(years).sort().reverse();
+        for (var y = 0; y < sortedYears.length; y++) {
+            var year = sortedYears[y];
+            html += '<table class="forumline"><tr><th class="catHead" colspan="4">' + year + ' Awards</th></tr>';
+            html += '<tr><th class="thHead">Award</th><th class="thHead">Player</th><th class="thHead">League</th><th class="thHead">Notes</th></tr>';
+            var ws = years[year];
+            for (var i = 0; i < ws.length; i++) {
+                var w = ws[i];
+                var def = defs.find(function(d) { return d.id === w.award_id; });
+                var p = getPlayerById(w.player_id);
+                html += '<tr class="' + rowClass(i) + '"><td class="gensmall bold">' + (def ? def.name : w.award_id) + '</td>';
+                html += '<td><a href="player.html?id=' + w.player_id + '">' + (p ? p.name : (w.player_id||'').replace(/_/g,' ')) + '</a></td>';
+                html += '<td class="gensmall">' + (w.league||'-') + '</td><td class="gensmall">' + (w.notes||'') + '</td></tr>';
+            }
+            html += '</table>';
+        }
+        if (!html) html = '<p class="gensmall tCenter">No award data available</p>';
+        document.getElementById('awards-container').innerHTML = html;
+    });
+});
+</script>
+</body>
+</html>

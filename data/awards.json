@@ -1,0 +1,33 @@
+{
+  "award_definitions": [
+    {"id": "mvp", "name": "Most Valuable Player", "league": "NBA", "level": "pro"},
+    {"id": "roy", "name": "Rookie of the Year", "league": "NBA", "level": "pro"},
+    {"id": "dpoy", "name": "Defensive Player of the Year", "league": "NBA", "level": "pro"},
+    {"id": "mip", "name": "Most Improved Player", "league": "NBA", "level": "pro"},
+    {"id": "smoy", "name": "Sixth Man of the Year", "league": "NBA", "level": "pro"},
+    {"id": "all_nba_1", "name": "All-NBA First Team", "league": "NBA", "level": "pro"},
+    {"id": "all_nba_2", "name": "All-NBA Second Team", "league": "NBA", "level": "pro"},
+    {"id": "all_nba_3", "name": "All-NBA Third Team", "league": "NBA", "level": "pro"},
+    {"id": "all_def_1", "name": "All-Defensive First Team", "league": "NBA", "level": "pro"},
+    {"id": "all_def_2", "name": "All-Defensive Second Team", "league": "NBA", "level": "pro"},
+    {"id": "all_rookie_1", "name": "All-Rookie First Team", "league": "NBA", "level": "pro"},
+    {"id": "all_rookie_2", "name": "All-Rookie Second Team", "league": "NBA", "level": "pro"},
+    {"id": "all_star", "name": "All-Star Selection", "league": "NBA", "level": "pro"},
+    {"id": "potw", "name": "Player of the Week", "league": "NBA", "level": "pro"},
+    {"id": "potm", "name": "Player of the Month", "league": "NBA", "level": "pro"},
+    {"id": "ncaa_aa", "name": "All-American", "league": "NCAA", "level": "college"},
+    {"id": "ncaa_conf_poy", "name": "Conference Player of the Year", "league": "NCAA", "level": "college"},
+    {"id": "ncaa_all_conf", "name": "All-Conference", "league": "NCAA", "level": "college"}
+  ],
+  "winners": [
+    {"year": "2024-25", "award_id": "all_star", "player_id": "marcus_thompson", "league": "NBA"},
+    {"year": "2024-25", "award_id": "all_def_2", "player_id": "jamal_reeves", "league": "NBA"},
+    {"year": "2023-24", "award_id": "mip", "player_id": "marcus_thompson", "league": "NBA", "notes": "Finalist (3rd place)"},
+    {"year": "2023-24", "award_id": "potm", "player_id": "marcus_thompson", "league": "NBA", "notes": "Eastern Conference, January 2024"},
+    {"year": "2023-24", "award_id": "all_nba_3", "player_id": "marcus_thompson", "league": "NBA"},
+    {"year": "2020-21", "award_id": "all_rookie_2", "player_id": "marcus_thompson", "league": "NBA"},
+    {"year": "2021-22", "award_id": "all_rookie_2", "player_id": "jamal_reeves", "league": "NBA"},
+    {"year": "2019-20", "award_id": "ncaa_all_conf", "player_id": "marcus_thompson", "league": "NCAA", "notes": "ACC Second Team"},
+    {"year": "2020-21", "award_id": "ncaa_all_conf", "player_id": "jamal_reeves", "league": "NCAA", "notes": "WCC First Team"}
+  ]
+}

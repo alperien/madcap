@@ -1,0 +1,24 @@
+{
+  "mock_drafts": [
+    {
+      "id": "mock_2025",
+      "title": "2025 NBA Mock Draft - Pre-Draft Combine",
+      "author": "MADCAP Scouting",
+      "date": "2025-05-15",
+      "league": "NBA",
+      "year": 2025,
+      "picks": [
+        {"rank": 1, "player_id": "cameron_boozer", "position": "PF", "school": "Duke", "overall": 95, "projected_team": "WAS", "analysis": "Dominant big with generational talent. Best prospect since Zion."},
+        {"rank": 2, "player_id": "cayden_boozer", "position": "PG", "school": "Duke", "overall": 90, "projected_team": "TOR", "analysis": "Elite floor general with scoring ability. Perfect complement to his brother."},
+        {"rank": 3, "player_id": "isaiah_evans", "position": "SG", "school": "Duke", "overall": 88, "projected_team": "POR", "analysis": "Explosive scorer with deep range. Best pure shooter in the draft."},
+        {"rank": 4, "player_id": null, "player_name": "Jalen Thomas", "position": "C", "school": "Kentucky", "overall": 87, "projected_team": "DET", "analysis": "Rim-protecting anchor with growing offensive game."},
+        {"rank": 5, "player_id": "dame_sarr", "position": "PG", "school": "Duke", "overall": 86, "projected_team": "SAS", "analysis": "Two-way guard with elite defensive instincts."},
+        {"rank": 6, "player_id": "caleb_foster", "position": "PG", "school": "Duke", "overall": 85, "projected_team": "IND", "analysis": "Crafty point guard with high basketball IQ."},
+        {"rank": 7, "player_id": null, "player_name": "Marcus Riley", "position": "SF", "school": "UNC", "overall": 84, "projected_team": "CLE", "analysis": "Versatile wing with all-around game."},
+        {"rank": 8, "player_id": "darren_harris", "position": "SG", "school": "Duke", "overall": 83, "projected_team": "OKC", "analysis": "Sharpshooting guard with catch-and-shoot ability."},
+        {"rank": 9, "player_id": "maliq_brown", "position": "PF", "school": "Duke", "overall": 82, "projected_team": "MEM", "analysis": "High-motor forward with defensive versatility."},
+        {"rank": 10, "player_id": "jack_scott", "position": "C", "school": "Duke", "overall": 81, "projected_team": "UTA", "analysis": "Skilled big man with soft touch around the rim."}
+      ]
+    }
+  ]
+}

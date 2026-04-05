@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="MADCAP Player Profile - Detailed player statistics and career information">
     <title>MADCAP - Player Profile</title>
     <link rel="stylesheet" href="css/style.css">
@@ -14,37 +13,64 @@
         <nav id="main-nav" aria-label="Main navigation">
             <ul>
                 <li><a href="index.html"><b>MADCAP</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="players.html"><b>Players</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="teams.html"><b>Teams</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="leagues.html"><b>Leagues</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="drafts.html"><b>Drafts</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="schedule.html"><b>Schedule</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="injuries.html"><b>Injuries</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="transactions.html"><b>Transactions</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="awards.html"><b>Awards</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="compare.html"><b>Compare</b></a></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="admin/login"><b>Admin</b></a></li>
             </ul>
         </nav>
         <div id="top-bar">
-            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" aria-label="Toggle edit mode" style="color:#0066CC;font-weight:bold;font-size:10px;text-decoration:none;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot" aria-hidden="true">&middot;</span>
-            <a href="admin/login">Login</a><span class="middot" aria-hidden="true">&middot;</span>
+            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" style="color:#0066CC;font-weight:bold;font-size:10px;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot">&middot;</span>
+            <a href="admin/login">Login</a><span class="middot">&middot;</span>
             <span class="gensmall">Data is simulated for entertainment purposes</span>
         </div>
     </div>
 
-    <div class="breadcrumb" aria-label="Breadcrumb">
-        <a href="index.html">MADCAP Index</a><span class="middot" aria-hidden="true">&middot;</span>
-        <a href="players.html">Players</a><span class="middot" aria-hidden="true">&middot;</span>
+    <div class="breadcrumb">
+        <a href="index.html">MADCAP Index</a><span class="middot">&middot;</span>
+        <a href="players.html">Players</a><span class="middot">&middot;</span>
         <span id="breadcrumb-player">Player Profile</span>
     </div>
 
     <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading data...</div>
 
+    <!-- 1. Player Header Info Box -->
     <div id="player-header-section"></div>
 
+    <!-- Quick Links -->
+    <div class="quick-links data-strip" id="player-quick-links" style="display:none;">
+        <a href="#career-stats">Stats</a> <span class="sep">|</span>
+        <a href="#attributes-section">Attributes</a> <span class="sep">|</span>
+        <a href="#gamelog-section">Game Log</a> <span class="sep">|</span>
+        <a href="#awards-section">Awards</a> <span class="sep">|</span>
+        <a href="#injuries-section">Injuries</a> <span class="sep">|</span>
+        <a href="#transactions-section">Transactions</a> <span class="sep">|</span>
+        <a href="#contract-section">Contract</a> <span class="sep">|</span>
+        <a href="#media-section">Media</a> <span class="sep">|</span>
+        <a href="#measurements-section">Measurements</a>
+    </div>
+
+    <!-- 2. 2K Attributes & Badges Panel -->
+    <div id="attributes-section"></div>
+
+    <!-- 3. Career Stats Table -->
+    <a name="career-stats"></a>
     <table class="forumline">
         <tr><th class="catHead" colspan="14">Career Statistics</th></tr>
         <tr>
@@ -57,44 +83,69 @@
         <tbody id="career-stats-body"></tbody>
     </table>
 
+    <!-- 4. Game Log Section -->
+    <div id="gamelog-section"></div>
+
+    <!-- 5. Stat Progression Charts -->
     <table class="forumline">
         <tr><th class="catHead" colspan="2">Stat Progression</th></tr>
         <tr>
             <td class="row1" style="width:50%;padding:4px;">
-                <div class="chart-box"><div class="catHead">PPG</div><canvas id="ppg-chart" aria-label="Points per game chart" role="img"></canvas></div>
+                <div class="chart-box"><div class="catHead">PPG</div><canvas id="ppg-chart"></canvas></div>
             </td>
             <td class="row2" style="width:50%;padding:4px;">
-                <div class="chart-box"><div class="catHead">APG</div><canvas id="apg-chart" aria-label="Assists per game chart" role="img"></canvas></div>
+                <div class="chart-box"><div class="catHead">APG</div><canvas id="apg-chart"></canvas></div>
             </td>
         </tr>
         <tr>
             <td class="row3" style="padding:4px;">
-                <div class="chart-box"><div class="catHead">RPG</div><canvas id="rpg-chart" aria-label="Rebounds per game chart" role="img"></canvas></div>
+                <div class="chart-box"><div class="catHead">RPG</div><canvas id="rpg-chart"></canvas></div>
             </td>
             <td class="row4" style="padding:4px;">
-                <div class="chart-box"><div class="catHead">Shooting Splits</div><canvas id="shooting-chart" aria-label="Shooting percentages chart" role="img"></canvas></div>
+                <div class="chart-box"><div class="catHead">Shooting Splits</div><canvas id="shooting-chart"></canvas></div>
             </td>
         </tr>
     </table>
 
+    <!-- 6. Award Trophy Case -->
+    <div id="awards-section"></div>
+
+    <!-- 7. Injury History -->
+    <div id="injuries-section"></div>
+
+    <!-- 8. Transaction History -->
+    <div id="transactions-section"></div>
+
+    <!-- 9. Contract Details -->
+    <div id="contract-section"></div>
+
+    <!-- 10. Draft Information -->
     <table class="forumline" id="draft-info-table-wrap">
         <tr><th class="catHead" colspan="2">Draft Information</th></tr>
         <tbody id="draft-info-body"></tbody>
     </table>
 
+    <!-- 11. Career Timeline / Lore -->
     <table class="forumline">
         <tr><th class="catHead">Career Timeline / Lore</th></tr>
         <tbody id="career-timeline"></tbody>
     </table>
 
+    <!-- 12. Scouting Notes -->
     <div class="notes-box">
         <div class="catHead">Scouting Notes</div>
         <div class="notes-content" id="scouting-notes"></div>
     </div>
 
+    <!-- 13. Media Clippings -->
+    <div id="media-section"></div>
+
+    <!-- 14. Physical Measurements -->
+    <div id="measurements-section"></div>
+
     <div id="page-footer">
         <table class="forumline">
-            <tr><td class="catHead tCenter">MADCAP v1.0 &middot; Modular Athlete Database & Career Analysis Platform</td></tr>
+            <tr><td class="catHead tCenter">MADCAP v2.0 &middot; Modular Athlete Database & Career Analysis Platform</td></tr>
         </table>
     </div>
 </div>
@@ -110,8 +161,11 @@
             if (loading) loading.style.display = 'none';
             var params = new URLSearchParams(window.location.search);
             var id = params.get('id');
-            if (id) renderPlayerProfile(id);
-            else if (document.getElementById('player-header-section')) {
+            if (id) {
+                renderPlayerProfile(id);
+                var ql = document.getElementById('player-quick-links');
+                if (ql) ql.style.display = '';
+            } else if (document.getElementById('player-header-section')) {
                 document.getElementById('player-header-section').innerHTML = '<table class="forumline"><tr><td class="row1" style="padding:8px;">No player ID specified. <a href="players.html">Browse players</a></td></tr></table>';
             }
         }).catch(function(err) {

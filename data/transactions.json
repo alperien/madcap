@@ -1,0 +1,58 @@
+{
+  "transactions": [
+    {
+      "id": "txn_001",
+      "date": "2020-11-18",
+      "type": "drafted",
+      "player_id": "marcus_thompson",
+      "from_team_id": "",
+      "to_team_id": "nba_cha",
+      "details": "Selected 15th overall in 2020 NBA Draft by Charlotte Hornets"
+    },
+    {
+      "id": "txn_002",
+      "date": "2021-06-24",
+      "type": "drafted",
+      "player_id": "jamal_reeves",
+      "from_team_id": "",
+      "to_team_id": "nba_cha",
+      "details": "Selected 38th overall in 2021 NBA Draft by Charlotte Hornets"
+    },
+    {
+      "id": "txn_003",
+      "date": "2022-06-23",
+      "type": "drafted",
+      "player_id": "cameron_sheffield",
+      "from_team_id": "",
+      "to_team_id": "nba_lal",
+      "details": "Selected 22nd overall in 2022 NBA Draft by Los Angeles Lakers"
+    },
+    {
+      "id": "txn_004",
+      "date": "2023-06-22",
+      "type": "drafted",
+      "player_id": "sebastian_wilkins",
+      "from_team_id": "",
+      "to_team_id": "nba_cha",
+      "details": "Selected 8th overall in 2023 NBA Draft by Charlotte Hornets"
+    },
+    {
+      "id": "txn_005",
+      "date": "2024-07-01",
+      "type": "signed",
+      "player_id": "marcus_thompson",
+      "from_team_id": "",
+      "to_team_id": "nba_cha",
+      "details": "Re-signed 4yr/$72M extension with Charlotte Hornets"
+    },
+    {
+      "id": "txn_006",
+      "date": "2024-07-15",
+      "type": "signed",
+      "player_id": "jamal_reeves",
+      "from_team_id": "",
+      "to_team_id": "nba_cha",
+      "details": "Re-signed 3yr/$45M extension with Charlotte Hornets"
+    }
+  ]
+}

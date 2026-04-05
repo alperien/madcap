@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    var DATA = { players: [], teams: [], leagues: [], games: [], drafts: [], events: [] };
+    var DATA = { players: [], teams: [], leagues: [], games: [], drafts: [], events: [], transactions: [], injuries: [], awards: {}, mock_drafts: [], seasons: [] };
     var EDIT_MODE = false;
 
     window.DATA = DATA;
@@ -20,9 +20,42 @@
             loadJSON('api/leagues').then(function(d) { DATA.leagues = d; }),
             loadJSON('api/games').then(function(d) { DATA.games = d; }),
             loadJSON('api/drafts').then(function(d) { DATA.drafts = d; }),
-            loadJSON('api/events').then(function(d) { DATA.events = d; })
+            loadJSON('api/events').then(function(d) { DATA.events = d; }),
+            loadJSON('api/transactions').then(function(d) { DATA.transactions = d; }),
+            loadJSON('api/injuries').then(function(d) { DATA.injuries = d; }),
+            loadJSON('api/awards').then(function(d) { DATA.awards = d; }),
+            loadJSON('api/mock-drafts').then(function(d) { DATA.mock_drafts = d; }),
+            loadJSON('api/seasons').then(function(d) { DATA.seasons = d; })
         ]);
     }
+
+    // --- Simple Markdown renderer ---
+    function renderMarkdown(md) {
+        if (!md) return '';
+        var html = md
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+            .replace(/\*(.+?)\*/g, '<i>$1</i>')
+            .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+        return '<p>' + html + '</p>';
+    }
+    window.renderMarkdown = renderMarkdown;
+
+    // --- Currency formatter ---
+    function formatCurrency(val) {
+        if (!val) return '-';
+        var n = Number(val);
+        if (isNaN(n)) return '-';
+        if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000) return '$' + (n / 1000).toFixed(0) + 'K';
+        return '$' + n;
+    }
+    window.formatCurrency = formatCurrency;
 
     function getTeamById(id) {
         for (var i = 0; i < DATA.teams.length; i++) {

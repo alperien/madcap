@@ -232,6 +232,78 @@ function renderStandings() {
     container.innerHTML = html;
 }
 
+// === NEW RENDER HELPERS ===
+
+function renderAttributeBar(label, value) {
+    var cls = value < 60 ? 'attr-low' : (value < 80 ? 'attr-mid' : 'attr-high');
+    var pct = Math.min(100, Math.max(0, value));
+    return '<div class="attribute-bar"><span class="attr-label">' + label + '</span><span class="attr-track"><span class="attr-fill ' + cls + '" style="width:' + pct + '%"></span></span><span class="attr-val">' + value + '</span></div>';
+}
+
+function renderBadgePill(badge) {
+    var tier = (badge.tier || 'bronze').replace(/ /g, '_');
+    return '<span class="badge-tag badge-' + tier + '">' + (badge.name || '?') + '</span>';
+}
+
+function renderInjuryIndicator(severity) {
+    return '<span class="injury-status injury-' + (severity || 'minor') + '">' + (severity || 'minor').toUpperCase() + '</span>';
+}
+
+function renderTxnType(type) {
+    return '<span class="txn-type txn-' + (type || 'signed') + '">' + (type || '?').toUpperCase() + '</span>';
+}
+
+function renderTicker() {
+    var el = document.getElementById('ticker-bar');
+    if (!el) return;
+    var items = [];
+    var txns = (DATA.transactions || []).slice(-3);
+    for (var i = txns.length - 1; i >= 0; i--) {
+        var t = txns[i];
+        items.push('<span class="ticker-item">' + renderTxnType(t.type) + ' ' + (t.player_id || '').replace(/_/g, ' ') + ' - ' + (t.details || '').substring(0, 50) + '</span>');
+    }
+    var injuries = (DATA.injuries || []).filter(function(i) { return i.status === 'day-to-day' || i.status === 'active'; });
+    for (var i = 0; i < injuries.length; i++) {
+        var inj = injuries[i];
+        items.push('<span class="ticker-item" style="color:#FF8888;">' + (inj.player_id || '').replace(/_/g, ' ') + ' - ' + (inj.type || '') + ' (' + (inj.status || '') + ')</span>');
+    }
+    var games = (DATA.games || []).filter(function(g) { return g.status === 'final'; }).slice(-3);
+    for (var i = games.length - 1; i >= 0; i--) {
+        var g = games[i];
+        var home = getTeamById(g.home_team_id);
+        var away = getTeamById(g.away_team_id);
+        items.push('<span class="ticker-item"><a href="game.html?id=' + g.id + '">' + (away ? away.abbreviation : (g.away_team_name || '?')) + ' ' + (g.away_score || 0) + ' - ' + (home ? home.abbreviation : (g.home_team_name || '?')) + ' ' + (g.home_score || 0) + ' FINAL</a></span>');
+    }
+    if (items.length === 0) items.push('<span class="ticker-item">Welcome to MADCAP - Modular Athlete Database & Career Analysis Platform</span>');
+    el.innerHTML = '<span class="ticker-label">TICKER</span>' + items.join('<span class="ticker-sep">|</span>');
+}
+
+function renderTransactionsWidget() {
+    var el = document.getElementById('transactions-widget');
+    if (!el) return;
+    var txns = (DATA.transactions || []).slice(-5).reverse();
+    var html = '';
+    for (var i = 0; i < txns.length; i++) {
+        var t = txns[i];
+        html += '<li>' + renderTxnType(t.type) + ' <a href="player.html?id=' + t.player_id + '">' + (t.player_id || '').replace(/_/g, ' ') + '</a> <span class="gensmall">(' + (t.date || '') + ')</span></li>';
+    }
+    if (!html) html = '<li class="gensmall" style="color:#666;">No transactions</li>';
+    el.innerHTML = html;
+}
+
+function renderInjuryWidget() {
+    var el = document.getElementById('injury-widget');
+    if (!el) return;
+    var active = (DATA.injuries || []).filter(function(i) { return i.status !== 'resolved'; });
+    var html = '';
+    for (var i = 0; i < active.length; i++) {
+        var inj = active[i];
+        html += '<li>' + renderInjuryIndicator(inj.severity) + ' <a href="player.html?id=' + inj.player_id + '">' + (inj.player_id || '').replace(/_/g, ' ') + '</a> - ' + (inj.type || '') + '</li>';
+    }
+    if (!html) html = '<li class="gensmall" style="color:#006600;">All healthy</li>';
+    el.innerHTML = html;
+}
+
 function renderSchedule() {
     var tbody = document.getElementById('schedule-body');
     if (!tbody) return;

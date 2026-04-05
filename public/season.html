@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MADCAP - Season Archive</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="body-container">
+    <div id="page-header">
+        <nav id="main-nav"><ul>
+            <li><a href="index.html"><b>MADCAP</b></a></li><li><span class="middot">&middot;</span></li>
+            <li><a href="leagues.html"><b>Leagues</b></a></li><li><span class="middot">&middot;</span></li>
+            <li><a href="admin/login"><b>Admin</b></a></li>
+        </ul></nav>
+    </div>
+    <div class="breadcrumb"><a href="index.html">MADCAP</a><span class="middot">&middot;</span><span id="bc-season">Season Archive</span></div>
+    <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading...</div>
+    <div id="season-container"></div>
+    <div id="page-footer"><table class="forumline"><tr><td class="catHead tCenter">MADCAP v2.0</td></tr></table></div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/render.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var loading = document.getElementById('loading-indicator');
+    if (loading) loading.style.display = 'block';
+    loadAllData().then(function() {
+        if (loading) loading.style.display = 'none';
+        var params = new URLSearchParams(window.location.search);
+        var year = params.get('year');
+        var league = params.get('league') || 'NBA';
+        document.getElementById('bc-season').textContent = (year||'All') + ' ' + league + ' Season';
+
+        var html = '<div class="data-strip"><span class="ds-label">Season:</span> <span class="ds-value">' + (year||'All') + '</span> <span class="ds-label">League:</span> <span class="ds-value">' + league + '</span></div>';
+
+        // Stat leaders for this season
+        var players = DATA.players.filter(function(p) {
+            if (!p.career || !p.career.pro) return false;
+            return p.career.pro.some(function(pro) {
+                return pro.league === league && pro.seasons && pro.seasons.some(function(s) { return !year || s.year === year; });
+            });
+        });
+
+        html += '<table class="forumline"><tr><th class="catHead" colspan="10">Player Stats - ' + (year||'Latest') + ' ' + league + '</th></tr>';
+        html += '<tr><th class="thHead">Player</th><th class="thHead">Team</th><th class="thHead tCenter">GP</th><th class="thHead tCenter">PPG</th><th class="thHead tCenter">APG</th><th class="thHead tCenter">RPG</th><th class="thHead tCenter">SPG</th><th class="thHead tCenter">BPG</th><th class="thHead tCenter">FG%</th><th class="thHead tCenter">3P%</th></tr>';
+        var entries = [];
+        players.forEach(function(p) {
+            p.career.pro.forEach(function(pro) {
+                if (pro.league !== league) return;
+                (pro.seasons || []).forEach(function(s) {
+                    if (year && s.year !== year) return;
+                    entries.push({ player: p, team: getTeamById(pro.team_id), season: s });
+                });
+            });
+        });
+        entries.sort(function(a, b) { return (b.season.ppg||0) - (a.season.ppg||0); });
+        for (var i = 0; i < entries.length; i++) {
+            var e = entries[i];
+            html += '<tr class="' + rowClass(i) + '"><td><a href="player.html?id=' + e.player.id + '">' + e.player.name + '</a>' + (e.player.is_fictional ? ' <span class="fic">[FIC]</span>' : '') + '</td>';
+            html += '<td class="gensmall">' + (e.team ? e.team.abbreviation : '-') + '</td>';
+            html += '<td class="tCenter">' + (e.season.gp||'-') + '</td><td class="tCenter bold">' + numStr(e.season.ppg) + '</td>';
+            html += '<td class="tCenter">' + numStr(e.season.apg) + '</td><td class="tCenter">' + numStr(e.season.rpg) + '</td>';
+            html += '<td class="tCenter">' + numStr(e.season.spg) + '</td><td class="tCenter">' + numStr(e.season.bpg) + '</td>';
+            html += '<td class="tCenter">' + pctStr(e.season.fg_pct) + '</td><td class="tCenter">' + pctStr(e.season.fg3_pct) + '</td></tr>';
+        }
+        if (entries.length === 0) html += '<tr class="row1"><td colspan="10" class="gensmall tCenter">No data for this season</td></tr>';
+        html += '</table>';
+
+        // Season list
+        html += '<table class="forumline"><tr><th class="catHead" colspan="4">All Seasons</th></tr>';
+        html += '<tr><th class="thHead">Year</th><th class="thHead">League</th><th class="thHead">Status</th><th class="thHead">View</th></tr>';
+        DATA.seasons.forEach(function(s, i) {
+            html += '<tr class="' + rowClass(i) + '"><td>' + s.year + '</td><td>' + s.league + '</td><td class="gensmall">' + s.status + '</td>';
+            html += '<td><a href="season.html?year=' + encodeURIComponent(s.year) + '&league=' + encodeURIComponent(s.league) + '">[view]</a></td></tr>';
+        });
+        html += '</table>';
+        document.getElementById('season-container').innerHTML = html;
+    });
+});
+</script>
+</body>
+</html>

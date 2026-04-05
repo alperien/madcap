@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="MADCAP - Modular Athlete Database & Career Analysis Platform. A sports scouting platform for tracking a fictional NBA2K universe.">
     <meta property="og:title" content="MADCAP - Sports Scouting Platform">
     <meta property="og:description" content="Modular Athlete Database & Career Analysis Platform">
@@ -16,36 +15,53 @@
         <nav id="main-nav" aria-label="Main navigation">
             <ul>
                 <li><a href="index.html"><b>MADCAP</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="players.html"><b>Players</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="teams.html"><b>Teams</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="leagues.html"><b>Leagues</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="drafts.html"><b>Drafts</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="schedule.html"><b>Schedule</b></a></li>
-                <li><span class="middot" aria-hidden="true">&middot;</span></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="injuries.html"><b>Injuries</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="transactions.html"><b>Transactions</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="awards.html"><b>Awards</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="compare.html"><b>Compare</b></a></li>
+                <li><span class="middot">&middot;</span></li>
+                <li><a href="mockdraft.html"><b>Mock Draft</b></a></li>
+                <li><span class="middot">&middot;</span></li>
                 <li><a href="admin/login"><b>Admin</b></a></li>
             </ul>
         </nav>
         <div id="top-bar">
-            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" aria-label="Toggle edit mode" style="color:#0066CC;font-weight:bold;font-size:10px;text-decoration:none;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot" aria-hidden="true">&middot;</span>
-            <a href="admin/login">Login</a><span class="middot" aria-hidden="true">&middot;</span>
+            <button type="button" id="edit-toggle-btn" onclick="toggleEditMode()" style="color:#0066CC;font-weight:bold;font-size:10px;background:none;border:none;cursor:pointer;">[Edit]</button><span class="middot">&middot;</span>
+            <a href="admin/login">Login</a><span class="middot">&middot;</span>
             <span class="gensmall">Data is simulated for entertainment purposes</span>
         </div>
     </div>
 
-    <div class="breadcrumb" aria-label="Breadcrumb">
+    <!-- Ticker Bar -->
+    <div class="ticker-bar" id="ticker-bar">
+        <span class="ticker-label">LOADING</span> Loading latest updates...
+    </div>
+
+    <div class="breadcrumb">
         <a href="index.html">MADCAP Index</a>
     </div>
 
     <div id="loading-indicator" style="text-align:center;padding:20px;display:none;">Loading data...</div>
 
-    <table id="page-body">
+    <!-- Three-Column Layout -->
+    <table class="three-column">
     <tr>
-        <td id="sidebar">
+        <!-- LEFT SIDEBAR -->
+        <td class="col-left">
             <div class="sidebar-header">Database</div>
             <div class="sidebar-content">
                 <ul>
@@ -54,11 +70,14 @@
                     <li><a href="leagues.html">League Standings</a></li>
                     <li><a href="drafts.html">Draft History</a></li>
                     <li><a href="schedule.html">Schedule & Results</a></li>
+                    <li><a href="compare.html">Player Comparison</a></li>
+                    <li><a href="mockdraft.html">Mock Draft Board</a></li>
+                    <li><a href="awards.html">Award History</a></li>
                 </ul>
             </div>
 
             <div class="sidebar-header">Leagues</div>
-            <div class="sidebar-content" id="sidebar-leagues">
+            <div class="sidebar-content">
                 <ul id="sidebar-leagues-list"></ul>
             </div>
 
@@ -67,13 +86,19 @@
                 <ul id="fictional-list"></ul>
             </div>
 
-            <div class="sidebar-header">Quick Stats</div>
-            <div class="sidebar-content gensmall" id="sidebar-stats">
-                Loading...
+            <div class="sidebar-header">Injury Report</div>
+            <div class="sidebar-content">
+                <ul id="injury-widget"></ul>
+            </div>
+
+            <div class="sidebar-header">Recent Transactions</div>
+            <div class="sidebar-content">
+                <ul id="transactions-widget"></ul>
             </div>
         </td>
 
-        <td id="main-content">
+        <!-- CENTER CONTENT -->
+        <td class="col-center">
             <table class="forumline">
                 <tr><th class="catHead" colspan="5">League Hub</th></tr>
                 <tr><th class="thHead">League</th><th class="thHead">Level</th><th class="thHead">Country</th><th class="thHead">Season</th><th class="thHead">Teams</th></tr>
@@ -103,12 +128,33 @@
                 <tbody id="upcoming-body"></tbody>
             </table>
         </td>
+
+        <!-- RIGHT SIDEBAR -->
+        <td class="col-right">
+            <div class="sidebar-header">Quick Stats</div>
+            <div class="sidebar-content gensmall" id="sidebar-stats">Loading...</div>
+
+            <div class="spotlight-box">
+                <div class="spotlight-header">Player Spotlight</div>
+                <div class="spotlight-body" id="player-spotlight">Loading...</div>
+            </div>
+
+            <div class="sidebar-header">Draft Board Preview</div>
+            <div class="sidebar-content" id="draft-preview">
+                <ul id="mock-draft-preview"></ul>
+            </div>
+
+            <div class="sidebar-header">Season Archives</div>
+            <div class="sidebar-content">
+                <ul id="season-archives"></ul>
+            </div>
+        </td>
     </tr>
     </table>
 
     <div id="page-footer">
         <table class="forumline">
-            <tr><td class="catHead tCenter">MADCAP v1.0 &middot; Modular Athlete Database & Career Analysis Platform &middot; All data is simulated</td></tr>
+            <tr><td class="catHead tCenter">MADCAP v2.0 &middot; Modular Athlete Database & Career Analysis Platform &middot; All data is simulated</td></tr>
         </table>
     </div>
 </div>
@@ -129,6 +175,44 @@
             renderFictionalList();
             renderSidebarLeagues();
             renderSidebarStats();
+            renderTicker();
+            renderTransactionsWidget();
+            renderInjuryWidget();
+            // Player Spotlight
+            var spotEl = document.getElementById('player-spotlight');
+            if (spotEl) {
+                var fic = DATA.players.filter(function(p) { return p.is_fictional; });
+                if (fic.length > 0) {
+                    var p = fic[Math.floor(Math.random() * fic.length)];
+                    var team = getPlayerTeam(p);
+                    spotEl.innerHTML = '<a href="player.html?id=' + p.id + '" style="font-weight:bold;">' + p.name + '</a><br>' +
+                        '<span class="gensmall">' + (p.position || '') + ' | ' + (team ? team.abbreviation : '-') + ' | OVR: ' + (p.overall || '-') + '</span><br>' +
+                        '<span class="gensmall">' + (p.archetype || '') + '</span>';
+                }
+            }
+            // Mock Draft Preview
+            var mdEl = document.getElementById('mock-draft-preview');
+            if (mdEl && DATA.mock_drafts.length > 0) {
+                var md = DATA.mock_drafts[0];
+                var html = '';
+                var picks = (md.picks || []).slice(0, 5);
+                for (var i = 0; i < picks.length; i++) {
+                    var pk = picks[i];
+                    var name = pk.player_id ? '<a href="player.html?id=' + pk.player_id + '">' + (pk.player_id || '').replace(/_/g, ' ') + '</a>' : (pk.player_name || '?');
+                    html += '<li>#' + pk.rank + ' ' + name + ' <span class="gensmall">(' + (pk.position || '') + ')</span></li>';
+                }
+                mdEl.innerHTML = html || '<li class="gensmall">No mock drafts</li>';
+            }
+            // Season Archives
+            var saEl = document.getElementById('season-archives');
+            if (saEl) {
+                var html = '';
+                for (var i = 0; i < DATA.seasons.length; i++) {
+                    var s = DATA.seasons[i];
+                    html += '<li><a href="season.html?year=' + encodeURIComponent(s.year) + '&league=' + encodeURIComponent(s.league) + '">' + s.year + ' ' + s.league + '</a> <span class="gensmall">(' + s.status + ')</span></li>';
+                }
+                saEl.innerHTML = html || '<li class="gensmall">No seasons</li>';
+            }
         }).catch(function(err) {
             console.error('Failed to load data:', err);
             if (loading) loading.textContent = 'Failed to load data. Please refresh.';

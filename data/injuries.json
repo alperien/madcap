@@ -1,0 +1,59 @@
+{
+  "injuries": [
+    {
+      "id": "inj_001",
+      "player_id": "marcus_thompson",
+      "date": "2023-12-15",
+      "type": "Ankle Sprain",
+      "severity": "minor",
+      "games_missed": 5,
+      "return_date": "2024-01-02",
+      "status": "resolved",
+      "notes": "Rolled ankle in 3rd quarter vs MIA"
+    },
+    {
+      "id": "inj_002",
+      "player_id": "jamal_reeves",
+      "date": "2024-02-10",
+      "type": "MCL Sprain",
+      "severity": "moderate",
+      "games_missed": 12,
+      "return_date": "2024-03-15",
+      "status": "resolved",
+      "notes": "Non-contact injury during practice"
+    },
+    {
+      "id": "inj_003",
+      "player_id": "cameron_sheffield",
+      "date": "2024-11-20",
+      "type": "Hamstring Strain",
+      "severity": "minor",
+      "games_missed": 4,
+      "return_date": "2024-12-01",
+      "status": "resolved",
+      "notes": "Tightness reported during warmups"
+    },
+    {
+      "id": "inj_004",
+      "player_id": "sebastian_wilkins",
+      "date": "2025-01-15",
+      "type": "Shoulder Contusion",
+      "severity": "minor",
+      "games_missed": 3,
+      "return_date": "2025-01-22",
+      "status": "resolved",
+      "notes": "Took hard fall on drive to basket vs BOS"
+    },
+    {
+      "id": "inj_005",
+      "player_id": "marcus_thompson",
+      "date": "2025-03-01",
+      "type": "Knee Soreness",
+      "severity": "minor",
+      "games_missed": 0,
+      "return_date": null,
+      "status": "day-to-day",
+      "notes": "Listed as questionable for upcoming game"
+    }
+  ]
+}

@@ -2,8 +2,306 @@ id: sebastian_wilkins
 name: Sebastian Wilkins
 position: PF
 height: 6'8"
-weight: 220
-overall: 74
-team_id: ncaa_duke
-is_fictional: false
-bio: '4-star recruit. Redshirting 2025-26 season.'
+weight: 230
+birthdate: '2003-09-12'
+nationality: USA
+overall: 76
+archetype: Athletic Finisher
+status: active
+is_fictional: true
+avatar_url: ''
+
+injuries:
+  - date: '2025-01-15'
+    type: 'Shoulder Contusion'
+    severity: 'minor'
+    games_missed: 3
+    return_date: '2025-01-22'
+    notes: 'Took hard fall on drive to basket vs BOS'
+
+transactions:
+  - date: '2023-06-22'
+    type: 'drafted'
+    from_team_id: ''
+    to_team_id: 'nba_cha'
+    details: 'Selected 8th overall in 2023 NBA Draft'
+
+awards:
+  - year: '2023-24'
+    name: 'All-Rookie First Team'
+    league: 'NBA'
+  - year: '2022-23'
+    name: 'Big 12 Freshman of the Year'
+    league: 'NCAA'
+  - year: '2022-23'
+    name: 'All-Big 12 First Team'
+    league: 'NCAA'
+
+attributes:
+  inside_scoring: 82
+  mid_range: 65
+  three_point: 52
+  free_throw: 68
+  ball_handling: 58
+  passing: 55
+  offensive_rebound: 78
+  defensive_rebound: 80
+  steal: 62
+  block: 76
+  lateral_quickness: 72
+  speed: 76
+  acceleration: 78
+  strength: 80
+  vertical: 84
+  stamina: 82
+
+badges:
+  - name: 'Posterizer'
+    tier: 'gold'
+  - name: 'Lob City Finisher'
+    tier: 'gold'
+  - name: 'Rim Protector'
+    tier: 'silver'
+  - name: 'Rebound Chaser'
+    tier: 'gold'
+  - name: 'Putback Boss'
+    tier: 'silver'
+  - name: 'Brick Wall'
+    tier: 'bronze'
+  - name: 'Rise Up'
+    tier: 'silver'
+  - name: 'Intimidator'
+    tier: 'silver'
+
+tendencies:
+  drive_tendency: 45
+  spot_up_tendency: 15
+  post_up_tendency: 32
+  iso_tendency: 18
+  pick_and_roll_tendency: 55
+
+measurements:
+  wingspan: "7'0\""
+  standing_reach: "9'0\""
+  hand_length: '9.75"'
+  hand_width: '10.25"'
+  body_fat_pct: 7.2
+  no_step_vertical: 32.0
+  max_vertical: 39.5
+  lane_agility: 10.88
+  three_quarter_sprint: 3.22
+
+contract:
+  type: 'rookie_scale'
+  years_remaining: 2
+  total_value: 8400000
+  annual_value: 4200000
+  team_option_year: 2027
+  player_option_year: null
+
+jersey_history:
+  - team_id: 'nba_cha'
+    number: 22
+    years: '2023-present'
+
+career:
+  highschool:
+    school: Prolific Prep
+    state: CA
+    seasons:
+      - year: '2020-21'
+        ppg: 20.4
+        apg: 2.2
+        rpg: 10.2
+        spg: 1.2
+        bpg: 2.4
+        fg_pct: 0.582
+        fg3_pct: 0.268
+        ft_pct: 0.658
+        games: []
+    awards:
+      - 'McDonald''s All-American (2021)'
+
+  college:
+    school: Texas
+    conference: Big 12
+    division: NCAA D1
+    seasons:
+      - year: '2021-22'
+        ppg: 12.8
+        apg: 1.4
+        rpg: 7.8
+        spg: 0.8
+        bpg: 1.8
+        fg_pct: 0.558
+        fg3_pct: 0.282
+        ft_pct: 0.672
+        gp: 32
+        gs: 28
+        mpg: 26.4
+        games: []
+      - year: '2022-23'
+        ppg: 18.2
+        apg: 2.0
+        rpg: 9.4
+        spg: 1.0
+        bpg: 2.2
+        fg_pct: 0.572
+        fg3_pct: 0.302
+        ft_pct: 0.692
+        gp: 34
+        gs: 34
+        mpg: 32.8
+        games:
+          - date: '2023-02-18'
+            opponent: 'Kansas'
+            pts: 26
+            ast: 2
+            reb: 14
+            stl: 1
+            blk: 4
+            fg_made: 11
+            fg_att: 17
+            fg3_made: 0
+            fg3_att: 2
+            ft_made: 4
+            ft_att: 6
+            mins: 36
+            result: 'W 82-76'
+          - date: '2023-03-10'
+            opponent: 'Baylor'
+            pts: 22
+            ast: 3
+            reb: 12
+            stl: 2
+            blk: 3
+            fg_made: 9
+            fg_att: 14
+            fg3_made: 1
+            fg3_att: 3
+            ft_made: 3
+            ft_att: 5
+            mins: 34
+            result: 'W 78-70'
+    awards:
+      - 'Big 12 Freshman of the Year (2022)'
+      - 'All-Big 12 First Team (2023)'
+
+  pro:
+    - team_id: nba_cha
+      league: NBA
+      seasons:
+        - year: '2023-24'
+          ppg: 12.6
+          apg: 1.4
+          rpg: 7.2
+          spg: 0.8
+          bpg: 1.4
+          fg_pct: 0.542
+          fg3_pct: 0.288
+          ft_pct: 0.678
+          gp: 72
+          gs: 38
+          mpg: 26.4
+          games:
+            - date: '2023-10-25'
+              opponent: 'DET'
+              pts: 16
+              ast: 2
+              reb: 9
+              stl: 1
+              blk: 2
+              fg_made: 7
+              fg_att: 12
+              fg3_made: 0
+              fg3_att: 1
+              ft_made: 2
+              ft_att: 3
+              mins: 28
+              result: 'W 115-98'
+            - date: '2024-01-12'
+              opponent: 'NYK'
+              pts: 18
+              ast: 1
+              reb: 11
+              stl: 0
+              blk: 3
+              fg_made: 8
+              fg_att: 14
+              fg3_made: 0
+              fg3_att: 2
+              ft_made: 2
+              ft_att: 4
+              mins: 32
+              result: 'W 128-120'
+        - year: '2024-25'
+          ppg: 14.8
+          apg: 1.8
+          rpg: 8.4
+          spg: 0.9
+          bpg: 1.6
+          fg_pct: 0.558
+          fg3_pct: 0.312
+          ft_pct: 0.695
+          gp: 60
+          gs: 58
+          mpg: 30.2
+          games:
+            - date: '2024-10-23'
+              opponent: 'TOR'
+              pts: 14
+              ast: 2
+              reb: 10
+              stl: 1
+              blk: 2
+              fg_made: 6
+              fg_att: 10
+              fg3_made: 0
+              fg3_att: 1
+              ft_made: 2
+              ft_att: 3
+              mins: 30
+              result: 'W 110-102'
+            - date: '2025-02-20'
+              opponent: 'MIL'
+              pts: 20
+              ast: 2
+              reb: 12
+              stl: 1
+              blk: 3
+              fg_made: 9
+              fg_att: 14
+              fg3_made: 0
+              fg3_att: 2
+              ft_made: 2
+              ft_att: 3
+              mins: 34
+              result: 'W 122-115'
+      awards:
+        - 'All-Rookie First Team (2024)'
+
+draft:
+  year: 2023
+  league: NBA
+  round: 1
+  pick: 8
+  team_id: nba_cha
+
+media:
+  - date: '2024-05-15'
+    type: 'news'
+    headline: 'Wilkins Named to All-Rookie First Team'
+    content: 'Sebastian Wilkins capped off an impressive rookie campaign by earning All-Rookie First Team honors after averaging 12.6 points, 7.2 rebounds, and 1.4 blocks per game.'
+    source: 'MADCAP News Wire'
+  - date: '2025-01-22'
+    type: 'news'
+    headline: 'Wilkins Returns From Shoulder Injury, Posts Double-Double'
+    content: 'Sebastian Wilkins returned from a 3-game absence due to a shoulder contusion and immediately contributed with 18 points and 11 rebounds.'
+    source: 'MADCAP News Wire'
+  - date: '2025-03-01'
+    type: 'news'
+    headline: 'Wilkins Sophomore Leap: Averaging 14.8 PPG and 8.4 RPG'
+    content: 'In his second NBA season, Sebastian Wilkins has taken a significant leap, emerging as one of the top young power forwards in the league.'
+    source: 'MADCAP News Wire'
+
+notes: 'Fictional draft pick. Explosive athlete with elite finishing and rim protection. Developing mid-range game.'
