@@ -332,7 +332,24 @@
     function openSeasonEditor(playerId, level, seasonIdx, season, teamIdx) {
         var s = season || {};
         var isEdit = seasonIdx !== null && seasonIdx !== undefined;
+        var player = getPlayerById(playerId);
         var html = '<form id="season-form" onsubmit="return false;">';
+
+        // Show school/team context fields when adding (not editing) college or HS seasons
+        if (!isEdit && level === 'college') {
+            var college = (player && player.career && player.career.college) || {};
+            html += formRow('School', formInput('ss-school', college.school, { placeholder: 'Duke' }));
+            html += formRow('Conference', formInput('ss-conference', college.conference, { placeholder: 'ACC' }));
+            html += formRow('Division', formInput('ss-division', college.division, { placeholder: 'D1' }));
+            html += '<hr style="border-color:var(--border-color);margin:6px 0;">';
+        }
+        if (!isEdit && level === 'highschool') {
+            var hs = (player && player.career && player.career.highschool) || {};
+            html += formRow('School', formInput('ss-school', hs.school, { placeholder: 'Montverde Academy' }));
+            html += formRow('State', formInput('ss-state', hs.state, { placeholder: 'FL' }));
+            html += '<hr style="border-color:var(--border-color);margin:6px 0;">';
+        }
+
         html += formRow('Year', formInput('ss-year', s.year, { placeholder: '2024-25' }));
         html += formRow('PPG', formNumber('ss-ppg', s.ppg, 0, 60, 0.1));
         html += formRow('APG', formNumber('ss-apg', s.apg, 0, 20, 0.1));
@@ -342,11 +359,9 @@
         html += formRow('FG%', formNumber('ss-fg', s.fg_pct, 0, 1, 0.001));
         html += formRow('3P%', formNumber('ss-fg3', s.fg3_pct, 0, 1, 0.001));
         html += formRow('FT%', formNumber('ss-ft', s.ft_pct, 0, 1, 0.001));
-        if (level !== 'highschool') {
-            html += formRow('GP', formNumber('ss-gp', s.gp, 0, 100));
-            html += formRow('GS', formNumber('ss-gs', s.gs, 0, 100));
-            html += formRow('MPG', formNumber('ss-mpg', s.mpg, 0, 48, 0.1));
-        }
+        html += formRow('GP', formNumber('ss-gp', s.gp, 0, 100));
+        html += formRow('GS', formNumber('ss-gs', s.gs, 0, 100));
+        html += formRow('MPG', formNumber('ss-mpg', s.mpg, 0, 48, 0.1));
 
         if (isEdit) {
             var extra = teamIdx !== undefined ? ',team_idx:' + teamIdx : '';
@@ -397,6 +412,20 @@
                 body.team_id = player.career.pro[teamIdx].team_id;
                 body.league = player.career.pro[teamIdx].league;
             }
+        }
+        if (level === 'college') {
+            var schoolEl = document.getElementById('ss-school');
+            var confEl = document.getElementById('ss-conference');
+            var divEl = document.getElementById('ss-division');
+            if (schoolEl && schoolEl.value) body.school = schoolEl.value;
+            if (confEl && confEl.value) body.conference = confEl.value;
+            if (divEl && divEl.value) body.division = divEl.value;
+        }
+        if (level === 'highschool') {
+            var hsSchoolEl = document.getElementById('ss-school');
+            var stateEl = document.getElementById('ss-state');
+            if (hsSchoolEl && hsSchoolEl.value) body.school = hsSchoolEl.value;
+            if (stateEl && stateEl.value) body.state = stateEl.value;
         }
         saveAndRefresh('api/players/' + playerId + '/career/' + level, 'POST', body, 'Season added');
     }
