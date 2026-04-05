@@ -30,3 +30,7 @@ Thumbs.db
 # NPM (stale)
 node_modules/
 package-lock.json
+
+# Test artifacts
+data/players/test_player.yaml
+.pytest_cache/
