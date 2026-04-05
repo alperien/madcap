@@ -525,6 +525,12 @@ input.liteoption:active { border-style: inset; }
 .attr-cell .attr-fill.attr-mid { background: var(--accent-yellow); }
 .attr-cell .attr-fill.attr-high { background: var(--accent-green); }
 .attr-cell .attr-val { width: 18px; text-align: center; font-weight: bold; font-size: 8px; color: var(--text-color); font-family: 'Lucida Console', monospace; margin-left: 2px; }
+/* Attribute hover */
+.attr-cell { cursor: default; position: relative; }
+.attr-cell:hover { background: var(--row-hover); }
+.attr-cell:hover .attr-fill { filter: brightness(1.4); }
+.attr-cell:hover .attr-val { color: var(--link-color); }
+.attr-cell:hover .attr-label { color: var(--text-color); }
 /* Legacy compat */
 .attribute-bar { margin: 1px 0; font-size: 9px; }
 .attribute-bar .attr-label { display: inline-block; width: 70px; text-align: right; padding-right: 3px; font-size: 7px; color: var(--text-muted); text-transform: uppercase; }
@@ -547,6 +553,23 @@ input.liteoption:active { border-style: inset; }
 .badge-tag.badge-gold .badge-tier-icon::before { content: '\2605'; color: #8A8A5A; }
 .badge-tag.badge-hall_of_fame, .badge-tag.badge-hof { border-left: 3px solid #7A6A8A; color: #B0A0C0; background: var(--stat-career); border-color: #7A6A8A; }
 .badge-tag.badge-hall_of_fame .badge-tier-icon::before, .badge-tag.badge-hof .badge-tier-icon::before { content: '\2726'; color: #B0A0C0; }
+/* Badge hover */
+.badge-tag { cursor: default; transition: transform 0.1s, box-shadow 0.1s; }
+.badge-tag:hover { transform: scale(1.12); box-shadow: 0 0 4px rgba(255,255,255,0.15); z-index: 2; position: relative; }
+
+/* === Career stats row hover === */
+table.forumline tr:hover td { background: var(--row-hover) !important; }
+
+/* === Game log row interactive === */
+.gamelog-row { cursor: pointer; }
+.gamelog-row:hover td { background: var(--row-hover) !important; }
+.gamelog-row:hover .result-w { text-shadow: 0 0 3px rgba(90,138,90,0.5); }
+.gamelog-row:hover .result-l { text-shadow: 0 0 3px rgba(138,90,90,0.5); }
+
+/* === OVR bar hover === */
+.ovr-bar { transition: filter 0.1s; }
+.ovr-bar:hover { filter: brightness(1.3); }
+.ovr-bar:hover + .ovr-text, .ovr-text:hover { color: var(--link-color) !important; }
 
 /* === INJURY STATUS === */
 .injury-status { font-size: 8px; font-weight: bold; padding: 1px 3px; }

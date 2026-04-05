@@ -737,7 +737,9 @@
         for (var i = 0; i < allGames.length; i++) {
             var g = allGames[i];
             var resultCls = (g.result || '').charAt(0) === 'W' ? 'result-w' : ((g.result || '').charAt(0) === 'L' ? 'result-l' : '');
-            html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (g.date || '-') + '</td><td class="gensmall">' + (g.opponent || '-') + '</td>';
+            var fgPct = g.fg_att ? ((g.fg_made / g.fg_att) * 100).toFixed(1) : '-';
+            var fg3Pct = g.fg3_att ? ((g.fg3_made / g.fg3_att) * 100).toFixed(1) : '-';
+            html += '<tr class="' + rowClass(i) + ' gamelog-row" data-game-idx="' + i + '" data-fg-pct="' + fgPct + '" data-fg3-pct="' + fg3Pct + '" data-pts="' + (g.pts||0) + '" data-ast="' + (g.ast||0) + '" data-reb="' + (g.reb||0) + '" data-opp="' + (g.opponent||'-') + '" data-date="' + (g.date||'-') + '" data-result="' + (g.result||'-') + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (g.date || '-') + '</td><td class="gensmall">' + (g.opponent || '-') + '</td>';
             html += '<td class="gensmall ' + resultCls + '">' + (g.result || '-') + '</td>';
             html += '<td class="gensmall">' + (g.team || '-') + '</td>';
             html += '<td class="tCenter mono">' + (g.mins || '-') + '</td><td class="tCenter bold mono">' + (g.pts || 0) + '</td>';
@@ -750,6 +752,40 @@
         html += '</table>';
         html += '<div class="gensmall" style="padding:2px;">' + allGames.length + ' games shown</div>';
         container.innerHTML = html;
+
+        // Game log tooltip
+        var glTip = document.createElement('div');
+        glTip.className = 'css-chart-tooltip';
+        glTip.style.display = 'none';
+        document.body.appendChild(glTip);
+
+        container.addEventListener('mouseover', function(e) {
+            var row = e.target.closest('.gamelog-row');
+            if (!row) { glTip.style.display = 'none'; return; }
+            var t = '<div class="tt-season">' + row.getAttribute('data-date') + ' vs ' + row.getAttribute('data-opp') + '</div>';
+            t += '<div class="tt-row"><span class="tt-label">Result</span><span class="tt-value">' + row.getAttribute('data-result') + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">PTS</span><span class="tt-value">' + row.getAttribute('data-pts') + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">AST</span><span class="tt-value">' + row.getAttribute('data-ast') + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">REB</span><span class="tt-value">' + row.getAttribute('data-reb') + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">FG%</span><span class="tt-value">' + row.getAttribute('data-fg-pct') + '%</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">3P%</span><span class="tt-value">' + row.getAttribute('data-fg3-pct') + '%</span></div>';
+            glTip.innerHTML = t;
+            glTip.style.display = 'block';
+        });
+        container.addEventListener('mousemove', function(e) {
+            if (glTip.style.display === 'none') return;
+            var x = e.clientX + 12;
+            var y = e.clientY + 12;
+            if (x + 180 > window.innerWidth) x = e.clientX - 190;
+            if (y + 120 > window.innerHeight) y = e.clientY - 130;
+            glTip.style.left = x + 'px';
+            glTip.style.top = y + 'px';
+        });
+        container.addEventListener('mouseout', function(e) {
+            if (!e.relatedTarget || !container.contains(e.relatedTarget)) {
+                glTip.style.display = 'none';
+            }
+        });
     }
 
     function renderAwardTrophyCase(player) {
