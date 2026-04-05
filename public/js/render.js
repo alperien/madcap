@@ -36,12 +36,137 @@ function renderFlag(nationality, size) {
 function renderAvatar(player, size) {
     var isLarge = size === 'large';
     var cls = isLarge ? 'player-avatar' : 'list-avatar';
+    var teamColor = getTeamColor(player);
+    var style = teamColor ? ' style="border-color:' + teamColor + '"' : '';
     if (player.avatar_url) {
-        return '<span class="' + cls + '"><img src="' + player.avatar_url + '" alt="' + (player.name || '') + '"></span>';
+        return '<span class="' + cls + '"' + style + '><img src="' + player.avatar_url + '" alt="' + (player.name || '') + '"></span>';
     }
     var initials = (player.name || '?').split(' ').map(function(w) { return w.charAt(0); }).join('').substring(0, 2).toUpperCase();
-    return '<span class="' + cls + '">' + initials + '</span>';
+    return '<span class="' + cls + '"' + style + '>' + initials + '</span>';
 }
+
+// === NEW HELPERS: Small Details ===
+
+function getTeamColor(player) {
+    var team = typeof getPlayerTeam === 'function' ? getPlayerTeam(player) : null;
+    if (team && team.colors && team.colors.length > 0) return team.colors[0];
+    return null;
+}
+
+function renderPosBadge(position) {
+    if (!position) return '';
+    return '<span class="pos-badge pos-badge-' + position + '">' + position + '</span>';
+}
+
+function renderStatusDot(status) {
+    if (!status) return '';
+    var cls = 'status-dot status-dot-' + status.replace(/[^a-z_]/gi, '_').toLowerCase();
+    return '<span class="' + cls + '" title="' + status + '"></span>';
+}
+
+function renderTeamColorDot(team) {
+    if (!team || !team.colors || team.colors.length === 0) return '';
+    return '<span class="team-color-dot" style="background:' + team.colors[0] + ';"></span>';
+}
+
+function renderOvrBar(ovr) {
+    if (!ovr && ovr !== 0) return '-';
+    var n = Number(ovr);
+    var cls, textCls;
+    if (n >= 90) { cls = 'ovr-elite'; textCls = 'ovr-elite'; }
+    else if (n >= 80) { cls = 'ovr-good'; textCls = 'ovr-good'; }
+    else if (n >= 70) { cls = 'ovr-avg'; textCls = 'ovr-avg'; }
+    else if (n >= 60) { cls = 'ovr-below'; textCls = 'ovr-below'; }
+    else { cls = 'ovr-low'; textCls = 'ovr-low'; }
+    var pct = Math.min(100, Math.max(0, n));
+    return '<span class="ovr-text ' + textCls + '">' + n + '</span><span class="ovr-bar"><span class="ovr-bar-fill ' + cls + '" style="width:' + pct + '%"></span></span>';
+}
+
+function statColor(val, thresholds) {
+    // thresholds: { great: 20, good: 15, avg: 10, below: 5 }
+    if (val === undefined || val === null || val === '' || val === '-') return '';
+    var n = Number(val);
+    if (isNaN(n)) return '';
+    if (thresholds.great !== undefined && n >= thresholds.great) return 'stat-great';
+    if (thresholds.good !== undefined && n >= thresholds.good) return 'stat-good';
+    if (thresholds.avg !== undefined && n >= thresholds.avg) return 'stat-avg';
+    if (thresholds.below !== undefined && n >= thresholds.below) return 'stat-below';
+    return 'stat-bad';
+}
+
+function coloredStat(val, thresholds) {
+    var cls = statColor(val, thresholds);
+    var display = numStr(val);
+    if (cls) return '<span class="' + cls + '">' + display + '</span>';
+    return display;
+}
+
+function coloredPct(val, thresholds) {
+    var cls = statColor(val === undefined ? undefined : (Number(val) <= 1 ? Number(val) * 100 : Number(val)), thresholds);
+    var display = pctStr(val);
+    if (cls) return '<span class="' + cls + '">' + display + '</span>';
+    return display;
+}
+
+var PPG_THRESH = { great: 20, good: 15, avg: 10, below: 5 };
+var APG_THRESH = { great: 8, good: 5, avg: 3, below: 1 };
+var RPG_THRESH = { great: 10, good: 7, avg: 4, below: 2 };
+var FG_THRESH = { great: 50, good: 45, avg: 40, below: 35 };
+
+function renderJerseyNum(player) {
+    var num = '';
+    if (player.jersey_history && player.jersey_history.length > 0) {
+        num = player.jersey_history[player.jersey_history.length - 1].number;
+    } else if (player.jersey_number) {
+        num = player.jersey_number;
+    }
+    if (!num) return '';
+    return '<span class="jersey-num">#' + num + '</span>';
+}
+
+function renderLeagueBadge(league) {
+    if (!league) return '';
+    var l = league.toUpperCase();
+    if (l === 'NBA') return '<span class="league-badge league-badge-nba">NBA</span>';
+    if (l.indexOf('NCAA') !== -1 || l.indexOf('D1') !== -1) return '<span class="league-badge league-badge-ncaa">NCAA</span>';
+    if (l === 'HS' || l.indexOf('HIGH') !== -1) return '<span class="league-badge league-badge-hs">HS</span>';
+    return '<span class="league-badge league-badge-intl">' + league.substring(0, 4).toUpperCase() + '</span>';
+}
+
+function renderConfBadge(conf) {
+    if (!conf) return '';
+    var c = conf.toLowerCase();
+    if (c.indexOf('east') !== -1) return '<span class="conf-badge conf-badge-east">EAST</span>';
+    if (c.indexOf('west') !== -1) return '<span class="conf-badge conf-badge-west">WEST</span>';
+    return '<span class="conf-badge" style="background:#444;border-color:#333;color:#FFF;">' + conf.substring(0, 4).toUpperCase() + '</span>';
+}
+
+function renderUrgencyTag(type) {
+    var t = (type || '').toLowerCase();
+    if (t === 'trade' || t === 'traded') return '<span class="tag-trade">TRADE</span>';
+    if (t === 'signed' || t === 'signing') return '<span class="tag-signed">SIGNED</span>';
+    if (t === 'drafted') return '<span class="tag-drafted">DRAFTED</span>';
+    if (t === 'waived') return '<span class="tag-waived">WAIVED</span>';
+    if (t === 'injury' || t === 'injured') return '<span class="tag-injury">INJURY</span>';
+    if (t === 'breaking') return '<span class="tag-breaking">BREAKING</span>';
+    if (t === 'final') return '<span class="tag-final">FINAL</span>';
+    if (t === 'live') return '<span class="tag-live">LIVE</span>';
+    if (t === 'hot') return '<span class="tag-hot">HOT</span>';
+    if (t === 'rumor') return '<span class="tag-rumor">RUMOR</span>';
+    if (t === 'preview') return '<span class="tag-preview">PREVIEW</span>';
+    // Default: use event-type style
+    return '<span class="tag-updated">' + (type || 'UPDATE').toUpperCase() + '</span>';
+}
+
+function renderAgeWithBirth(birthdate) {
+    if (!birthdate) return '-';
+    var age = calculateAge(birthdate);
+    var year = birthdate.substring(0, 4);
+    if (age) return age + ' <span class="gensmall">(b. ' + year + ')</span>';
+    return '-';
+}
+
+// === RENDER FUNCTIONS ===
 
 function renderLeagueHub() {
     var tbody = document.getElementById('league-hub-body');
@@ -49,7 +174,7 @@ function renderLeagueHub() {
     var html = '';
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
-        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td><a href="leagues.html">' + (l.name || 'Unknown') + '</a></td><td class="gensmall">' + (l.level || '-') + '</td><td class="tCenter gensmall">' + (l.current_season || '-') + '</td><td class="tCenter">' + (l.teams ? l.teams.length : 0) + '</td></tr>';
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td>' + renderLeagueBadge(l.level) + '<a href="leagues.html">' + (l.name || 'Unknown') + '</a></td><td class="gensmall">' + (l.level || '-') + '</td><td class="tCenter gensmall mono">' + (l.current_season || '-') + '</td><td class="tCenter mono">' + (l.teams ? l.teams.length : 0) + '</td></tr>';
     }
     tbody.innerHTML = html;
 }
@@ -64,12 +189,13 @@ function renderLatestScores() {
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
         var isNew = isRecent(g.date);
-        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + (isNew ? ' <span class="blink-new">NEW</span>' : '') + '</td>';
-        html += '<td>' + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
-        html += '<td class="tCenter bold">' + (g.away_score || 0) + '</td>';
-        html += '<td>' + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
-        html += '<td class="tCenter bold">' + (g.home_score || 0) + '</td>';
-        html += '<td class="tCenter gensmall">' + g.status + '</td></tr>';
+        var homeWon = (g.home_score || 0) > (g.away_score || 0);
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (g.date || '-') + (isNew ? ' <span class="tag-new">NEW</span>' : '') + '</td>';
+        html += '<td>' + renderTeamColorDot(away) + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
+        html += '<td class="tCenter bold mono ' + (!homeWon ? 'result-w' : '') + '">' + (g.away_score || 0) + '</td>';
+        html += '<td>' + renderTeamColorDot(home) + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
+        html += '<td class="tCenter bold mono ' + (homeWon ? 'result-w' : '') + '">' + (g.home_score || 0) + '</td>';
+        html += '<td class="tCenter"><span class="tag-final">FINAL</span></td></tr>';
     }
     if (!html) html = '<tr class="row1"><td colspan="7" class="gensmall" style="text-align:center;">No games played yet</td></tr>';
     tbody.innerHTML = html;
@@ -85,9 +211,10 @@ function renderRecentEvents() {
         var p = getPlayerById(e.player_id);
         html += '<tr class="' + rowClass(i) + '"><td>';
         html += '<div class="timeline-post">';
-        html += '<div class="post-header"><span class="event-type">' + (e.type || '') + '</span><span class="gensmall">' + (e.date || '') + '</span>';
-        if (p) html += ' <span class="gensmall">by <a href="player.html?id=' + p.id + '">' + p.name + '</a></span>';
-        if (isRecent(e.date)) html += ' <span class="blink-new">NEW</span>';
+        html += '<div class="post-header">' + renderUrgencyTag(e.type) + '<span class="gensmall">' + (e.date || '') + '</span>';
+        if (e.date) html += ' <span class="gensmall" style="color:var(--text-light);">' + relativeTime(e.date) + '</span>';
+        if (p) html += ' <span class="gensmall">by ' + renderFlag(p.nationality) + '<a href="player.html?id=' + p.id + '">' + p.name + '</a></span>';
+        if (isRecent(e.date)) html += ' <span class="tag-new">NEW</span>';
         html += '</div>';
         var desc = e.description || '';
         html += '<div class="post-body"><span class="bold">' + (e.title || '') + '</span><br><span class="gensmall">' + desc.substring(0, 200) + (desc.length > 200 ? '...' : '') + '</span></div>';
@@ -104,11 +231,11 @@ function renderStatLeaders() {
         return p.career && p.career.pro && p.career.pro.some(function(pro) { return pro.league === 'NBA'; });
     });
     var categories = [
-        { key: 'ppg', label: 'PPG' },
-        { key: 'apg', label: 'APG' },
-        { key: 'rpg', label: 'RPG' },
-        { key: 'spg', label: 'SPG' },
-        { key: 'bpg', label: 'BPG' }
+        { key: 'ppg', label: 'PPG', thresh: PPG_THRESH },
+        { key: 'apg', label: 'APG', thresh: APG_THRESH },
+        { key: 'rpg', label: 'RPG', thresh: RPG_THRESH },
+        { key: 'spg', label: 'SPG', thresh: { great: 2, good: 1.5, avg: 1, below: 0.5 } },
+        { key: 'bpg', label: 'BPG', thresh: { great: 2, good: 1.5, avg: 1, below: 0.5 } }
     ];
     var html = '';
     for (var c = 0; c < categories.length; c++) {
@@ -130,9 +257,9 @@ function renderStatLeaders() {
         }
         if (leader) {
             var team = getPlayerTeam(leader);
-            html += '<tr class="' + rowClass(c) + '"><td class="row-num">' + (c+1) + '</td><td class="gensmall">' + cat.label + '</td>';
-            html += '<td><a href="player.html?id=' + leader.id + '">' + leader.name + '</a> <span class="gensmall">(' + (team ? team.abbreviation : '-') + ')</span></td>';
-            html += '<td class="tCenter bold">' + numStr(leaderVal) + '</td></tr>';
+            html += '<tr class="' + rowClass(c) + '"><td class="row-num">' + (c+1) + '</td><td class="gensmall bold">' + cat.label + '</td>';
+            html += '<td>' + renderFlag(leader.nationality) + renderPosBadge(leader.position) + '<a href="player.html?id=' + leader.id + '">' + leader.name + '</a>' + renderJerseyNum(leader) + ' <span class="gensmall">(' + renderTeamColorDot(team) + (team ? team.abbreviation : '-') + ')</span></td>';
+            html += '<td class="tCenter bold mono">' + coloredStat(leaderVal, cat.thresh) + '</td></tr>';
         }
     }
     if (!html) html = '<tr class="row1"><td colspan="4" class="gensmall" style="text-align:center;">No stat data available</td></tr>';
@@ -148,11 +275,11 @@ function renderUpcomingGames() {
         var g = games[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
-        html += '<td>' + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (g.date || '-') + '</td><td class="gensmall">' + renderLeagueBadge(g.league) + '</td>';
+        html += '<td>' + renderTeamColorDot(away) + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
         html += '<td class="tCenter gensmall">@</td>';
-        html += '<td>' + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
-        html += '<td class="gensmall">' + (g.venue || '') + '</td></tr>';
+        html += '<td>' + renderTeamColorDot(home) + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
+        html += '<td class="gensmall"><span class="tag-preview">PREVIEW</span> ' + (g.venue || '') + '</td></tr>';
     }
     if (!html) html = '<tr class="row1"><td colspan="7" class="gensmall" style="text-align:center;">No upcoming games</td></tr>';
     tbody.innerHTML = html;
@@ -165,7 +292,7 @@ function renderFictionalList() {
     var fictional = DATA.players.filter(function(p) { return p.is_fictional; });
     for (var i = 0; i < fictional.length; i++) {
         var p = fictional[i];
-        html += '<li>' + renderAvatar(p, 'small') + '<a href="player.html?id=' + p.id + '">' + p.name + '</a> <span class="fic">[FIC]</span></li>';
+        html += '<li>' + renderStatusDot(p.status) + renderAvatar(p, 'small') + renderFlag(p.nationality) + renderPosBadge(p.position) + '<a href="player.html?id=' + p.id + '">' + p.name + '</a>' + renderJerseyNum(p) + ' ' + renderOvrBar(p.overall) + ' <span class="fic">*</span></li>';
     }
     if (!html) html = '<li class="gensmall">No fictional players</li>';
     ul.innerHTML = html;
@@ -177,7 +304,7 @@ function renderSidebarLeagues() {
     var html = '';
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
-        html += '<li><a href="leagues.html">' + (l.abbreviation || l.name) + '</a> (' + (l.level || '?') + ')</li>';
+        html += '<li>' + renderLeagueBadge(l.level) + ' <a href="leagues.html">' + (l.abbreviation || l.name) + '</a> <span class="gensmall">(' + (l.level || '?') + ')</span></li>';
     }
     ul.innerHTML = html;
 }
@@ -192,7 +319,7 @@ function renderSidebarStats() {
     var games = DATA.games.length;
     var finishedGames = DATA.games.filter(function(g) { return g.status === 'final'; }).length;
     var injuries = DATA.injuries.filter(function(i) { return i.status !== 'resolved'; }).length;
-    el.innerHTML = 'Players: <b>' + total + '</b> (' + fic + ' fic, ' + real + ' real)<br>Teams: <b>' + teams + '</b><br>Games: <b>' + games + '</b> (' + finishedGames + ' played)<br>Active Injuries: <b>' + injuries + '</b><br>Transactions: <b>' + DATA.transactions.length + '</b>';
+    el.innerHTML = '<span class="mono">DB Stats:</span><br>Players: <b class="mono">' + total + '</b> <span class="gensmall">(' + fic + ' fic, ' + real + ' real)</span><br>Teams: <b class="mono">' + teams + '</b><br>Games: <b class="mono">' + games + '</b> <span class="gensmall">(' + finishedGames + ' played)</span><br>Active Injuries: <b class="mono" style="color:var(--accent-red);">' + injuries + '</b><br>Transactions: <b class="mono">' + DATA.transactions.length + '</b>';
 }
 
 function renderStandings() {
@@ -202,7 +329,7 @@ function renderStandings() {
     for (var i = 0; i < DATA.leagues.length; i++) {
         var l = DATA.leagues[i];
         if (l.standings && Object.keys(l.standings).length > 0) {
-            html += '<table class="forumline"><tr><th class="catHead" colspan="8">' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
+            html += '<table class="forumline"><tr><th class="catHead" colspan="9">' + renderLeagueBadge(l.level) + ' ' + (l.name || 'Unknown') + ' - ' + (l.current_season || '') + '</th></tr>';
             var confData = l.standings;
             if (l.current_season && l.standings[l.current_season]) {
                 confData = l.standings[l.current_season];
@@ -214,17 +341,24 @@ function renderStandings() {
             }
             for (var conf in confData) {
                 if (!confData.hasOwnProperty(conf)) continue;
-                html += '<tr><th class="subCatHead" colspan="8">' + conf + ' Conference</th></tr>';
-                html += '<tr><th class="thHead">#</th><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf W</th><th class="thHead tCenter">Conf L</th><th class="thHead tCenter">Rank</th></tr>';
+                html += '<tr><th class="subCatHead" colspan="9">' + renderConfBadge(conf) + ' ' + conf + ' Conference</th></tr>';
+                html += '<tr><th class="thHead">#</th><th class="thHead">Team</th><th class="thHead tCenter">W</th><th class="thHead tCenter">L</th><th class="thHead tCenter">Win%</th><th class="thHead tCenter">Conf W</th><th class="thHead tCenter">Conf L</th><th class="thHead tCenter">Rank</th><th class="thHead tCenter">Win Bar</th></tr>';
                 var teams = confData[conf];
                 for (var j = 0; j < teams.length; j++) {
                     var t = teams[j];
                     var team = getTeamById(t.team_id);
-                    html += '<tr class="' + rowClass(j) + '"><td class="row-num">' + (j+1) + '</td><td><a href="team.html?id=' + t.team_id + '">' + (team ? team.name : t.team_id) + '</a></td>';
-                    html += '<td class="tCenter">' + (t.wins || 0) + '</td><td class="tCenter">' + (t.losses || 0) + '</td>';
-                    html += '<td class="tCenter">' + pctStr(t.win_pct) + '</td>';
-                    html += '<td class="tCenter">' + (t.conf_wins !== undefined ? t.conf_wins : '-') + '</td><td class="tCenter">' + (t.conf_losses !== undefined ? t.conf_losses : '-') + '</td>';
-                    html += '<td class="tCenter">' + (t.conf_rank || '-') + '</td></tr>';
+                    var winPct = t.win_pct || 0;
+                    if (winPct <= 1) winPct = winPct * 100;
+                    var barW = Math.min(100, Math.max(0, winPct));
+                    var barColor = barW >= 60 ? 'var(--accent-green)' : (barW >= 50 ? 'var(--accent-yellow)' : 'var(--accent-red)');
+                    html += '<tr class="' + rowClass(j) + '" style="border-left:3px solid ' + (team && team.colors && team.colors[0] ? team.colors[0] : 'transparent') + ';">';
+                    html += '<td class="row-num">' + (j+1) + '</td><td>' + renderTeamColorDot(team) + '<a href="team.html?id=' + t.team_id + '">' + (team ? team.name : t.team_id) + '</a></td>';
+                    html += '<td class="tCenter mono result-w">' + (t.wins || 0) + '</td><td class="tCenter mono result-l">' + (t.losses || 0) + '</td>';
+                    html += '<td class="tCenter mono">' + pctStr(t.win_pct) + '</td>';
+                    html += '<td class="tCenter mono">' + (t.conf_wins !== undefined ? t.conf_wins : '-') + '</td><td class="tCenter mono">' + (t.conf_losses !== undefined ? t.conf_losses : '-') + '</td>';
+                    html += '<td class="tCenter mono">' + (t.conf_rank || '-') + '</td>';
+                    html += '<td><span class="ovr-bar" style="width:60px;"><span class="ovr-bar-fill" style="width:' + barW + '%;background:' + barColor + ';"></span></span></td>';
+                    html += '</tr>';
                 }
             }
             html += '</table>';
@@ -234,7 +368,7 @@ function renderStandings() {
     container.innerHTML = html;
 }
 
-// === NEW RENDER HELPERS ===
+// === RENDER HELPERS ===
 
 function renderAttributeBar(label, value) {
     var cls = value < 60 ? 'attr-low' : (value < 80 ? 'attr-mid' : 'attr-high');
@@ -255,30 +389,41 @@ function renderTxnType(type) {
     return '<span class="txn-type txn-' + (type || 'signed') + '">' + (type || '?').toUpperCase() + '</span>';
 }
 
+// === TICKER BAR (ESPN Bottom Line) ===
 function renderTicker() {
     var el = document.getElementById('ticker-bar');
     if (!el) return;
     var items = [];
+
+    // Transactions with urgency tags
     var txns = (DATA.transactions || []).slice(-3);
     for (var i = txns.length - 1; i >= 0; i--) {
         var t = txns[i];
-        items.push('<span class="ticker-item">' + renderTxnType(t.type) + ' ' + (t.player_id || '').replace(/_/g, ' ') + ' - ' + (t.details || '').substring(0, 50) + '</span>');
+        var playerName = (t.player_id || '').replace(/_/g, ' ');
+        var tagType = t.type || 'signed';
+        items.push('<span class="ticker-item">' + renderUrgencyTag(tagType) + ' ' + playerName + ' - ' + (t.details || '').substring(0, 50) + '</span>');
     }
+
+    // Injuries
     var injuries = (DATA.injuries || []).filter(function(i) { return i.status === 'day-to-day' || i.status === 'active'; });
     for (var i = 0; i < injuries.length; i++) {
         var inj = injuries[i];
-        items.push('<span class="ticker-item" style="color:#FF8888;">' + (inj.player_id || '').replace(/_/g, ' ') + ' - ' + (inj.type || '') + ' (' + (inj.status || '') + ')</span>');
+        items.push('<span class="ticker-item"><span class="tag-injury">INJURY</span> ' + (inj.player_id || '').replace(/_/g, ' ') + ' - ' + (inj.type || '') + ' (' + (inj.status || '') + ')</span>');
     }
+
+    // Game scores
     var games = (DATA.games || []).filter(function(g) { return g.status === 'final'; }).slice(-3);
     for (var i = games.length - 1; i >= 0; i--) {
         var g = games[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        items.push('<span class="ticker-item"><a href="game.html?id=' + g.id + '">' + (away ? away.abbreviation : (g.away_team_name || '?')) + ' ' + (g.away_score || 0) + ' - ' + (home ? home.abbreviation : (g.home_team_name || '?')) + ' ' + (g.home_score || 0) + ' FINAL</a></span>');
+        var awayAbbr = away ? away.abbreviation : (g.away_team_name || '?');
+        var homeAbbr = home ? home.abbreviation : (g.home_team_name || '?');
+        items.push('<span class="ticker-item"><span class="tag-final">FINAL</span> <a href="game.html?id=' + g.id + '"><b>' + awayAbbr + ' ' + (g.away_score || 0) + '</b> - <b>' + homeAbbr + ' ' + (g.home_score || 0) + '</b></a></span>');
     }
+
     if (items.length === 0) items.push('<span class="ticker-item">Welcome to MADCAP - Modular Athlete Database & Career Analysis Platform</span>');
-    // Use marquee-style scrolling ticker
-    el.innerHTML = '<span class="ticker-label">TICKER</span><span class="ticker-content">' + items.join('<span class="ticker-sep">|</span>') + '</span>';
+    el.innerHTML = '<span class="ticker-label">BREAKING</span><span class="ticker-content">' + items.join('<span class="ticker-sep">|</span>') + '</span>';
 }
 
 function renderTransactionsWidget() {
@@ -289,8 +434,8 @@ function renderTransactionsWidget() {
     for (var i = 0; i < txns.length; i++) {
         var t = txns[i];
         var isNew = isRecent(t.date);
-        html += '<li>' + renderTxnType(t.type) + ' <a href="player.html?id=' + t.player_id + '">' + (t.player_id || '').replace(/_/g, ' ') + '</a>';
-        if (isNew) html += ' <span class="blink-new">NEW</span>';
+        html += '<li>' + renderUrgencyTag(t.type) + ' <a href="player.html?id=' + t.player_id + '">' + (t.player_id || '').replace(/_/g, ' ') + '</a>';
+        if (isNew) html += ' <span class="tag-new">NEW</span>';
         html += ' <span class="gensmall">(' + (t.date || '') + ')</span></li>';
     }
     if (!html) html = '<li class="gensmall">No transactions</li>';
@@ -304,13 +449,13 @@ function renderInjuryWidget() {
     var html = '';
     for (var i = 0; i < active.length; i++) {
         var inj = active[i];
-        html += '<li>' + renderInjuryIndicator(inj.severity) + ' <a href="player.html?id=' + inj.player_id + '">' + (inj.player_id || '').replace(/_/g, ' ') + '</a> - ' + (inj.type || '') + '</li>';
+        html += '<li>' + renderStatusDot(inj.status === 'day-to-day' ? 'day-to-day' : 'injured') + renderInjuryIndicator(inj.severity) + ' <a href="player.html?id=' + inj.player_id + '">' + (inj.player_id || '').replace(/_/g, ' ') + '</a> - ' + (inj.type || '') + '</li>';
     }
-    if (!html) html = '<li class="gensmall" style="color:#006600;">All healthy</li>';
+    if (!html) html = '<li class="gensmall" style="color:var(--accent-green);">All healthy</li>';
     el.innerHTML = html;
 }
 
-// === NEW: Mini Standings Widget ===
+// === Mini Standings Widget ===
 function renderMiniStandings() {
     var el = document.getElementById('mini-standings-widget');
     if (!el) return;
@@ -324,7 +469,7 @@ function renderMiniStandings() {
             var keys = Object.keys(l.standings);
             if (keys.length > 0 && /^\d{4}/.test(keys[0])) confData = l.standings[keys[0]];
         }
-        html += '<table class="mini-table"><tr><th colspan="3">' + (l.abbreviation || l.name) + '</th></tr>';
+        html += '<table class="mini-table"><tr><th colspan="3">' + renderLeagueBadge(l.level) + ' ' + (l.abbreviation || l.name) + '</th></tr>';
         html += '<tr><th>Team</th><th>W-L</th><th>%</th></tr>';
         var count = 0;
         for (var conf in confData) {
@@ -333,9 +478,9 @@ function renderMiniStandings() {
             for (var j = 0; j < Math.min(teams.length, 3); j++) {
                 var t = teams[j];
                 var team = getTeamById(t.team_id);
-                html += '<tr><td><a href="team.html?id=' + t.team_id + '">' + (team ? team.abbreviation : t.team_id) + '</a></td>';
-                html += '<td class="tCenter">' + (t.wins||0) + '-' + (t.losses||0) + '</td>';
-                html += '<td class="tCenter">' + pctStr(t.win_pct) + '</td></tr>';
+                html += '<tr><td>' + renderTeamColorDot(team) + '<a href="team.html?id=' + t.team_id + '">' + (team ? team.abbreviation : t.team_id) + '</a></td>';
+                html += '<td class="tCenter mono">' + (t.wins||0) + '-' + (t.losses||0) + '</td>';
+                html += '<td class="tCenter mono">' + pctStr(t.win_pct) + '</td></tr>';
                 count++;
             }
         }
@@ -346,7 +491,7 @@ function renderMiniStandings() {
     el.innerHTML = html;
 }
 
-// === NEW: Today's Games Widget ===
+// === Today's Games Widget ===
 function renderTodaysGames() {
     var el = document.getElementById('todays-games-widget');
     if (!el) return;
@@ -358,14 +503,15 @@ function renderTodaysGames() {
         var g = todayGames[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        html += '<tr><td>' + (away ? away.abbreviation : '?') + '</td><td class="tCenter">@</td><td>' + (home ? home.abbreviation : '?') + '</td>';
-        html += '<td class="tCenter">' + (g.status === 'final' ? (g.away_score + '-' + g.home_score) : g.time || g.status) + '</td></tr>';
+        var statusTag = g.status === 'final' ? '<span class="tag-final">FINAL</span>' : (g.status === 'live' ? '<span class="tag-live">LIVE</span>' : '<span class="gensmall">' + (g.time || g.status) + '</span>');
+        html += '<tr><td>' + renderTeamColorDot(away) + (away ? away.abbreviation : '?') + '</td><td class="tCenter">@</td><td>' + renderTeamColorDot(home) + (home ? home.abbreviation : '?') + '</td>';
+        html += '<td class="tCenter">' + (g.status === 'final' ? (g.away_score + '-' + g.home_score) : statusTag) + '</td></tr>';
     }
     html += '</table>';
     el.innerHTML = html;
 }
 
-// === NEW: Birthday Widget ===
+// === Birthday Widget ===
 function renderBirthdayWidget() {
     var el = document.getElementById('birthday-widget');
     if (!el) return;
@@ -382,7 +528,7 @@ function renderBirthdayWidget() {
     for (var i = 0; i < bdays.length; i++) {
         var p = bdays[i];
         var age = calculateAge(p.birthdate);
-        html += '<a href="player.html?id=' + p.id + '">' + p.name + '</a>';
+        html += renderFlag(p.nationality) + '<a href="player.html?id=' + p.id + '">' + p.name + '</a>';
         if (age) html += ' <span class="gensmall">(turns ' + age + ')</span>';
         html += '<br>';
     }
@@ -404,16 +550,18 @@ function renderSchedule() {
         var g = games[i];
         var home = getTeamById(g.home_team_id);
         var away = getTeamById(g.away_team_id);
-        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall">' + (g.date || '-') + '</td><td class="gensmall">' + (g.time || '-') + '</td><td class="gensmall">' + (g.league || '-') + '</td>';
-        html += '<td>' + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
+        var statusTag = g.status === 'final' ? '<span class="tag-final">FINAL</span>' : (g.status === 'scheduled' ? '<span class="tag-preview">SCHED</span>' : '<span class="tag-live">LIVE</span>');
+        html += '<tr class="' + rowClass(i) + '"><td class="row-num">' + (i+1) + '</td><td class="gensmall mono">' + (g.date || '-') + '</td><td class="gensmall mono">' + (g.time || '-') + '</td><td class="gensmall">' + renderLeagueBadge(g.league) + '</td>';
+        html += '<td>' + renderTeamColorDot(away) + (away ? away.abbreviation : (g.away_team_id || '?')) + '</td>';
         html += '<td class="tCenter gensmall">@</td>';
-        html += '<td>' + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
+        html += '<td>' + renderTeamColorDot(home) + (home ? home.abbreviation : (g.home_team_id || '?')) + '</td>';
         if (g.status === 'final') {
-            html += '<td class="tCenter bold">' + (g.away_score || 0) + ' - ' + (g.home_score || 0) + '</td>';
+            var homeWon = (g.home_score || 0) > (g.away_score || 0);
+            html += '<td class="tCenter bold mono"><span class="' + (!homeWon ? 'result-w' : 'result-l') + '">' + (g.away_score || 0) + '</span> - <span class="' + (homeWon ? 'result-w' : 'result-l') + '">' + (g.home_score || 0) + '</span></td>';
         } else {
             html += '<td class="tCenter gensmall">--</td>';
         }
-        html += '<td class="tCenter gensmall">' + g.status + '</td><td class="gensmall">' + (g.venue || '') + '</td></tr>';
+        html += '<td class="tCenter">' + statusTag + '</td><td class="gensmall">' + (g.venue || '') + '</td></tr>';
     }
     if (!html) html = '<tr class="row1"><td colspan="10" class="gensmall" style="text-align:center;">No games found</td></tr>';
     tbody.innerHTML = html;

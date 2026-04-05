@@ -21,18 +21,51 @@
         { href: 'mockdraft.html', label: 'Mock Draft' }
     ];
 
-    // === RENDER NAV BAR ===
+    // === RENDER NAV BAR (Torrent Tracker Style) ===
     function renderNav() {
         var navEl = document.getElementById('main-nav');
         if (!navEl) return;
-        var html = '<ul>';
+        var html = '<div class="nav-links"><ul>';
         for (var i = 0; i < NAV_LINKS.length; i++) {
-            if (i > 0) html += '<li><span class="middot" aria-hidden="true">&middot;</span></li>';
-            html += '<li><a href="' + NAV_LINKS[i].href + '"><b>' + NAV_LINKS[i].label + '</b></a></li>';
+            if (i > 0) html += '<li><span class="pipe-sep">|</span></li>';
+            html += '<li><a href="' + NAV_LINKS[i].href + '">' + NAV_LINKS[i].label + '</a></li>';
         }
-        html += '</ul>';
+        html += '</ul></div>';
+        // Right side: tracker stats + search
+        html += '<div class="nav-stats" id="nav-stats">';
+        html += '<span>Players: <b>--</b></span> | ';
+        html += '<span>Teams: <b>--</b></span> | ';
+        html += '<span>Games: <b>--</b></span>';
+        html += '<span class="nav-search"><input type="text" id="nav-search-input" placeholder="Search..." onkeydown="if(event.key===\'Enter\')navSearch()"></span>';
+        html += '</div>';
         navEl.innerHTML = html;
     }
+
+    // Nav search handler
+    function navSearch() {
+        var q = document.getElementById('nav-search-input');
+        if (q && q.value.trim()) {
+            window.location.href = 'players.html?q=' + encodeURIComponent(q.value.trim());
+        }
+    }
+    window.navSearch = navSearch;
+
+    // Update nav stats after data loads
+    function updateNavStats() {
+        var el = document.getElementById('nav-stats');
+        if (!el) return;
+        var players = DATA.players.length;
+        var teams = DATA.teams.length;
+        var games = DATA.games.length;
+        var fic = DATA.players.filter(function(p) { return p.is_fictional; }).length;
+        var html = '<span>Players: <b>' + players + '</b></span> | ';
+        html += '<span>Teams: <b>' + teams + '</b></span> | ';
+        html += '<span>Games: <b>' + games + '</b></span> | ';
+        html += '<span>Fictional: <b>' + fic + '</b></span>';
+        html += '<span class="nav-search"><input type="text" id="nav-search-input" placeholder="Search..." onkeydown="if(event.key===\'Enter\')navSearch()"></span>';
+        el.innerHTML = html;
+    }
+    window.updateNavStats = updateNavStats;
 
     // === RENDER TOP BAR ===
     function renderTopBar() {
@@ -41,7 +74,7 @@
         var html = '';
         // Dark mode toggle
         html += '<button type="button" class="theme-toggle" id="theme-toggle-btn" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode">';
-        html += '<span id="theme-icon">' + (isDarkMode() ? 'LIGHT' : 'DARK') + '</span>';
+        html += '<span id="theme-icon">' + (isLightMode() ? 'DARK' : 'LIGHT') + '</span>';
         html += '</button>';
         html += '<span class="middot">&middot;</span>';
         // Edit mode toggle
@@ -53,59 +86,109 @@
         topBar.innerHTML = html;
     }
 
-    // === RENDER FOOTER ===
+    // === RENDER FOOTER (GeoCities Shrine) ===
     function renderFooter() {
         var footerEl = document.getElementById('page-footer');
         if (!footerEl) return;
         var now = new Date();
         var timestamp = now.toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
         var loadTime = ((performance.now()) / 1000).toFixed(3);
+        // Fake visitor count
+        var baseVisitors = 4832;
+        var daysSinceEpoch = Math.floor(now.getTime() / 86400000);
+        var visitors = baseVisitors + (daysSinceEpoch % 1000);
+        var visitorStr = String(visitors).padStart(8, '0');
+
         var html = '<table class="forumline"><tr><td class="catHead tCenter">';
         html += 'MADCAP v2.0 &middot; Modular Athlete Database & Career Analysis Platform';
         html += '</td></tr><tr><td class="row1"><div class="footer-retro">';
-        // 88x31 badges
-        html += '<div class="footer-badges">';
-        html += '<span class="footer-badge">BEST VIEWED<br>1024x768</span>';
-        html += '<span class="footer-badge">POWERED BY<br>FLASK</span>';
-        html += '<span class="footer-badge">MADCAP<br>v2.0</span>';
-        html += '<span class="footer-badge">VANILLA JS<br>NO FRAMEWORKS</span>';
-        html += '<span class="footer-badge">HTML 5<br>CERTIFIED</span>';
+
+        // Rainbow divider
+        html += '<hr class="rainbow-hr">';
+
+        // Visitor counter
+        html += '<div style="margin: 6px 0;">';
+        html += '<span class="gensmall">You are visitor number: </span>';
+        html += '<span class="visitor-counter">' + visitorStr + '</span>';
         html += '</div>';
+
+        // 88x31 badges with distinct styles
+        html += '<div class="footer-badges">';
+        html += '<span class="footer-badge badge-bestviewed">BEST VIEWED<br>1024x768</span>';
+        html += '<span class="footer-badge badge-flask">POWERED BY<br>FLASK</span>';
+        html += '<span class="footer-badge badge-madcap">MADCAP<br>v2.0</span>';
+        html += '<span class="footer-badge badge-vanillajs">VANILLA JS<br>NO FRAMEWORKS</span>';
+        html += '<span class="footer-badge badge-html5">HTML 5<br>CERTIFIED</span>';
+        html += '<span class="footer-badge badge-darkmode">DARK MODE<br>ENABLED</span>';
+        html += '</div>';
+
+        // Webring
+        html += '<div class="webring">';
+        html += '[ <a href="#">&lt;&lt; Prev</a> | <b>NBA Stats Ring</b> | <a href="#">Next &gt;&gt;</a> | <a href="#">Random</a> ]';
+        html += '</div>';
+
+        // Guestbook
+        html += '<div style="margin: 3px 0;">';
+        html += '<a href="#" class="guestbook-link" onclick="return false;">Sign our Guestbook!</a>';
+        html += '</div>';
+
+        // Site award
+        html += '<div class="site-award">';
+        html += 'MADCAP - Underground Sports DB of the Month - RetroWeb 2003';
+        html += '</div>';
+
+        // Rainbow divider
+        html += '<hr class="rainbow-hr">';
+
+        // Meta info
         html += '<div class="footer-meta">';
         html += 'Page generated in ' + loadTime + 's';
         html += ' | Last database update: ' + timestamp;
         html += ' | All data is simulated for entertainment purposes';
-        html += '<br>Best viewed at 1024x768 or higher resolution';
         html += '</div>';
+
+        // Disclaimer
+        html += '<div style="font-size:7px;color:var(--text-light);margin-top:4px;">';
+        html += 'MADCAP is a fictional sports database project. All player data, statistics, and events are simulated. No real athletes were harmed in the making of this database. Best viewed at 1024x768 or higher resolution. This site is not affiliated with the NBA, NCAA, or any professional sports organization.';
+        html += '</div>';
+
         html += '</div></td></tr></table>';
         footerEl.innerHTML = html;
     }
     window.renderFooter = renderFooter;
 
-    // === DARK MODE ===
-    function isDarkMode() {
-        return localStorage.getItem('madcap-dark-mode') === '1';
+    // === DARK MODE (dark is default, light is alt) ===
+    function isLightMode() {
+        return localStorage.getItem('madcap-light-mode') === '1';
     }
+    window.isLightMode = isLightMode;
+
+    // Keep backward compat
+    function isDarkMode() {
+        return !isLightMode();
+    }
+    window.isDarkMode = isDarkMode;
 
     function applyDarkMode() {
-        if (isDarkMode()) {
-            document.documentElement.classList.add('dark');
+        if (isLightMode()) {
+            document.documentElement.classList.add('light');
         } else {
-            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.remove('light');
         }
         var icon = document.getElementById('theme-icon');
-        if (icon) icon.textContent = isDarkMode() ? 'LIGHT' : 'DARK';
+        if (icon) icon.textContent = isLightMode() ? 'DARK' : 'LIGHT';
     }
 
     function toggleDarkMode() {
-        localStorage.setItem('madcap-dark-mode', isDarkMode() ? '0' : '1');
+        localStorage.setItem('madcap-light-mode', isLightMode() ? '0' : '1');
         applyDarkMode();
+        if (typeof updateChartsTheme === 'function') updateChartsTheme();
     }
     window.toggleDarkMode = toggleDarkMode;
 
-    // Apply dark mode immediately to prevent flash
-    if (isDarkMode()) {
-        document.documentElement.classList.add('dark');
+    // Apply dark mode immediately to prevent flash (dark is default)
+    if (isLightMode()) {
+        document.documentElement.classList.add('light');
     }
 
     // === DATA LOADING ===
@@ -129,7 +212,9 @@
             loadJSON('api/awards').then(function(d) { DATA.awards = d; }),
             loadJSON('api/mock-drafts').then(function(d) { DATA.mock_drafts = d; }),
             loadJSON('api/seasons').then(function(d) { DATA.seasons = d; })
-        ]);
+        ]).then(function() {
+            updateNavStats();
+        });
     }
 
     // --- Simple Markdown renderer ---
@@ -226,6 +311,22 @@
         return age;
     }
     window.calculateAge = calculateAge;
+
+    // --- Relative time ---
+    function relativeTime(dateStr) {
+        if (!dateStr) return '';
+        var d = new Date(dateStr);
+        var now = new Date();
+        var diff = now - d;
+        var mins = Math.floor(diff / 60000);
+        if (mins < 60) return mins + 'm ago';
+        var hours = Math.floor(mins / 60);
+        if (hours < 24) return hours + 'h ago';
+        var days = Math.floor(hours / 24);
+        if (days < 30) return days + 'd ago';
+        return Math.floor(days / 30) + 'mo ago';
+    }
+    window.relativeTime = relativeTime;
 
     // --- Modal System ---
     function openModal(title, html, width) {
@@ -481,14 +582,14 @@
 
     // === Chart.js dark mode integration ===
     function getChartDefaults() {
-        var dark = isDarkMode();
+        var light = isLightMode();
         return {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { ticks: { color: dark ? '#A0A0A0' : '#666', font: { family: 'Verdana, sans-serif', size: 8 } }, grid: { color: dark ? '#333355' : '#DDD' } },
-                y: { ticks: { color: dark ? '#A0A0A0' : '#666', font: { family: 'Verdana, sans-serif', size: 8 } }, grid: { color: dark ? '#333355' : '#DDD' } }
+                x: { ticks: { color: light ? '#666' : '#888', font: { family: '"Lucida Console", monospace', size: 8 } }, grid: { color: light ? '#DDD' : '#222233' } },
+                y: { ticks: { color: light ? '#666' : '#888', font: { family: '"Lucida Console", monospace', size: 8 } }, grid: { color: light ? '#DDD' : '#222233' } }
             }
         };
     }
