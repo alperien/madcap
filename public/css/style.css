@@ -350,6 +350,8 @@ input.liteoption:active { border-style: inset; }
 
 /* === TEAM COLOR DOT === */
 .team-color-dot { display: inline-block; width: 8px; height: 8px; margin-right: 3px; vertical-align: middle; border: 1px solid rgba(255,255,255,0.2); }
+.team-color-dot-logo { width: 14px; height: 14px; background: transparent; border: none; overflow: hidden; }
+.team-color-dot-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
 /* === OVR RATING (colored number only) === */
 .ovr-text { font-family: 'Lucida Console', monospace; font-weight: bold; font-size: 9px; }

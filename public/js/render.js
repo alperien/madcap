@@ -80,7 +80,11 @@ function renderStatusDot(status) {
 }
 
 function renderTeamColorDot(team) {
-    if (!team || !team.colors || team.colors.length === 0) return '';
+    if (!team) return '';
+    if (team.logo_url) {
+        return '<span class="team-color-dot team-color-dot-logo"><img src="' + team.logo_url + '" alt="" onerror="this.parentNode.className=\'team-color-dot\';this.parentNode.style.background=\'' + (team.colors && team.colors[0] ? team.colors[0] : '#666') + '\';this.remove();"></span>';
+    }
+    if (!team.colors || team.colors.length === 0) return '';
     return '<span class="team-color-dot" style="background:' + team.colors[0] + ';"></span>';
 }
 
