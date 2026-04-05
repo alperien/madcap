@@ -286,6 +286,10 @@
         container.innerHTML = html;
     }
 
+    function seasonDataAttrs(s) {
+        return ' data-cs-year="' + (s.year||'-') + '" data-cs-ppg="' + numStr(s.ppg) + '" data-cs-apg="' + numStr(s.apg) + '" data-cs-rpg="' + numStr(s.rpg) + '" data-cs-spg="' + numStr(s.spg) + '" data-cs-bpg="' + numStr(s.bpg) + '" data-cs-fg="' + pctStr(s.fg_pct) + '" data-cs-fg3="' + pctStr(s.fg3_pct) + '" data-cs-ft="' + pctStr(s.ft_pct) + '" data-cs-gp="' + (s.gp||'-') + '" data-cs-mpg="' + numStr(s.mpg) + '"';
+    }
+
     function renderCareerStats(player) {
         var tbody = document.getElementById('career-stats-body');
         if (!tbody) return;
@@ -296,7 +300,7 @@
         if (career.highschool && career.highschool.seasons) {
             for (var i = 0; i < career.highschool.seasons.length; i++) {
                 var s = career.highschool.seasons[i];
-                html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge('HS') + '</td><td class="gensmall">' + (career.highschool.school || '-') + '</td>';
+                html += '<tr class="' + rowClass(rowIdx) + ' hover-row"' + seasonDataAttrs(s) + '><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge('HS') + '</td><td class="gensmall">' + (career.highschool.school || '-') + '</td>';
                 html += '<td class="tCenter gensmall">-</td><td class="tCenter gensmall">-</td><td class="tCenter gensmall">-</td>';
                 html += '<td class="tCenter">' + coloredStat(s.ppg, PPG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.apg, APG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.rpg, RPG_THRESH) + '</td>';
                 html += '<td class="tCenter">' + numStr(s.spg) + '</td><td class="tCenter">' + numStr(s.bpg) + '</td>';
@@ -308,7 +312,7 @@
         if (career.college && career.college.seasons) {
             for (var i = 0; i < career.college.seasons.length; i++) {
                 var s = career.college.seasons[i];
-                html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge('NCAA') + '</td><td class="gensmall">' + (career.college.school || '-') + ' (' + (career.college.division || '-') + ')</td>';
+                html += '<tr class="' + rowClass(rowIdx) + ' hover-row"' + seasonDataAttrs(s) + '><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge('NCAA') + '</td><td class="gensmall">' + (career.college.school || '-') + ' (' + (career.college.division || '-') + ')</td>';
                 html += '<td class="tCenter mono">' + (s.gp || '-') + '</td><td class="tCenter mono">' + (s.gs || '-') + '</td><td class="tCenter mono">' + numStr(s.mpg || 0) + '</td>';
                 html += '<td class="tCenter">' + coloredStat(s.ppg, PPG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.apg, APG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.rpg, RPG_THRESH) + '</td>';
                 html += '<td class="tCenter">' + numStr(s.spg) + '</td><td class="tCenter">' + numStr(s.bpg) + '</td>';
@@ -329,7 +333,7 @@
                 }
                 for (var j = 0; j < seasons.length; j++) {
                     var s = seasons[j];
-                    html += '<tr class="' + rowClass(rowIdx) + '"><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge(pro.league) + '</td><td class="gensmall">' + renderTeamColorDot(team) + (team ? team.abbreviation : (pro.team_id || '-')) + '</td>';
+                    html += '<tr class="' + rowClass(rowIdx) + ' hover-row"' + seasonDataAttrs(s) + '><td class="row-num">' + (rowIdx+1) + '</td><td class="gensmall mono">' + (s.year || '-') + '</td><td class="tCenter">' + renderLeagueBadge(pro.league) + '</td><td class="gensmall">' + renderTeamColorDot(team) + (team ? team.abbreviation : (pro.team_id || '-')) + '</td>';
                     html += '<td class="tCenter mono">' + (s.gp || '-') + '</td><td class="tCenter mono">' + (s.gs || '-') + '</td><td class="tCenter mono">' + numStr(s.mpg || 0) + '</td>';
                     html += '<td class="tCenter">' + coloredStat(s.ppg, PPG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.apg, APG_THRESH) + '</td><td class="tCenter">' + coloredStat(s.rpg, RPG_THRESH) + '</td>';
                     html += '<td class="tCenter">' + numStr(s.spg) + '</td><td class="tCenter">' + numStr(s.bpg) + '</td>';
@@ -340,6 +344,25 @@
         }
         if (!html) html = '<tr class="row1"><td colspan="15" class="gensmall" style="text-align:center;">No career stats available</td></tr>';
         tbody.innerHTML = html;
+
+        // Career stats tooltip
+        var csTable = tbody.closest('table');
+        if (csTable) {
+            attachTooltip(csTable, '.hover-row', function(el) {
+                if (!el.getAttribute('data-cs-year')) return null;
+                return '<div class="tt-season">' + el.getAttribute('data-cs-year') + '</div>' +
+                    '<div class="tt-row"><span class="tt-label">PPG</span><span class="tt-value">' + el.getAttribute('data-cs-ppg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">APG</span><span class="tt-value">' + el.getAttribute('data-cs-apg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">RPG</span><span class="tt-value">' + el.getAttribute('data-cs-rpg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">SPG</span><span class="tt-value">' + el.getAttribute('data-cs-spg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">BPG</span><span class="tt-value">' + el.getAttribute('data-cs-bpg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">FG%</span><span class="tt-value">' + el.getAttribute('data-cs-fg') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">3P%</span><span class="tt-value">' + el.getAttribute('data-cs-fg3') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">FT%</span><span class="tt-value">' + el.getAttribute('data-cs-ft') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">GP</span><span class="tt-value">' + el.getAttribute('data-cs-gp') + '</span></div>' +
+                    '<div class="tt-row"><span class="tt-label">MPG</span><span class="tt-value">' + el.getAttribute('data-cs-mpg') + '</span></div>';
+            });
+        }
     }
 
     function renderPlayerCharts(player) {

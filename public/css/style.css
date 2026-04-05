@@ -547,8 +547,8 @@ input.liteoption:active { border-style: inset; }
 .badge-tag.badge-hall_of_fame, .badge-tag.badge-hof { border-left: 3px solid #7A6A8A; color: #B0A0C0; background: var(--stat-career); border-color: #7A6A8A; }
 .badge-tag.badge-hall_of_fame .badge-tier-icon::before, .badge-tag.badge-hof .badge-tier-icon::before { content: '\2726'; color: #B0A0C0; }
 /* Badge hover */
-.badge-tag { cursor: default; transition: background 0.15s, border-color 0.15s; }
-.badge-tag:hover { background: var(--row-hover); border-color: var(--link-color); color: var(--text-color); }
+.badge-tag { cursor: default; transition: background 0.15s; }
+.badge-tag:hover { background: var(--row-hover); color: var(--text-color); }
 
 /* === Career stats row hover === */
 table.forumline tr:hover td { background: var(--row-hover) !important; }
