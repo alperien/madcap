@@ -351,14 +351,7 @@ input.liteoption:active { border-style: inset; }
 /* === TEAM COLOR DOT === */
 .team-color-dot { display: inline-block; width: 8px; height: 8px; margin-right: 3px; vertical-align: middle; border: 1px solid rgba(255,255,255,0.2); }
 
-/* === OVR RATING BAR (Torrent Ratio Bar) === */
-.ovr-bar { display: inline-block; width: 50px; height: 8px; background: #1A1A1A; border: 1px solid #333; vertical-align: middle; margin-left: 3px; position: relative; }
-.ovr-bar-fill { height: 100%; display: block; }
-.ovr-bar-fill.ovr-elite { background: #5A8A5A; }
-.ovr-bar-fill.ovr-good { background: #6A8A5A; }
-.ovr-bar-fill.ovr-avg { background: #CCCC00; }
-.ovr-bar-fill.ovr-below { background: #8A7A5A; }
-.ovr-bar-fill.ovr-low { background: #8A5A5A; }
+/* === OVR RATING (colored number only) === */
 .ovr-text { font-family: 'Lucida Console', monospace; font-weight: bold; font-size: 9px; }
 .ovr-text.ovr-elite { color: #5A8A5A; }
 .ovr-text.ovr-good { color: #6A8A5A; }
@@ -554,8 +547,8 @@ input.liteoption:active { border-style: inset; }
 .badge-tag.badge-hall_of_fame, .badge-tag.badge-hof { border-left: 3px solid #7A6A8A; color: #B0A0C0; background: var(--stat-career); border-color: #7A6A8A; }
 .badge-tag.badge-hall_of_fame .badge-tier-icon::before, .badge-tag.badge-hof .badge-tier-icon::before { content: '\2726'; color: #B0A0C0; }
 /* Badge hover */
-.badge-tag { cursor: default; transition: transform 0.1s, box-shadow 0.1s; }
-.badge-tag:hover { transform: scale(1.12); box-shadow: 0 0 4px rgba(255,255,255,0.15); z-index: 2; position: relative; }
+.badge-tag { cursor: default; transition: background 0.15s, border-color 0.15s; }
+.badge-tag:hover { background: var(--row-hover); border-color: var(--link-color); color: var(--text-color); }
 
 /* === Career stats row hover === */
 table.forumline tr:hover td { background: var(--row-hover) !important; }
@@ -566,10 +559,7 @@ table.forumline tr:hover td { background: var(--row-hover) !important; }
 .gamelog-row:hover .result-w { text-shadow: 0 0 3px rgba(90,138,90,0.5); }
 .gamelog-row:hover .result-l { text-shadow: 0 0 3px rgba(138,90,90,0.5); }
 
-/* === OVR bar hover === */
-.ovr-bar { transition: filter 0.1s; }
-.ovr-bar:hover { filter: brightness(1.3); }
-.ovr-bar:hover + .ovr-text, .ovr-text:hover { color: var(--link-color) !important; }
+
 
 /* === INJURY STATUS === */
 .injury-status { font-size: 8px; font-weight: bold; padding: 1px 3px; }

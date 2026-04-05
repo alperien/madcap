@@ -72,14 +72,13 @@ function renderTeamColorDot(team) {
 function renderOvrBar(ovr) {
     if (!ovr && ovr !== 0) return '-';
     var n = Number(ovr);
-    var cls, textCls;
-    if (n >= 90) { cls = 'ovr-elite'; textCls = 'ovr-elite'; }
-    else if (n >= 80) { cls = 'ovr-good'; textCls = 'ovr-good'; }
-    else if (n >= 70) { cls = 'ovr-avg'; textCls = 'ovr-avg'; }
-    else if (n >= 60) { cls = 'ovr-below'; textCls = 'ovr-below'; }
-    else { cls = 'ovr-low'; textCls = 'ovr-low'; }
-    var pct = Math.min(100, Math.max(0, n));
-    return '<span class="ovr-text ' + textCls + '">' + n + '</span><span class="ovr-bar"><span class="ovr-bar-fill ' + cls + '" style="width:' + pct + '%"></span></span>';
+    var textCls;
+    if (n >= 90) { textCls = 'ovr-elite'; }
+    else if (n >= 80) { textCls = 'ovr-good'; }
+    else if (n >= 70) { textCls = 'ovr-avg'; }
+    else if (n >= 60) { textCls = 'ovr-below'; }
+    else { textCls = 'ovr-low'; }
+    return '<span class="ovr-text ' + textCls + '">' + n + '</span>';
 }
 
 function statColor(val, thresholds) {
