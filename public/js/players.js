@@ -391,7 +391,7 @@
             for (var i = 0; i < allSeasons.length; i++) {
                 var v = Number(allSeasons[i][key]) || 0;
                 var pct = Math.round((v / max) * 100);
-                h += '<div class="css-bar-row">';
+                h += '<div class="css-bar-row" data-season-idx="' + i + '">';
                 h += '<div class="css-bar-label">' + seasonLabels[i] + '</div>';
                 h += '<div class="css-bar-track"><div class="css-bar-fill ' + colorClass + '" style="width:' + pct + '%"></div></div>';
                 h += '<div class="css-bar-val">' + numStr(v) + '</div>';
@@ -413,7 +413,7 @@
                 var fg = Math.round((Number(allSeasons[i].fg_pct) || 0) * 100);
                 var fg3 = Math.round((Number(allSeasons[i].fg3_pct) || 0) * 100);
                 var ft = Math.round((Number(allSeasons[i].ft_pct) || 0) * 100);
-                h += '<div class="css-bar-row">';
+                h += '<div class="css-bar-row" data-season-idx="' + i + '">';
                 h += '<div class="css-bar-label">' + seasonLabels[i] + '</div>';
                 h += '<div class="css-bar-track">';
                 h += '<div class="css-bar-fill css-bar-fill-fg" style="width:' + fg + '%;position:absolute;top:0;height:33%"></div>';
@@ -435,6 +435,88 @@
         html += shootPanel();
         html += '</div>';
         chartsSection.innerHTML = html;
+
+        // --- Interactive: tooltip + cross-chart highlight ---
+        var tooltip = document.createElement('div');
+        tooltip.className = 'css-chart-tooltip';
+        tooltip.style.display = 'none';
+        document.body.appendChild(tooltip);
+
+        // Build tooltip content for a season
+        function tooltipHtml(idx) {
+            var s = allSeasons[idx];
+            var t = '<div class="tt-season">' + seasonLabels[idx] + '</div>';
+            t += '<div class="tt-row"><span class="tt-label">PPG</span><span class="tt-value">' + numStr(s.ppg) + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">APG</span><span class="tt-value">' + numStr(s.apg) + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">RPG</span><span class="tt-value">' + numStr(s.rpg) + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">FG%</span><span class="tt-value">' + pctStr(s.fg_pct) + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">3P%</span><span class="tt-value">' + pctStr(s.fg3_pct) + '</span></div>';
+            t += '<div class="tt-row"><span class="tt-label">FT%</span><span class="tt-value">' + pctStr(s.ft_pct) + '</span></div>';
+            if (s.gp) t += '<div class="tt-row"><span class="tt-label">GP</span><span class="tt-value">' + s.gp + '</span></div>';
+            if (s.mpg) t += '<div class="tt-row"><span class="tt-label">MPG</span><span class="tt-value">' + numStr(s.mpg) + '</span></div>';
+            return t;
+        }
+
+        // Highlight all bars with matching season index across panels
+        function highlightSeason(idx) {
+            var rows = chartsSection.querySelectorAll('.css-bar-row');
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].getAttribute('data-season-idx') === String(idx)) {
+                    rows[i].classList.add('active');
+                } else {
+                    rows[i].classList.remove('active');
+                }
+            }
+        }
+
+        function clearHighlight() {
+            var rows = chartsSection.querySelectorAll('.css-bar-row.active');
+            for (var i = 0; i < rows.length; i++) rows[i].classList.remove('active');
+        }
+
+        // Event delegation on the charts section
+        chartsSection.addEventListener('mouseover', function(e) {
+            var row = e.target.closest('.css-bar-row');
+            if (!row) { tooltip.style.display = 'none'; return; }
+            var idx = parseInt(row.getAttribute('data-season-idx'), 10);
+            if (isNaN(idx) || idx < 0 || idx >= allSeasons.length) return;
+            tooltip.innerHTML = tooltipHtml(idx);
+            tooltip.style.display = 'block';
+        });
+
+        chartsSection.addEventListener('mousemove', function(e) {
+            if (tooltip.style.display === 'none') return;
+            var x = e.clientX + 12;
+            var y = e.clientY + 12;
+            // Keep tooltip on screen
+            if (x + 180 > window.innerWidth) x = e.clientX - 190;
+            if (y + 120 > window.innerHeight) y = e.clientY - 130;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        });
+
+        chartsSection.addEventListener('mouseout', function(e) {
+            var row = e.target.closest('.css-bar-row');
+            if (!row || !chartsSection.contains(e.relatedTarget)) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        // Click: toggle season highlight across all panels
+        var activeIdx = -1;
+        chartsSection.addEventListener('click', function(e) {
+            var row = e.target.closest('.css-bar-row');
+            if (!row) return;
+            var idx = parseInt(row.getAttribute('data-season-idx'), 10);
+            if (isNaN(idx)) return;
+            if (activeIdx === idx) {
+                clearHighlight();
+                activeIdx = -1;
+            } else {
+                highlightSeason(idx);
+                activeIdx = idx;
+            }
+        });
     }
 
     function renderDraftInfo(player) {
