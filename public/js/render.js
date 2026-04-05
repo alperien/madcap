@@ -67,7 +67,9 @@ function renderTeamLogo(team, size) {
         var fallbackAbbr = (team.abbreviation || '?').substring(0, 3);
         return '<span class="' + cls + '"><img src="' + team.logo_url + '" alt="' + (team.abbreviation || team.name || '') + '" onerror="this.parentNode.style.background=\'' + fallbackColor + '\';this.parentNode.textContent=\'' + fallbackAbbr + '\';"></span>';
     }
-    // Fallback: colored abbreviation box
+    // Fallback: only show abbreviation placeholder for large logos (team profile header)
+    // Skip the small colored cube in list views since color dot + name is already shown
+    if (!isLarge) return '';
     var color = team.colors && team.colors[0] ? team.colors[0] : 'var(--cat-head-bg)';
     var abbr = (team.abbreviation || '?').substring(0, 3);
     return '<span class="' + cls + '" style="background:' + color + ';">' + abbr + '</span>';
