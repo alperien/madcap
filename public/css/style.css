@@ -287,8 +287,7 @@ input.liteoption:active { border-style: inset; }
 .fictional-badge { background: var(--fictional-bg); color: #CCC; padding: 1px 4px; font-size: 8px; font-weight: bold; border: 1px solid var(--border-color); }
 .chart-box { border: 1px solid var(--border-color); margin: 2px 0; background: var(--info-box-bg); overflow: hidden; }
 .chart-box .catHead { font-size: 8px; padding: 1px 4px; background: var(--sub-cat-bg); color: var(--text-muted); font-family: Verdana, Tahoma, sans-serif; border: none; }
-.chart-canvas-wrap { position: relative; width: 100%; height: 120px; }
-.chart-canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+.chart-canvas-wrap { position: relative; width: 100%; }
 
 /* === AVATAR (square retro) === */
 .player-avatar { width: 60px; height: 60px; background: var(--avatar-bg); color: #FFF; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; font-family: Arial, sans-serif; vertical-align: middle; margin-right: 8px; border: 3px solid var(--avatar-border); flex-shrink: 0; overflow: hidden; }
