@@ -283,6 +283,20 @@ input.mainoption:active { border-style: inset; }
 .player-name { font-size: 14px; font-weight: bold; color: var(--text-color); }
 .player-meta { color: var(--text-muted); font-size: 9px; }
 .fictional-badge { background: var(--fictional-bg); color: #CCC; padding: 1px 4px; font-size: 8px; font-weight: bold; border: 1px solid var(--border-color); }
+
+/* Player header structured layout */
+.ph-name-row { margin-bottom: 4px; line-height: 1.3; }
+.ph-jersey { font-size: 18px; font-weight: bold; vertical-align: baseline; }
+.ph-details-grid { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-bottom: 4px; align-items: center; }
+.ph-details-secondary { padding-top: 2px; border-top: 1px dotted var(--border-dotted); }
+.ph-detail { font-size: 9px; color: var(--text-muted); white-space: nowrap; display: flex; align-items: center; gap: 3px; }
+.ph-label { color: var(--text-light); font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Lucida Console', monospace; }
+.ph-val { color: var(--text-color); font-weight: bold; font-size: 9px; }
+.ph-sep { color: var(--text-light); margin: 0 1px; }
+.ph-inline-row { font-size: 9px; color: var(--text-muted); margin-bottom: 3px; padding: 2px 0; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ph-stat-group { display: inline-flex; align-items: center; gap: 2px; margin-right: 8px; }
+.ph-stat-label { color: var(--text-light); font-size: 8px; font-family: 'Lucida Console', monospace; }
+.ph-updated { margin-top: 4px; padding-top: 3px; border-top: 1px dotted var(--border-dotted); }
 /* === PURE CSS CHARTS === */
 .css-charts-grid { display: flex; gap: 2px; border: 1px solid var(--border-color); border-top: 0; padding: 2px; background: var(--row1-bg); }
 .css-chart-panel { flex: 1 1 0; min-width: 0; border: 1px solid var(--border-color); background: var(--info-box-bg); overflow: hidden; }
