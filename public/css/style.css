@@ -286,10 +286,8 @@ input.mainoption:active { border-style: inset; }
 
 /* Player header structured layout */
 .ph-name-row { margin-bottom: 2px; line-height: 1.2; }
-/* Mini-jersey with number overlay */
-.ph-mini-jersey { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 22px; height: 22px; vertical-align: middle; margin-right: 2px; }
-.ph-mini-jersey-icon { font-size: 20px; filter: grayscale(0.6) brightness(0.8); line-height: 1; }
-.ph-mini-jersey-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8px; font-weight: bold; font-family: 'Lucida Console', monospace; text-shadow: 0 0 2px rgba(0,0,0,0.8); }
+/* Jersey number plate */
+.ph-jersey-plate { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 18px; padding: 0 4px; font-size: 11px; font-weight: bold; font-family: 'Lucida Console', monospace; color: #FFF; text-shadow: 0 1px 1px rgba(0,0,0,0.4); vertical-align: middle; margin-right: 4px; border: 1px solid rgba(255,255,255,0.15); }
 .ph-details-grid { display: flex; flex-wrap: wrap; gap: 1px 12px; margin-bottom: 2px; align-items: center; }
 .ph-details-secondary { padding-top: 1px; border-top: 1px dotted var(--border-dotted); }
 .ph-detail { font-size: 9px; color: var(--text-muted); white-space: nowrap; display: flex; align-items: center; gap: 3px; }
