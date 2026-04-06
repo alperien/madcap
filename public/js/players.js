@@ -214,7 +214,7 @@
 
         // Row 1: Name & fictional badge
         html += '<div class="ph-name-row">';
-        if (jerseyNum) html += '<span class="ph-jersey" style="color:' + teamColor + ';">#' + jerseyNum + '</span> ';
+        if (jerseyNum) html += '<span class="ph-mini-jersey" style="color:' + teamColor + ';"><span class="ph-mini-jersey-icon">\uD83D\uDC55</span><span class="ph-mini-jersey-num">' + jerseyNum + '</span></span> ';
         html += '<span class="player-name">' + player.name + '</span>';
         if (player.is_fictional) html += ' <span class="fictional-tag">fictional</span>';
         html += '</div>';
