@@ -1084,4 +1084,5 @@
     window.renderPlayerList = renderPlayerList;
     window.setupPlayerFilters = setupPlayerFilters;
     window.renderPlayerProfile = renderPlayerProfile;
+    window.getLatestSeasonStats = getLatestSeasonStats;
 })();

@@ -469,6 +469,17 @@ class TestMADCAPAPI(unittest.TestCase):
         """Test GET /nonexistent returns 404."""
         resp = self.client.get('/nonexistent')
         self.assertEqual(resp.status_code, 404)
+        data = json.loads(resp.data)
+        self.assertIn('error', data)
+
+    # --- Security Headers ---
+    def test_security_headers(self):
+        """Test that security headers are present on responses."""
+        resp = self.client.get('/health')
+        self.assertEqual(resp.headers.get('X-Content-Type-Options'), 'nosniff')
+        self.assertEqual(resp.headers.get('X-Frame-Options'), 'SAMEORIGIN')
+        self.assertEqual(resp.headers.get('X-XSS-Protection'), '1; mode=block')
+        self.assertEqual(resp.headers.get('Referrer-Policy'), 'strict-origin-when-cross-origin')
 
     # --- Path Traversal ---
     def test_path_traversal(self):
