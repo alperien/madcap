@@ -47,24 +47,27 @@ ADMIN_PASS = os.environ.get('ADMIN_PASS', 'madcap')
 file_lock = threading.Lock()
 
 # --- CSRF ---
-MAX_CSRF_TOKENS = 100
-csrf_tokens = {}
+MAX_CSRF_TOKENS_PER_SESSION = 20
 
 
 def generate_csrf_token():
     token = secrets.token_hex(32)
-    csrf_tokens[token] = datetime.now()
-    # Prune old tokens to prevent memory leak
-    if len(csrf_tokens) > MAX_CSRF_TOKENS:
-        sorted_tokens = sorted(csrf_tokens.items(), key=lambda x: x[1])
-        for old_token, _ in sorted_tokens[:len(csrf_tokens) - MAX_CSRF_TOKENS]:
-            csrf_tokens.pop(old_token, None)
+    tokens = session.setdefault('csrf_tokens', {})
+    tokens[token] = datetime.now().isoformat()
+    # Prune old tokens to prevent session bloat
+    if len(tokens) > MAX_CSRF_TOKENS_PER_SESSION:
+        sorted_tokens = sorted(tokens.items(), key=lambda x: x[1])
+        for old_token, _ in sorted_tokens[:len(tokens) - MAX_CSRF_TOKENS_PER_SESSION]:
+            tokens.pop(old_token, None)
+    session['csrf_tokens'] = tokens
     return token
 
 
 def validate_csrf_token(token):
-    if token in csrf_tokens:
-        del csrf_tokens[token]
+    tokens = session.get('csrf_tokens', {})
+    if token in tokens:
+        del tokens[token]
+        session['csrf_tokens'] = tokens
         return True
     return False
 
@@ -81,10 +84,7 @@ def require_auth(f):
                     or request.form.get('csrf_token')
                 )
                 if not token or not validate_csrf_token(token):
-                    # Allow session auth without CSRF for JSON API calls
-                    content_type = request.content_type or ''
-                    if 'application/json' not in content_type:
-                        return jsonify({'error': 'Invalid CSRF token'}), 403
+                    return jsonify({'error': 'Invalid CSRF token'}), 403
             return f(*args, **kwargs)
         # HTTP Basic auth (API clients)
         auth = request.authorization
@@ -98,15 +98,16 @@ def require_auth(f):
 
 # --- YAML Data helpers ---
 def load_yaml(filepath):
-    try:
-        with open(filepath, 'r') as f:
-            data = yaml.safe_load(f)
-            return data if data else {}
-    except FileNotFoundError:
-        return {}
-    except yaml.YAMLError as e:
-        logger.error(f"Invalid YAML in {filepath}: {e}")
-        return {}
+    with file_lock:
+        try:
+            with open(filepath, 'r') as f:
+                data = yaml.safe_load(f)
+                return data if data else {}
+        except FileNotFoundError:
+            return {}
+        except yaml.YAMLError as e:
+            logger.error(f"Invalid YAML in {filepath}: {e}")
+            return {}
 
 
 def save_yaml(filepath, data):
@@ -117,14 +118,15 @@ def save_yaml(filepath, data):
 
 
 def load_json_file(filepath):
-    try:
-        with open(filepath, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in {filepath}: {e}")
-        return {}
+    with file_lock:
+        try:
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in {filepath}: {e}")
+            return {}
 
 
 def save_json_file(filepath, data):
@@ -260,6 +262,11 @@ def get_injuries():
 
 
 def get_awards():
+    """Return the complete awards data (dict with 'award_definitions' and 'winners').
+
+    Note: Unlike other getters that return a list, this returns the full
+    JSON object because awards have two top-level keys.
+    """
     return load_json_file(os.path.join(DATA_DIR, 'awards.json'))
 
 
@@ -369,6 +376,15 @@ body{{font-family:Verdana,sans-serif;background:#E5E5E5;display:flex;justify-con
 def admin_logout():
     session.pop('authenticated', None)
     return redirect(url_for('admin_login'))
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
 
 
 @app.route('/health')
@@ -550,13 +566,23 @@ def api_update_player(player_id):
     if not body:
         return jsonify({'error': 'Request body required'}), 400
 
-    for key in ['name', 'position', 'height', 'nationality', 'archetype', 'status', 'notes', 'bio', 'team_id', 'avatar_url', 'birthdate']:
+    string_fields = ['name', 'position', 'height', 'nationality', 'archetype', 'status', 'notes', 'bio', 'team_id', 'avatar_url', 'birthdate']
+    for key in string_fields:
         if key in body:
-            player[key] = body[key]
+            val, err = validate_string(body[key], key, max_len=500)
+            if err:
+                return jsonify({'error': err}), 400
+            player[key] = val
     if 'weight' in body:
-        player['weight'] = safe_int(body['weight'], player.get('weight', 0))
+        val, err = validate_int(body['weight'], 'weight', min_val=0, max_val=500, default=player.get('weight', 0))
+        if err:
+            return jsonify({'error': err}), 400
+        player['weight'] = val
     if 'overall' in body:
-        player['overall'] = safe_int(body['overall'], player.get('overall', 70))
+        val, err = validate_int(body['overall'], 'overall', min_val=1, max_val=99, default=player.get('overall', 70))
+        if err:
+            return jsonify({'error': err}), 400
+        player['overall'] = val
     if 'is_fictional' in body:
         player['is_fictional'] = bool(body['is_fictional'])
 
@@ -574,9 +600,11 @@ def api_delete_player(player_id):
 
     delete_player_file(player_id)
 
-    lore_path = os.path.join(LORE_DIR, f"{player_id}.md")
-    if os.path.exists(lore_path):
-        os.remove(lore_path)
+    safe_id = sanitize_id(player_id)
+    if safe_id:
+        lore_path = os.path.join(LORE_DIR, f"{safe_id}.md")
+        if os.path.exists(lore_path):
+            os.remove(lore_path)
 
     cleanup_player_references(player_id)
     logger.info(f"Deleted player: {player_id}")
@@ -1083,11 +1111,21 @@ def api_update_team(team_id):
     if not body:
         return jsonify({'error': 'Request body required'}), 400
 
-    for key in ['name', 'abbreviation', 'league', 'conference', 'division', 'city', 'state', 'arena', 'roster', 'depth_chart', 'logo_url']:
+    string_team_fields = ['name', 'abbreviation', 'league', 'conference', 'division', 'city', 'state', 'arena', 'logo_url']
+    for key in string_team_fields:
+        if key in body:
+            val, err = validate_string(body[key], key, max_len=200)
+            if err:
+                return jsonify({'error': err}), 400
+            team[key] = val
+    for key in ['roster', 'depth_chart']:
         if key in body:
             team[key] = body[key]
     if 'founded' in body:
-        team['founded'] = safe_int(body['founded'], team.get('founded', 2024))
+        val, err = validate_int(body['founded'], 'founded', min_val=1800, max_val=2100, default=team.get('founded', 2024))
+        if err:
+            return jsonify({'error': err}), 400
+        team['founded'] = val
     if 'head_coach' in body or 'gm' in body:
         team['staff'] = {
             'head_coach': body.get('head_coach', team.get('staff', {}).get('head_coach', '')),
@@ -2583,7 +2621,7 @@ def serve_public(path):
 def not_found(e):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
-    return send_from_directory(PUBLIC_DIR, 'index.html')
+    return jsonify({'error': 'Page not found'}), 404
 
 
 @app.errorhandler(500)

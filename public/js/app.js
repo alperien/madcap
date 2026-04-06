@@ -248,8 +248,12 @@
             return h;
         }
 
-        // Helper to get latest stats from a player (works from global DATA)
+        // Use the shared getLatestSeasonStats from players.js if available,
+        // otherwise fall back to inline implementation
         function getPlayerLatestStats(player) {
+            if (typeof window.getLatestSeasonStats === 'function') {
+                return window.getLatestSeasonStats(player);
+            }
             var stats = { ppg: null, apg: null, rpg: null };
             if (player.career && player.career.pro) {
                 for (var i = player.career.pro.length - 1; i >= 0; i--) {
@@ -357,21 +361,6 @@
             for (var i = 0; i < DATA.teams.length; i++) {
                 if (DATA.teams[i].id.indexOf(collegeName) !== -1 || DATA.teams[i].name.toLowerCase().indexOf(player.career.college.school.toLowerCase()) !== -1) {
                     return DATA.teams[i];
-                }
-            }
-        }
-        return null;
-    }
-
-    function getPlayerCurrentTeamId(player) {
-        if (player.career && player.career.pro && player.career.pro.length > 0) {
-            return player.career.pro[player.career.pro.length - 1].team_id;
-        }
-        if (player.career && player.career.college && player.career.college.school) {
-            var collegeName = player.career.college.school.toLowerCase().replace(/\s+/g, '_');
-            for (var i = 0; i < DATA.teams.length; i++) {
-                if (DATA.teams[i].id.indexOf(collegeName) !== -1 || DATA.teams[i].name.toLowerCase().indexOf(player.career.college.school.toLowerCase()) !== -1) {
-                    return DATA.teams[i].id;
                 }
             }
         }
@@ -715,20 +704,21 @@
     }
     window.showToast = showToast;
 
-    // --- API Helper with auto-auth ---
-    var _authHeader = 'Basic ' + btoa('admin:madcap');
+    // --- API Helper with session-based auth ---
+    // Uses the session cookie set after login at /admin/login.
+    // No credentials are stored in client-side code.
     function apiCall(url, method, body) {
         var opts = {
             method: method || 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': _authHeader
-            }
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
         };
         if (body && method !== 'GET') opts.body = JSON.stringify(body);
         return fetch(url, opts).then(function(r) {
             if (r.status === 401) {
-                showToast('Authentication failed', 'error');
+                showToast('Authentication required. Please log in at /admin/login', 'error');
                 throw new Error('Unauthorized');
             }
             if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Request failed'); });
@@ -833,9 +823,7 @@
 
         fetch('api/upload', {
             method: 'POST',
-            headers: {
-                'Authorization': _authHeader
-            },
+            credentials: 'same-origin',
             body: formData
         }).then(function(r) {
             if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Upload failed'); });
