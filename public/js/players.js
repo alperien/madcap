@@ -216,7 +216,7 @@
         html += '<div class="ph-name-row">';
         if (jerseyNum) html += '<span class="ph-jersey" style="color:' + teamColor + ';">#' + jerseyNum + '</span> ';
         html += '<span class="player-name">' + player.name + '</span>';
-        if (player.is_fictional) html += ' <span class="fictional-badge">* FICTIONAL</span>';
+        if (player.is_fictional) html += ' <span class="fictional-tag">fictional</span>';
         html += '</div>';
 
         // Row 2: Key details grid
@@ -242,7 +242,7 @@
             var d = player.draft;
             var dTeam = getTeamById(d.team_id);
             html += '<div class="ph-inline-row">';
-            html += '<span class="ph-label">Draft</span> ' + renderLeagueBadge(d.league) + ' <span class="draft-pick-badge">R' + (d.round || '?') + ' P' + (d.pick || '?') + '</span> <span class="ph-val"><b>' + (d.year || '?') + '</b></span> by <span class="ph-val">' + (dTeam ? dTeam.name : (d.team_id || '?')) + '</span>';
+            html += '<span class="ph-label">Draft</span> ' + renderLeagueBadge(d.league) + ' <span class="ph-val">Rd ' + (d.round || '?') + ', Pick ' + (d.pick || '?') + '</span> <span class="ph-val"><b>' + (d.year || '?') + '</b></span> by <span class="ph-val">' + (dTeam ? dTeam.name : (d.team_id || '?')) + '</span>';
             html += '</div>';
         }
 
