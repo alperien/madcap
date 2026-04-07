@@ -289,7 +289,7 @@ input.mainoption:active { border-style: inset; }
 .pp-subtitle a { font-size: 10px; }
 .pp-status { font-size: 10px; }
 .pp-dot { color: var(--text-light); margin: 0 2px; }
-.pp-details { font-size: 10px; color: var(--text-color); padding: 6px 0; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pp-details-inline { font-size: 9px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .pp-extras { font-size: 9px; color: var(--text-muted); padding-top: 6px; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .pp-extras .contract-value { font-size: 9px; }
 /* Subtle fictional tag */

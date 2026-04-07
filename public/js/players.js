@@ -222,18 +222,16 @@
         if (team) subtitle.push(renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.name + '</a>');
         if (player.status) subtitle.push(renderStatusDot(player.status) + '<span class="pp-status">' + player.status + '</span>');
         html += '<div class="pp-subtitle">' + subtitle.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
-        html += '</div></div>';
 
-        // Details row
-        html += '<div class="pp-details">';
+        // Details line (under subtitle)
         var details = [];
         if (player.height || player.weight) details.push((player.height || '-') + ', ' + (player.weight || '-') + ' lbs');
         if (player.overall) details.push('OVR ' + renderOvrBar(player.overall));
         if (player.archetype) details.push(player.archetype);
         if (player.nationality) details.push(renderFlag(player.nationality, 'large') + ' ' + player.nationality);
         if (player.birthdate) details.push('Age ' + renderAgeWithBirth(player.birthdate));
-        html += details.join(' <span class="pp-dot">&middot;</span> ');
-        html += '</div>';
+        html += '<div class="pp-details-inline">' + details.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
+        html += '</div></div>';
 
         // Draft + Career highs + Contract in a compact row
         var extras = [];
