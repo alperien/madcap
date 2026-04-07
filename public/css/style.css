@@ -549,8 +549,10 @@ input.mainoption:active { border-style: inset; }
 .attribute-bar .attr-val { display: inline-block; width: 18px; text-align: center; font-weight: bold; font-size: 8px; color: var(--text-color); font-family: Verdana, sans-serif; }
 
 /* === BADGE TEXT (tier-styled interactive text) === */
-.badge-grid { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.badge-grid { display: flex; flex-wrap: wrap; gap: 2px 0; }
 .badge-text { font-size: 9px; font-weight: bold; cursor: pointer; letter-spacing: 0.3px; transition: color 0.15s; }
+.badge-text::after { content: ','; color: var(--text-light); font-weight: normal; margin-right: 4px; }
+.badge-text:last-child::after { content: ''; margin-right: 0; }
 .badge-text:hover { text-decoration: underline; }
 .badge-text-bronze { color: #9A8060; }
 .badge-text-silver { color: #9A9A9A; }
