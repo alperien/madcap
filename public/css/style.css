@@ -367,7 +367,7 @@ input.mainoption:active { border-style: inset; }
 .ovr-text { font-family: Verdana, sans-serif; font-weight: bold; font-size: 9px; }
 .ovr-text.ovr-elite { color: #5A8A5A; }
 .ovr-text.ovr-good { color: #6A8A5A; }
-.ovr-text.ovr-avg { color: #CCCC00; }
+.ovr-text.ovr-avg { color: #8A8A5A; }
 .ovr-text.ovr-below { color: #8A7A5A; }
 .ovr-text.ovr-low { color: #8A5A5A; }
 
