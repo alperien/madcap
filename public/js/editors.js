@@ -738,7 +738,7 @@
             var html = '<form id="lore-form" onsubmit="return false;">';
             html += '<div class="form-row" style="flex-direction:column;align-items:stretch;">';
             html += '<label style="min-width:0;margin-bottom:3px;">Lore Content (Markdown)</label>';
-            html += '<textarea id="lore-content" rows="16" style="width:100%;font-family:\'Lucida Console\',monospace;font-size:10px;">' + esc(data.content || '') + '</textarea>';
+            html += '<textarea id="lore-content" rows="16" style="width:100%;font-family:Verdana,sans-serif;font-size:10px;">' + esc(data.content || '') + '</textarea>';
             html += '</div>';
             html += '<div class="form-actions"><button type="button" class="btn-primary" onclick="saveLore(\'' + playerId + '\')">Save</button> <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button></div>';
             html += '</form>';
