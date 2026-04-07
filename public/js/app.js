@@ -640,8 +640,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { ticks: { color: light ? '#666' : '#808080', font: { family: '"Lucida Console", monospace', size: 7 } }, grid: { color: light ? '#CCC' : '#2A2A2A' } },
-                y: { ticks: { color: light ? '#666' : '#808080', font: { family: '"Lucida Console", monospace', size: 7 } }, grid: { color: light ? '#CCC' : '#2A2A2A' } }
+                x: { ticks: { color: light ? '#666' : '#808080', font: { family: 'Verdana, sans-serif', size: 7 } }, grid: { color: light ? '#CCC' : '#2A2A2A' } },
+                y: { ticks: { color: light ? '#666' : '#808080', font: { family: 'Verdana, sans-serif', size: 7 } }, grid: { color: light ? '#CCC' : '#2A2A2A' } }
             }
         };
     }
