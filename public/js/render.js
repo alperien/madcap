@@ -26,6 +26,7 @@ var FLAG_MAP = {
 };
 
 function renderFlag(nationality, size) {
+    return ''; // Removed for cleaner look
     if (!nationality) return '';
     var flag = FLAG_MAP[nationality] || '';
     if (!flag) return '';
@@ -74,6 +75,7 @@ function renderTeamLogo(team, size) {
 }
 
 function renderStatusDot(status) {
+    return ''; // Removed for cleaner look
     if (!status) return '';
     var cls = 'status-dot status-dot-' + status.replace(/[^a-z_]/gi, '_').toLowerCase();
     return '<span class="' + cls + '" title="' + status + '"></span>';
@@ -132,6 +134,7 @@ var RPG_THRESH = { great: 10, good: 7, avg: 4, below: 2 };
 var FG_THRESH = { great: 50, good: 45, avg: 40, below: 35 };
 
 function renderJerseyNum(player) {
+    return ''; // Removed for cleaner look
     var num = '';
     if (player.jersey_history && player.jersey_history.length > 0) {
         num = player.jersey_history[player.jersey_history.length - 1].number;
