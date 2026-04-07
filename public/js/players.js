@@ -195,81 +195,67 @@
     function renderPlayerHeader(player) {
         var container = document.getElementById('player-header-section');
         var team = getPlayerTeam(player);
-        var age = calculateAge(player.birthdate);
         var careerHighs = getCareerHighs(player);
         var jerseyNum = '';
         if (player.jersey_history && player.jersey_history.length > 0) {
-            jerseyNum = player.jersey_history[player.jersey_history.length - 1].number;
+            jerseyNum = '#' + player.jersey_history[player.jersey_history.length - 1].number;
         }
         var teamColor = team && team.colors && team.colors[0] ? team.colors[0] : 'var(--cat-head-bg)';
 
-        var html = '<table class="forumline player-header-table">';
-        html += '<tr><th class="catHead" colspan="4">Player Profile';
-        if (EDIT_MODE) html += ' <a href="#" onclick="openPlayerBioEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
-        html += '</th></tr>';
-        html += '<tr class="row1"><td colspan="4" style="padding:6px 8px;border-left:4px solid ' + teamColor + ';">';
-        html += '<div class="player-header-content">';
-        html += renderAvatar(player, 'large');
-        html += '<div class="player-header-info">';
+        var html = '<div class="player-profile-minimal">';
 
-        // Row 1: Name & fictional badge
-        html += '<div class="ph-name-row">';
-        if (jerseyNum) html += '<span class="ph-jersey-plate" style="background:' + teamColor + ';">' + jerseyNum + '</span> ';
-        html += '<span class="player-name">' + player.name + '</span>';
+        // Edit button (only in edit mode)
+        if (EDIT_MODE) html += '<div class="pp-edit"><a href="#" onclick="openPlayerBioEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;">[edit]</a></div>';
+
+        // Top section: avatar + name + core info
+        html += '<div class="pp-top">';
+        html += renderAvatar(player, 'large');
+        html += '<div class="pp-identity">';
+        html += '<div class="pp-name">' + player.name;
+        if (jerseyNum) html += ' <span class="pp-jersey">' + jerseyNum + '</span>';
         if (player.is_fictional) html += ' <span class="fictional-tag">fictional</span>';
         html += '</div>';
 
-        // Row 2: Key details grid
-        html += '<div class="ph-details-grid">';
-        html += '<div class="ph-detail">' + renderPosBadge(player.position) + ' <span class="ph-val mono">' + (player.height || '-') + '</span> <span class="ph-sep">/</span> <span class="ph-val mono">' + (player.weight || '-') + ' lbs</span></div>';
-        html += '<div class="ph-detail"><span class="ph-label">OVR</span> ' + renderOvrBar(player.overall) + '</div>';
-        html += '<div class="ph-detail"><span class="ph-label">Archetype</span> <span class="ph-val">' + (player.archetype || '-') + '</span></div>';
-        html += '<div class="ph-detail">' + renderStatusDot(player.status) + ' <span class="ph-val">' + (player.status || '-') + '</span></div>';
-        if (team) html += '<div class="ph-detail"><span class="ph-label">Team</span> ' + renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.name + '</a></div>';
+        // Subtitle line: position, team, status
+        var subtitle = [];
+        if (player.position) subtitle.push(renderPosBadge(player.position));
+        if (team) subtitle.push(renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.name + '</a>');
+        if (player.status) subtitle.push(renderStatusDot(player.status) + '<span class="pp-status">' + player.status + '</span>');
+        html += '<div class="pp-subtitle">' + subtitle.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
+        html += '</div></div>';
+
+        // Details row
+        html += '<div class="pp-details">';
+        var details = [];
+        if (player.height || player.weight) details.push((player.height || '-') + ', ' + (player.weight || '-') + ' lbs');
+        if (player.overall) details.push('OVR ' + renderOvrBar(player.overall));
+        if (player.archetype) details.push(player.archetype);
+        if (player.nationality) details.push(renderFlag(player.nationality, 'large') + ' ' + player.nationality);
+        if (player.birthdate) details.push('Age ' + renderAgeWithBirth(player.birthdate));
+        html += details.join(' <span class="pp-dot">&middot;</span> ');
         html += '</div>';
 
-        // Row 3: Nationality & age
-        html += '<div class="ph-details-grid ph-details-secondary">';
-        html += '<div class="ph-detail">';
-        if (player.nationality) html += renderFlag(player.nationality, 'large') + ' ';
-        html += '<span class="ph-val">' + (player.nationality || '-') + '</span>';
-        html += '</div>';
-        html += '<div class="ph-detail"><span class="ph-label">Age</span> <span class="ph-val">' + renderAgeWithBirth(player.birthdate) + '</span></div>';
-        html += '</div>';
-
-        // Row 4: Draft info
+        // Draft + Career highs + Contract in a compact row
+        var extras = [];
         if (player.draft) {
             var d = player.draft;
             var dTeam = getTeamById(d.team_id);
-            html += '<div class="ph-inline-row">';
-            html += '<span class="ph-label">Draft</span> ' + renderLeagueBadge(d.league) + ' <span class="ph-val">Rd ' + (d.round || '?') + ', Pick ' + (d.pick || '?') + '</span> <span class="ph-val"><b>' + (d.year || '?') + '</b></span> by <span class="ph-val">' + (dTeam ? dTeam.name : (d.team_id || '?')) + '</span>';
-            html += '</div>';
+            extras.push(renderLeagueBadge(d.league) + ' ' + (d.year || '?') + ' Rd ' + (d.round || '?') + ' Pick ' + (d.pick || '?') + (dTeam ? ' - ' + dTeam.name : ''));
         }
-
-        // Row 5: Career highs
         if (careerHighs.ppg > 0) {
-            html += '<div class="ph-inline-row">';
-            html += '<span class="ph-label">Career Highs</span> ';
-            html += '<span class="ph-stat-group"><span class="ph-stat-label">PPG</span> <b class="mono">' + coloredStat(careerHighs.ppg, PPG_THRESH) + '</b></span>';
-            html += '<span class="ph-stat-group"><span class="ph-stat-label">APG</span> <b class="mono">' + coloredStat(careerHighs.apg, APG_THRESH) + '</b></span>';
-            html += '<span class="ph-stat-group"><span class="ph-stat-label">RPG</span> <b class="mono">' + coloredStat(careerHighs.rpg, RPG_THRESH) + '</b></span>';
-            html += '</div>';
+            extras.push(coloredStat(careerHighs.ppg, PPG_THRESH) + ' ppg / ' + coloredStat(careerHighs.apg, APG_THRESH) + ' apg / ' + coloredStat(careerHighs.rpg, RPG_THRESH) + ' rpg');
         }
-
-        // Row 6: Contract
         if (player.contract) {
             var c = player.contract;
-            html += '<div class="ph-inline-row">';
-            html += '<span class="ph-label">Contract</span> <span class="contract-value">' + formatCurrency(c.annual_value) + '/yr</span>';
-            if (c.type) html += ' <span class="contract-type-text">' + c.type.replace(/_/g, ' ') + '</span>';
-            if (c.years_remaining) html += ' <span class="gensmall">(' + c.years_remaining + 'yr rem)</span>';
-            html += '</div>';
+            var contractStr = formatCurrency(c.annual_value) + '/yr';
+            if (c.type) contractStr += ' (' + c.type.replace(/_/g, ' ') + ')';
+            extras.push(contractStr);
+        }
+        if (extras.length > 0) {
+            html += '<div class="pp-extras">' + extras.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
         }
 
-        // Last updated
-        html += '<div class="ph-updated"><span class="last-updated">Last updated: ' + new Date().toISOString().slice(0, 10) + ' (' + relativeTime(new Date().toISOString()) + ')</span></div>';
-        html += '</div></div>';
-        html += '</td></tr></table>';
+        html += '</div>';
         container.innerHTML = html;
     }
 
