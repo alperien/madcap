@@ -234,11 +234,23 @@
         }
 
         function leagueTipHtml(el) {
-            var text = el.textContent.trim();
+            var text = el.textContent.trim().toUpperCase();
             var league = null;
+            // First pass: exact abbreviation match
             for (var i = 0; i < DATA.leagues.length; i++) {
-                if (DATA.leagues[i].level && DATA.leagues[i].level.toUpperCase().indexOf(text) !== -1) { league = DATA.leagues[i]; break; }
-                if (DATA.leagues[i].name && DATA.leagues[i].name.toUpperCase().indexOf(text) !== -1) { league = DATA.leagues[i]; break; }
+                if (DATA.leagues[i].abbreviation && DATA.leagues[i].abbreviation.toUpperCase() === text) { league = DATA.leagues[i]; break; }
+            }
+            // Second pass: exact id match
+            if (!league) {
+                for (var i = 0; i < DATA.leagues.length; i++) {
+                    if (DATA.leagues[i].id && DATA.leagues[i].id.toUpperCase() === text) { league = DATA.leagues[i]; break; }
+                }
+            }
+            // Third pass: fallback to name contains
+            if (!league) {
+                for (var i = 0; i < DATA.leagues.length; i++) {
+                    if (DATA.leagues[i].name && DATA.leagues[i].name.toUpperCase() === text) { league = DATA.leagues[i]; break; }
+                }
             }
             if (!league) return '<div class="tt-season">' + text + '</div>';
             var h = '<div class="tt-season">' + league.name + '</div>';

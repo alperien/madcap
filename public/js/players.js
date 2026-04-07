@@ -216,11 +216,10 @@
         if (player.is_fictional) html += ' <span class="fictional-tag">fictional</span>';
         html += '</div>';
 
-        // Subtitle line: position, team, status
+        // Subtitle line: position, team
         var subtitle = [];
         if (player.position) subtitle.push(renderPosBadge(player.position));
         if (team) subtitle.push(renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.name + '</a>');
-        if (player.status) subtitle.push(renderStatusDot(player.status) + '<span class="pp-status">' + player.status + '</span>');
         html += '<div class="pp-subtitle">' + subtitle.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
 
         // Details line (under subtitle)
@@ -233,25 +232,7 @@
         html += '<div class="pp-details-inline">' + details.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
         html += '</div></div>';
 
-        // Draft + Career highs + Contract in a compact row
-        var extras = [];
-        if (player.draft) {
-            var d = player.draft;
-            var dTeam = getTeamById(d.team_id);
-            extras.push(renderLeagueBadge(d.league) + ' ' + (d.year || '?') + ' Rd ' + (d.round || '?') + ' Pick ' + (d.pick || '?') + (dTeam ? ' - ' + dTeam.name : ''));
-        }
-        if (careerHighs.ppg > 0) {
-            extras.push(coloredStat(careerHighs.ppg, PPG_THRESH) + ' ppg / ' + coloredStat(careerHighs.apg, APG_THRESH) + ' apg / ' + coloredStat(careerHighs.rpg, RPG_THRESH) + ' rpg');
-        }
-        if (player.contract) {
-            var c = player.contract;
-            var contractStr = formatCurrency(c.annual_value) + '/yr';
-            if (c.type) contractStr += ' (' + c.type.replace(/_/g, ' ') + ')';
-            extras.push(contractStr);
-        }
-        if (extras.length > 0) {
-            html += '<div class="pp-extras">' + extras.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
-        }
+
 
         html += '</div>';
         container.innerHTML = html;

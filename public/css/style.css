@@ -279,19 +279,16 @@ input.mainoption:active { border-style: inset; }
 .filters-bar input, .filters-bar select { font-size: 9px; padding: 1px 2px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); }
 
 /* === PLAYER PROFILE (Minimal) === */
-.player-profile-minimal { padding: 10px 12px; margin-bottom: 6px; border: 1px solid var(--border-color); background: var(--info-box-bg); }
-.pp-edit { text-align: right; margin-bottom: 4px; }
-.pp-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.player-profile-minimal { padding: 8px 10px; margin-bottom: 4px; border: 1px solid var(--border-color); background: var(--info-box-bg); }
+.pp-edit { text-align: right; margin-bottom: 2px; }
+.pp-top { display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
 .pp-identity { flex: 1; }
-.pp-name { font-size: 16px; font-weight: bold; color: var(--text-color); line-height: 1.2; margin-bottom: 2px; }
-.pp-jersey { font-size: 11px; font-weight: normal; color: var(--text-muted); }
-.pp-subtitle { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pp-name { font-size: 15px; font-weight: bold; color: var(--text-color); line-height: 1.1; margin-bottom: 1px; }
+.pp-jersey { font-size: 10px; font-weight: normal; color: var(--text-muted); }
+.pp-subtitle { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; line-height: 1.2; }
 .pp-subtitle a { font-size: 10px; }
-.pp-status { font-size: 10px; }
-.pp-dot { color: var(--text-light); margin: 0 2px; }
-.pp-details-inline { font-size: 9px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.pp-extras { font-size: 9px; color: var(--text-muted); padding-top: 6px; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.pp-extras .contract-value { font-size: 9px; }
+.pp-dot { color: var(--text-light); margin: 0 1px; }
+.pp-details-inline { font-size: 9px; color: var(--text-muted); margin-top: 1px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; line-height: 1.2; }
 /* Subtle fictional tag */
 .fictional-tag { color: var(--text-light); font-size: 8px; font-style: italic; letter-spacing: 0.3px; vertical-align: middle; }
 /* Legacy compat */
@@ -376,7 +373,7 @@ input.mainoption:active { border-style: inset; }
 
 /* === STAT COLOR CODING === */
 .stat-great { color: var(--accent-green); font-weight: bold; }
-.stat-good { color: #66CC00; }
+.stat-good { color: #5A9A5A; }
 .stat-avg { color: var(--accent-yellow); }
 .stat-below { color: var(--accent-orange); }
 .stat-bad { color: var(--accent-red); }
@@ -384,16 +381,16 @@ input.mainoption:active { border-style: inset; }
 /* === LEAGUE LEVEL TEXT (Interactive) === */
 .league-text { font-size: 9px; font-weight: bold; margin-right: 2px; vertical-align: middle; cursor: pointer; letter-spacing: 0.3px; }
 .league-text:hover { text-decoration: underline; }
-.league-text-nba { color: #B0B080; }
-.league-text-ncaa { color: #A0A0A0; }
-.league-text-hs { color: #CD7F32; }
-.league-text-intl { color: #6688AA; }
+.league-text-nba { color: #9A9A70; }
+.league-text-ncaa { color: #909090; }
+.league-text-hs { color: #A07030; }
+.league-text-intl { color: #607090; }
 
 /* === CONFERENCE TEXT (Interactive) === */
 .conf-text { font-size: 9px; font-weight: bold; vertical-align: middle; margin-right: 2px; cursor: pointer; letter-spacing: 0.3px; }
 .conf-text:hover { text-decoration: underline; }
-.conf-text-east { color: #6688CC; }
-.conf-text-west { color: #CC6666; }
+.conf-text-east { color: #5577AA; }
+.conf-text-west { color: #AA5555; }
 
 /* === STATUS TAGS (muted tracker style) === */
 .tag-breaking { display: inline-block; background: #5A3A3A; color: #C8A0A0; padding: 0 4px; font-size: 7px; font-weight: bold; margin-right: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
@@ -555,10 +552,10 @@ input.mainoption:active { border-style: inset; }
 .badge-grid { display: flex; flex-wrap: wrap; gap: 4px 8px; }
 .badge-text { font-size: 9px; font-weight: bold; cursor: pointer; letter-spacing: 0.3px; transition: color 0.15s; }
 .badge-text:hover { text-decoration: underline; }
-.badge-text-bronze { color: #A08060; }
-.badge-text-silver { color: #A0A0A0; }
-.badge-text-gold { color: #B0B080; }
-.badge-text-hall_of_fame, .badge-text-hof { color: #B0A0C0; }
+.badge-text-bronze { color: #8A7055; }
+.badge-text-silver { color: #909090; }
+.badge-text-gold { color: #9A9A70; }
+.badge-text-hall_of_fame, .badge-text-hof { color: #9A8AAA; }
 
 /* === Career stats row hover === */
 table.forumline tr:hover td { background: var(--row-hover) !important; }
@@ -606,6 +603,26 @@ table.forumline tr:hover td { background: var(--row-hover) !important; }
 .comparison-table .worse { background: #3D1A1A; color: var(--accent-red); }
 html.light .comparison-table .better { background: #D4E8D4; color: #3A6A3A; }
 html.light .comparison-table .worse { background: #E8D4D4; color: #7A3A3A; }
+
+/* Light theme: interactive text contrast fixes */
+html.light .pos-text-PG { color: #2A5580; }
+html.light .pos-text-SG { color: #2A6A2A; }
+html.light .pos-text-SF { color: #6A5A30; }
+html.light .pos-text-PF { color: #7A3030; }
+html.light .pos-text-C { color: #5A3A6A; }
+html.light .league-text-nba { color: #6A6A3A; }
+html.light .league-text-ncaa { color: #555555; }
+html.light .league-text-hs { color: #7A5520; }
+html.light .league-text-intl { color: #3A5A7A; }
+html.light .conf-text-east { color: #2A4A7A; }
+html.light .conf-text-west { color: #7A2A2A; }
+html.light .badge-text-bronze { color: #6A5030; }
+html.light .badge-text-silver { color: #555555; }
+html.light .badge-text-gold { color: #6A6A30; }
+html.light .badge-text-hall_of_fame, html.light .badge-text-hof { color: #5A4A6A; }
+html.light .contract-type-text { color: #2A5A5A; }
+html.light .stat-good { color: #3A7A3A; }
+html.light .stat-great { color: #2A6A2A; }
 
 /* === LORE ARTICLE === */
 .lore-article { background: var(--lore-bg); border: 1px solid var(--border-color); padding: 8px 12px; font-size: 11px; line-height: 1.6; margin-bottom: 3px; color: var(--text-color); }
