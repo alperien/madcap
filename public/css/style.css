@@ -366,14 +366,14 @@ input.mainoption:active { border-style: inset; }
 /* === OVR RATING (colored number only) === */
 .ovr-text { font-family: Verdana, sans-serif; font-weight: bold; font-size: 9px; }
 .ovr-text.ovr-elite { color: #5A8A5A; }
-.ovr-text.ovr-good { color: #6A8A5A; }
-.ovr-text.ovr-avg { color: #8A8A5A; }
+.ovr-text.ovr-good { color: #7A9A6A; }
+.ovr-text.ovr-avg { color: #AAAA55; }
 .ovr-text.ovr-below { color: #8A7A5A; }
 .ovr-text.ovr-low { color: #8A5A5A; }
 
 /* === STAT COLOR CODING === */
 .stat-great { color: var(--accent-green); font-weight: bold; }
-.stat-good { color: #5A9A5A; }
+.stat-good { color: #6AAA6A; }
 .stat-avg { color: var(--accent-yellow); }
 .stat-below { color: var(--accent-orange); }
 .stat-bad { color: var(--accent-red); }
@@ -381,16 +381,16 @@ input.mainoption:active { border-style: inset; }
 /* === LEAGUE LEVEL TEXT (Interactive) === */
 .league-text { font-size: 9px; font-weight: bold; margin-right: 2px; vertical-align: middle; cursor: pointer; letter-spacing: 0.3px; }
 .league-text:hover { text-decoration: underline; }
-.league-text-nba { color: #9A9A70; }
-.league-text-ncaa { color: #909090; }
-.league-text-hs { color: #A07030; }
-.league-text-intl { color: #607090; }
+.league-text-nba { color: #AAAA7A; }
+.league-text-ncaa { color: #9A9A9A; }
+.league-text-hs { color: #BB8040; }
+.league-text-intl { color: #7088A0; }
 
 /* === CONFERENCE TEXT (Interactive) === */
 .conf-text { font-size: 9px; font-weight: bold; vertical-align: middle; margin-right: 2px; cursor: pointer; letter-spacing: 0.3px; }
 .conf-text:hover { text-decoration: underline; }
-.conf-text-east { color: #5577AA; }
-.conf-text-west { color: #AA5555; }
+.conf-text-east { color: #6688BB; }
+.conf-text-west { color: #BB6666; }
 
 /* === STATUS TAGS (muted tracker style) === */
 .tag-breaking { display: inline-block; background: #5A3A3A; color: #C8A0A0; padding: 0 4px; font-size: 7px; font-weight: bold; margin-right: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
@@ -552,10 +552,10 @@ input.mainoption:active { border-style: inset; }
 .badge-grid { display: flex; flex-wrap: wrap; gap: 4px 8px; }
 .badge-text { font-size: 9px; font-weight: bold; cursor: pointer; letter-spacing: 0.3px; transition: color 0.15s; }
 .badge-text:hover { text-decoration: underline; }
-.badge-text-bronze { color: #8A7055; }
-.badge-text-silver { color: #909090; }
-.badge-text-gold { color: #9A9A70; }
-.badge-text-hall_of_fame, .badge-text-hof { color: #9A8AAA; }
+.badge-text-bronze { color: #9A8060; }
+.badge-text-silver { color: #9A9A9A; }
+.badge-text-gold { color: #AAAA7A; }
+.badge-text-hall_of_fame, .badge-text-hof { color: #AA99BB; }
 
 /* === Career stats row hover === */
 table.forumline tr:hover td { background: var(--row-hover) !important; }
