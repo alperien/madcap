@@ -548,15 +548,14 @@ input.mainoption:active { border-style: inset; }
 .attribute-bar .attr-fill.attr-high { background: var(--accent-green); }
 .attribute-bar .attr-val { display: inline-block; width: 18px; text-align: center; font-weight: bold; font-size: 8px; color: var(--text-color); font-family: Verdana, sans-serif; }
 
-/* === BADGE TEXT (tier-styled interactive text) === */
-.badge-grid { display: flex; flex-wrap: wrap; gap: 2px 0; }
-.badge-text { font-size: 9px; font-weight: bold; cursor: pointer; letter-spacing: 0.3px; transition: color 0.15s; }
-.badge-text:hover { text-decoration: underline; }
-.badge-sep { color: var(--text-muted); font-weight: normal; margin: 0 3px; font-size: 9px; }
-.badge-text-bronze { color: #9A8060; }
-.badge-text-silver { color: #9A9A9A; }
-.badge-text-gold { color: #AAAA7A; }
-.badge-text-hall_of_fame, .badge-text-hof { color: #AA99BB; }
+/* === BADGE SQUARES (simple box style) === */
+.badge-grid { display: flex; flex-wrap: wrap; gap: 2px; }
+.badge-text { display: inline-block; padding: 1px 4px; font-size: 8px; font-weight: bold; cursor: pointer; letter-spacing: 0.2px; border: 1px solid var(--border-color); background: var(--row1-bg); color: var(--text-color); transition: background 0.15s; }
+.badge-text:hover { background: var(--row-hover); }
+.badge-text-bronze { border-left: 2px solid #9A8060; color: #9A8060; }
+.badge-text-silver { border-left: 2px solid #9A9A9A; color: #9A9A9A; }
+.badge-text-gold { border-left: 2px solid #AAAA7A; color: #AAAA7A; }
+.badge-text-hall_of_fame, .badge-text-hof { border-left: 2px solid #AA99BB; color: #AA99BB; }
 
 /* === Career stats row hover === */
 table.forumline tr:hover td { background: var(--row-hover) !important; }
@@ -617,10 +616,10 @@ html.light .league-text-hs { color: #7A5520; }
 html.light .league-text-intl { color: #3A5A7A; }
 html.light .conf-text-east { color: #2A4A7A; }
 html.light .conf-text-west { color: #7A2A2A; }
-html.light .badge-text-bronze { color: #6A5030; }
-html.light .badge-text-silver { color: #555555; }
-html.light .badge-text-gold { color: #6A6A30; }
-html.light .badge-text-hall_of_fame, html.light .badge-text-hof { color: #5A4A6A; }
+html.light .badge-text-bronze { color: #6A5030; border-left-color: #6A5030; }
+html.light .badge-text-silver { color: #555555; border-left-color: #555555; }
+html.light .badge-text-gold { color: #6A6A30; border-left-color: #6A6A30; }
+html.light .badge-text-hall_of_fame, html.light .badge-text-hof { color: #5A4A6A; border-left-color: #5A4A6A; }
 html.light .contract-type-text { color: #2A5A5A; }
 html.light .stat-good { color: #3A7A3A; }
 html.light .stat-great { color: #2A6A2A; }
