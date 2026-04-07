@@ -590,6 +590,12 @@ function renderSchedule() {
     if (countEl) countEl.textContent = 'Showing ' + games.length + ' of ' + DATA.games.length + ' games';
 }
 
+// === Hide all tooltips globally ===
+function hideAllTooltips() {
+    var tips = document.querySelectorAll('.css-chart-tooltip');
+    for (var i = 0; i < tips.length; i++) tips[i].style.display = 'none';
+}
+
 // === Shared tooltip utility ===
 // Creates a single tooltip element and attaches hover handlers to a container.
 // selector: CSS selector for hoverable elements within container
@@ -606,6 +612,7 @@ function attachTooltip(container, selector, contentFn) {
         if (!el || !container.contains(el)) { tip.style.display = 'none'; return; }
         var html = contentFn(el);
         if (!html) { tip.style.display = 'none'; return; }
+        hideAllTooltips();
         tip.innerHTML = html;
         tip.style.display = 'block';
     });

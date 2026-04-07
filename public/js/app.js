@@ -182,6 +182,7 @@
         document.body.appendChild(tip);
 
         function showTip(html, e) {
+            if (typeof hideAllTooltips === 'function') hideAllTooltips();
             tip.innerHTML = html;
             tip.style.display = 'block';
             positionTip(e);
