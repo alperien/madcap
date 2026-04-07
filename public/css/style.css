@@ -283,7 +283,7 @@ input.mainoption:active { border-style: inset; }
 .pp-edit { text-align: right; margin-bottom: 2px; }
 .pp-top { display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
 .pp-identity { flex: 1; }
-.pp-name { font-size: 15px; font-weight: bold; color: var(--text-color); line-height: 1.1; margin-bottom: 1px; }
+.pp-name { font-size: 15px; font-weight: bold; color: var(--text-color); line-height: 1.1; margin-bottom: 4px; }
 .pp-jersey { font-size: 10px; font-weight: normal; color: var(--text-muted); }
 .pp-subtitle { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; line-height: 1.2; }
 .pp-subtitle a { font-size: 10px; }
