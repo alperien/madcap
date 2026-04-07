@@ -55,7 +55,7 @@ function getTeamColor(player) {
 
 function renderPosBadge(position) {
     if (!position) return '';
-    return '<span class="pos-badge pos-badge-' + position + '">' + position + '</span>';
+    return '<span class="pos-text pos-text-' + position + '">' + position + '</span>';
 }
 
 function renderTeamLogo(team, size) {
@@ -145,18 +145,18 @@ function renderJerseyNum(player) {
 function renderLeagueBadge(league) {
     if (!league) return '';
     var l = league.toUpperCase();
-    if (l === 'NBA') return '<span class="league-badge league-badge-nba">NBA</span>';
-    if (l.indexOf('NCAA') !== -1 || l.indexOf('D1') !== -1) return '<span class="league-badge league-badge-ncaa">NCAA</span>';
-    if (l === 'HS' || l.indexOf('HIGH') !== -1) return '<span class="league-badge league-badge-hs">HS</span>';
-    return '<span class="league-badge league-badge-intl">' + league.substring(0, 4).toUpperCase() + '</span>';
+    if (l === 'NBA') return '<span class="league-text league-text-nba">NBA</span>';
+    if (l.indexOf('NCAA') !== -1 || l.indexOf('D1') !== -1) return '<span class="league-text league-text-ncaa">NCAA</span>';
+    if (l === 'HS' || l.indexOf('HIGH') !== -1) return '<span class="league-text league-text-hs">HS</span>';
+    return '<span class="league-text league-text-intl">' + league.substring(0, 4).toUpperCase() + '</span>';
 }
 
 function renderConfBadge(conf) {
     if (!conf) return '';
     var c = conf.toLowerCase();
-    if (c.indexOf('east') !== -1) return '<span class="conf-badge conf-badge-east">EAST</span>';
-    if (c.indexOf('west') !== -1) return '<span class="conf-badge conf-badge-west">WEST</span>';
-    return '<span class="conf-badge" style="background:#444;border-color:#333;color:#FFF;">' + conf.substring(0, 4).toUpperCase() + '</span>';
+    if (c.indexOf('east') !== -1) return '<span class="conf-text conf-text-east">EAST</span>';
+    if (c.indexOf('west') !== -1) return '<span class="conf-text conf-text-west">WEST</span>';
+    return '<span class="conf-text">' + conf.substring(0, 4).toUpperCase() + '</span>';
 }
 
 function renderUrgencyTag(type) {
@@ -398,7 +398,7 @@ function renderAttributeBar(label, value) {
 function renderBadgePill(badge) {
     var tier = (badge.tier || 'bronze').replace(/ /g, '_');
     var tierLabel = tier.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-    return '<span class="badge-tag badge-' + tier + '" data-badge-name="' + (badge.name || '?') + '" data-badge-tier="' + tierLabel + '"><span class="badge-tier-icon"></span>' + (badge.name || '?') + '</span>';
+    return '<span class="badge-text badge-text-' + tier + '" data-badge-name="' + (badge.name || '?') + '" data-badge-tier="' + tierLabel + '">' + (badge.name || '?') + '</span>';
 }
 
 function renderInjuryIndicator(severity) {

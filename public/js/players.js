@@ -261,7 +261,7 @@
             var c = player.contract;
             html += '<div class="ph-inline-row">';
             html += '<span class="ph-label">Contract</span> <span class="contract-value">' + formatCurrency(c.annual_value) + '/yr</span>';
-            if (c.type) html += ' <span class="contract-type-badge">' + c.type.replace(/_/g, ' ') + '</span>';
+            if (c.type) html += ' <span class="contract-type-text">' + c.type.replace(/_/g, ' ') + '</span>';
             if (c.years_remaining) html += ' <span class="gensmall">(' + c.years_remaining + 'yr rem)</span>';
             html += '</div>';
         }
@@ -794,7 +794,7 @@
                 '<div class="tt-row"><span class="tt-label">Rating</span><span class="tt-value">' + el.getAttribute('data-attr-val') + '/99</span></div>' +
                 '<div class="tt-row"><span class="tt-label">Grade</span><span class="tt-value">' + el.getAttribute('data-attr-rating') + '</span></div>';
         });
-        attachTooltip(container, '.badge-tag', function(el) {
+        attachTooltip(container, '.badge-text', function(el) {
             return '<div class="tt-season">' + el.getAttribute('data-badge-name') + '</div>' +
                 '<div class="tt-row"><span class="tt-label">Tier</span><span class="tt-value">' + el.getAttribute('data-badge-tier') + '</span></div>';
         });
@@ -1023,7 +1023,7 @@
         var html = '<table class="forumline"><tr><th class="catHead" colspan="2">Contract Details';
         if (EDIT_MODE) html += ' <a href="#" onclick="openContractEditor(getPlayerById(\'' + player.id + '\'));return false;" class="edit-btn" style="display:inline !important;color:var(--link-color);">[edit]</a>';
         html += '</th></tr>';
-        html += '<tr class="row1"><td class="gensmall" style="width:140px;">Type</td><td class="gensmall">' + (contract.type || '-').replace(/_/g, ' ') + ' <span class="contract-type-badge">' + (contract.type || '').replace(/_/g, ' ').toUpperCase() + '</span></td></tr>';
+        html += '<tr class="row1"><td class="gensmall" style="width:140px;">Type</td><td class="gensmall">' + (contract.type || '-').replace(/_/g, ' ') + ' <span class="contract-type-text">' + (contract.type || '').replace(/_/g, ' ').toUpperCase() + '</span></td></tr>';
         html += '<tr class="row2"><td class="gensmall">Total Value</td><td class="contract-value">' + formatCurrency(contract.total_value) + '</td></tr>';
         html += '<tr class="row1"><td class="gensmall">Annual Value</td><td class="contract-value">' + formatCurrency(contract.annual_value) + '/yr</td></tr>';
         html += '<tr class="row2"><td class="gensmall">Years Remaining</td><td class="gensmall mono">' + (contract.years_remaining || '-') + '</td></tr>';

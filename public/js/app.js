@@ -286,7 +286,7 @@
                 var html = teamTipHtml(t);
                 if (html) { showTip(html, e); return; }
             }
-            el = e.target.closest('.league-badge');
+            el = e.target.closest('.league-text');
             if (el) {
                 var html = leagueTipHtml(el);
                 if (html) { showTip(html, e); return; }
@@ -299,9 +299,9 @@
         });
 
         document.body.addEventListener('mouseout', function(e) {
-            if (e.target.closest('a[href*="player.html"], a[href*="team.html"], .league-badge')) {
+            if (e.target.closest('a[href*="player.html"], a[href*="team.html"], .league-text')) {
                 var related = e.relatedTarget;
-                if (!related || (!related.closest('a[href*="player.html"]') && !related.closest('a[href*="team.html"]') && !related.closest('.league-badge'))) {
+                if (!related || (!related.closest('a[href*="player.html"]') && !related.closest('a[href*="team.html"]') && !related.closest('.league-text'))) {
                     hideTip();
                 }
             }
