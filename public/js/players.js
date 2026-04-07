@@ -222,13 +222,13 @@
         if (team) subtitle.push(renderTeamColorDot(team) + '<a href="team.html?id=' + team.id + '">' + team.name + '</a>');
         html += '<div class="pp-subtitle">' + subtitle.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
 
-        // Details line (under subtitle)
+        // Details line (under subtitle): country, age, physique, archetype, OVR
         var details = [];
-        if (player.height || player.weight) details.push((player.height || '-') + ', ' + (player.weight || '-') + ' lbs');
-        if (player.overall) details.push('OVR ' + renderOvrBar(player.overall));
-        if (player.archetype) details.push(player.archetype);
         if (player.nationality) details.push(renderFlag(player.nationality, 'large') + ' ' + player.nationality);
         if (player.birthdate) details.push('Age ' + renderAgeWithBirth(player.birthdate));
+        if (player.height || player.weight) details.push((player.height || '-') + ', ' + (player.weight || '-') + ' lbs');
+        if (player.archetype) details.push(player.archetype);
+        if (player.overall) details.push('OVR ' + renderOvrBar(player.overall));
         html += '<div class="pp-details-inline">' + details.join(' <span class="pp-dot">&middot;</span> ') + '</div>';
         html += '</div></div>';
 
