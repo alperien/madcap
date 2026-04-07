@@ -69,7 +69,7 @@
             html += '<td class="row-num">' + (i+1) + '</td>';
             if (EDIT_MODE) html += '<td class="tCenter"><input type="checkbox" class="bulk-checkbox" data-id="' + p.id + '"></td>';
             var pTipData = ' data-pname="' + p.name + '" data-ppos="' + (p.position||'-') + '" data-povr="' + (p.overall||'-') + '" data-page="' + (age||'-') + '" data-pht="' + (p.height||'-') + '" data-pwt="' + (p.weight||'-') + '" data-pteam="' + (team ? team.abbreviation : '-') + '" data-pppg="' + numStr(latestStats.ppg) + '" data-papg="' + numStr(latestStats.apg) + '" data-prpg="' + numStr(latestStats.rpg) + '" data-parch="' + (p.archetype||'-') + '"';
-            html += '<td>' + renderStatusDot(p.status) + renderAvatar(p, 'small') + renderFlag(p.nationality) + '<a href="player.html?id=' + p.id + '" class="player-link"' + pTipData + '>' + p.name + '</a>' + renderJerseyNum(p);
+            html += '<td>' + renderAvatar(p, 'small') + '<a href="player.html?id=' + p.id + '" class="player-link"' + pTipData + '>' + p.name + '</a>' + renderJerseyNum(p);
             if (p.is_fictional) html += ' <span class="fic" title="Fictional">*</span>';
             html += '</td>';
             html += '<td class="tCenter">' + renderPosBadge(p.position) + '</td>';
