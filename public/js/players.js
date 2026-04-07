@@ -712,6 +712,7 @@
                 html += '<div style="font-size:7px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:2px 0 1px;">' + tierLabels[tierKey] + '</div>';
                 html += '<div class="badge-grid">';
                 for (var b = 0; b < tierBadges.length; b++) {
+                    if (b > 0 && !EDIT_MODE) html += '<span class="badge-sep">,</span>';
                     html += renderBadgePill(tierBadges[b]);
                     if (EDIT_MODE) {
                         // Find original index in badges array
@@ -719,14 +720,18 @@
                         for (var bi = 0; bi < badges.length; bi++) {
                             if (badges[bi].name === tierBadges[b].name && badges[bi].tier === tierBadges[b].tier) { origIdx = bi; break; }
                         }
-                        if (origIdx >= 0) html += '<a href="#" onclick="deleteBadge(\'' + player.id + '\',' + origIdx + ');return false;" class="gensmall" style="color:var(--accent-red);font-size:7px;vertical-align:super;">x</a>';
+                        if (origIdx >= 0) html += '<a href="#" onclick="deleteBadge(\'' + player.id + '\',' + origIdx + ');return false;" class="gensmall" style="color:var(--accent-red);font-size:7px;margin:0 4px 0 1px;">x</a>';
+                        if (b < tierBadges.length - 1) html += '<span class="badge-sep">,</span>';
                     }
                 }
                 html += '</div>';
             }
             if (other.length > 0) {
                 html += '<div class="badge-grid" style="margin-top:2px;">';
-                for (var b = 0; b < other.length; b++) html += renderBadgePill(other[b]);
+                for (var b = 0; b < other.length; b++) {
+                    if (b > 0) html += '<span class="badge-sep">,</span>';
+                    html += renderBadgePill(other[b]);
+                }
                 html += '</div>';
             }
         } else {
